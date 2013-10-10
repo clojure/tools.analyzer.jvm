@@ -57,7 +57,8 @@
          :op :prim-invoke
          :prim-interface prim-interface
          :arg-tags arg-tags
-         :ret-tag ret-tag)
+         :ret-tag ret-tag
+         :tag (or tag ret-tag))
 
        :else
        ast))))

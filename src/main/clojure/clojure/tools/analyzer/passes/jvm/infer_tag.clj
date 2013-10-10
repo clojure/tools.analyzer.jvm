@@ -195,7 +195,7 @@
   [{:keys [form body params local] :as ast}]
   (let [annotated-tag (or (:tag (meta (first form)))
                           (:tag (meta (:form local))))
-        body-tag (:tag body)
+        body-tag (or (:tag body) (:ret-tag body))
         tag (or annotated-tag body-tag)]
     (merge ast
            (when tag
@@ -214,7 +214,7 @@
 
 (defmethod -infer-tag :invoke
   [{:keys [fn args] :as ast}]
-  (if (#{:var :local :fn} (:op fn))
+  (if (:arglists fn)
     (let [argc (count args)
           arglist (arglist-for-arity fn argc)
           tag (or (:tag (meta arglist)) ;; ideally we would select the fn-method
