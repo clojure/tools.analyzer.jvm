@@ -29,21 +29,21 @@
     ast))
 
 (defn clear-locals-around
-  [{:keys [path? branch?] :as ast}]
+  [{:keys [path?] :as ast}]
   (let [ast (-clear-locals ast)]
-    (if path?
+    (when path?
       (doseq [c (:clears *clears*)]
         (when ((:branch-clears *clears*) c)
-          (update! *clears* update-in [:clears] disj c)))
-      (when branch?
-        (update! *clears* update-in [:clears] into (:branch-clears *clears*))
-        (update! *clears* assoc :branch-clears #{})))
+          (update! *clears* update-in [:clears] disj c))))
     ast))
 
 (defn -propagate-closed-overs
-  [{:keys [op closed-overs] :as ast}]
+  [{:keys [op test? closed-overs] :as ast}]
   (when (#{:reify :fn :deftype} op)
     (update! *clears* assoc-in [:closes] (or closed-overs #{})))
+  (when test?
+    (update! *clears* update-in [:clears] into (:branch-clears *clears*))
+    (update! *clears* assoc :branch-clears #{}))
   ast)
 
 (defn clear-locals [ast]
