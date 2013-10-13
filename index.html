@@ -1,7 +1,7 @@
 <html>
   <head>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-    <title>nil - JVM-specific passes for tools.analyzer 0.0.1 API documentation</title>
+    <title>clojure.tools.analyzer.jvm - JVM-specific passes for tools.analyzer 0.0.1 API documentation</title>
     <link href="static/favicon.png" rel="icon" />
     <link href="static/favicon.png" rel="shortcut icon" />
     <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
@@ -52,19 +52,22 @@ namespace.
     <a href="#" style="margin-top: 3px;"></a>
     
   </div><div style="margin-left: 1em;" class="toc-section">
-    <a href="#" style="margin-top: 3px;"></a>
-    
+    <a href="#var-section" style="margin-top: 3px;">Vars and Functions</a>
+    <div style="margin-left: 1em;" class="toc-entry">
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm/analyze">analyze</a>
+      
+    </div>
   </div>
 </div>
 </div>
-                <div id="content-tag"><h1 id="overview">API for <span id=""></span>
+                <div id="content-tag"><h1 id="overview">API for <span id="clojure.tools.analyzer.jvm">clojure.tools.analyzer.jvm</span>
   - <span id="header-project">JVM-specific passes for tools.analyzer</span> <span id="header-version">0.0.1</span><span id="header-status-block"> (<span id="header-status">in development</span>)</span>
   </h1>
 
-<br />Full namespace name: <span id="long-name"></span>
+<br />Full namespace name: <span id="long-name">clojure.tools.analyzer.jvm</span>
 <p></p>
 <h2>Overview</h2>
-
+<div id="home-page">Project home page is <a href="http://github.com/clojure/tools.analyzer.jvm/">http://github.com/clojure/tools.analyzer.jvm/</a></div>
 <pre id="namespace-docstr"></pre>
 
 
@@ -72,7 +75,25 @@ namespace.
 
 
 
-
+<div id="var-section">
+  <p></p>
+  <h2>Public Variables and Functions</h2>
+  <div id="var-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.jvm/analyze">analyze</h2>
+    <span id="var-type">function</span><br />
+    <pre id="var-usage">Usage: (analyze form env)
+</pre>
+    <pre id="var-docstr">Given an environment, a map containing
+  -  :locals (mapping of names to lexical bindings),
+  -  :context (one of :statement, :expr or :return
+and form, returns an expression object (a map containing at least :form, :op and :env keys).</pre>
+    
+    
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/dfffcf55b48eae208bedfaa47477f14b854e87dc/src/main/clojure/clojure/tools/analyzer/jvm.clj#L271" id="var-source">Source</a>
+  </div>
+</div>
 
 
 </div>
