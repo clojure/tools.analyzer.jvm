@@ -10,7 +10,8 @@
   (:require [clojure.tools.analyzer.jvm.utils :refer [unbox maybe-class]]
             [clojure.tools.analyzer.passes :refer [prewalk]]
             [clojure.tools.analyzer.utils :refer [update!]])
-  (:import (clojure.lang IPersistentMap IPersistentSet ISeq Var ArraySeq)))
+  (:import (clojure.lang IPersistentMap IPersistentSet ISeq Var ArraySeq
+                         PersistentTreeMap PersistentTreeSet)))
 
 (defmulti -annotate-literal-tag :op)
 (defmethod -annotate-literal-tag :default
@@ -20,12 +21,16 @@
     ast))
 
 (defmethod -annotate-literal-tag :map
-  [ast]
-  (assoc ast :tag IPersistentMap))
+  [{:keys [form] :as ast}]
+  (if (sorted? form)
+    (assoc ast :tag PersistentTreeMap)
+    (assoc ast :tag IPersistentMap)))
 
 (defmethod -annotate-literal-tag :set
-  [ast]
-  (assoc ast :tag IPersistentSet))
+  [{:keys [form] :as ast}]
+  (if (sorted? form)
+    (assoc ast :tag PersistentTreeSet)
+    (assoc ast :tag IPersistentSet)))
 
 (defmethod -annotate-literal-tag :seq
   [ast]
