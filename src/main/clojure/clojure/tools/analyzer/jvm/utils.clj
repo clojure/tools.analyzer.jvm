@@ -181,4 +181,9 @@
 (defn prim-interface [tags]
   (when (some primitive? tags)
     (let [sig (apply str (mapv #(.toUpperCase (subs (.getSimpleName ^Class %) 0 1)) tags))]
-      (maybe-class (str "clojure.lang.IFn$" sig)))))
+      (or (maybe-class (str "clojure.lang.IFn$" sig))
+          (let [[r-tag & tags] tags]
+            (eval
+             `(gen-interface :name ~(symbol (str "clojure.lang.IFn$" sig))
+                             :methods ~[['invokePrim (mapv prim-or-obj tags) (prim-or-obj r-tag)]]))
+            (maybe-class (str "clojure.lang.IFn$" sig)))))))
