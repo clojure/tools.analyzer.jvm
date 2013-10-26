@@ -180,5 +180,5 @@
 
 (defn prim-interface [tags]
   (when (some primitive? tags)
-    (let [sig (apply str (mapv #(.toUpperCase (subs (.getName ^Class %) 0 1)) tags))]
+    (let [sig (apply str (mapv #(.toUpperCase (subs (.getSimpleName ^Class %) 0 1)) tags))]
       (maybe-class (str "clojure.lang.IFn$" sig)))))
