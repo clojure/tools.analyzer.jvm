@@ -178,12 +178,18 @@
     tag
     java.lang.Object))
 
+(defn class-sig [class]
+  (if (= Boolean/TYPE class)
+    "X"
+    (.toUpperCase (subs (.getSimpleName ^Class %) 0 1))))
+
 (defn prim-interface [tags]
   (when (some primitive? tags)
-    (let [sig (apply str (mapv #(.toUpperCase (subs (.getSimpleName ^Class %) 0 1)) tags))]
+    (let [tags (mapv prim-or-obj tags)
+          sig (apply str (mapv class-sig tags))]
       (or (maybe-class (str "clojure.lang.IFn$" sig))
           (let [[r-tag & tags] tags]
             (eval
              `(gen-interface :name ~(symbol (str "clojure.lang.IFn$" sig))
-                             :methods ~[['invokePrim (mapv prim-or-obj tags) (prim-or-obj r-tag)]]))
+                             :methods ~[['invokePrim tags r-tag]]))
             (maybe-class (str "clojure.lang.IFn$" sig)))))))
