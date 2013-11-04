@@ -295,11 +295,11 @@
       ((fn analyze [ast]
          (-> ast
            (postwalk
-            (comp (cycling infer-tag analyze-host-expr annotate-binding-tag validate)
+            (comp (cycling infer-tag analyze-host-expr annotate-binding-tag
+                        validate classify-invoke)
                annotate-literal-tag)) ;; not necesary, select on v-l-l
            (prewalk
             (comp box
-               classify-invoke
                (validate-loop-locals analyze)))))) ;; empty binding atom
 
       (prewalk
