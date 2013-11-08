@@ -149,10 +149,10 @@
 
 (defmethod parse 'clojure.core/import*
   [[_ class :as form] env]
-  {:op          :import
-   :env         env
-   :form        form
-   :maybe-class class})
+  {:op    :import
+   :env   env
+   :form  form
+   :class class})
 
 (defn analyze-method-impls
   [[name [this & params :as args] & body :as form] env]

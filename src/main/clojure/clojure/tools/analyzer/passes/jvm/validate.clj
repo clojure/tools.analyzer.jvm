@@ -15,29 +15,29 @@
 (defmulti -validate :op)
 
 (defmethod -validate :maybe-class
-  [{:keys [maybe-class env] :as ast}]
-  (if-let [the-class (u/maybe-class maybe-class)]
+  [{:keys [class env] :as ast}]
+  (if-let [the-class (u/maybe-class class)]
     (assoc (-analyze :const the-class env :class)
       :tag Class)
-    (if (.contains (str maybe-class) ".") ;; try and be smart for the exception
-      (throw (ex-info (str "class not found: " maybe-class)
-                      {:class maybe-class}))
-      (throw (ex-info (str "could not resolve var: " maybe-class)
-                      {:var maybe-class})))))
+    (if (.contains (str class) ".") ;; try and be smart for the exception
+      (throw (ex-info (str "class not found: " class)
+                      {:class class}))
+      (throw (ex-info (str "could not resolve var: " class)
+                      {:var class})))))
 
 (defmethod -validate :maybe-host-form
-  [{:keys [maybe-class]}]
-  (throw (ex-info (str "No such namespace: " maybe-class)
-                  {:ns maybe-class})))
+  [{:keys [class]}]
+  (throw (ex-info (str "No such namespace: " class)
+                  {:ns class})))
 
 (defmethod -validate :catch
-  [{:keys [maybe-class] :as ast}]
-  (if maybe-class
-    (if-let [the-class (u/maybe-class maybe-class)]
-      (assoc (dissoc ast :maybe-class)
-        :class the-class)
-      (throw (ex-info (str "class not found: " maybe-class)
-                      {:class maybe-class})))
+  [{:keys [class validated?] :as ast}]
+  (if-not validated?
+    (if-let [the-class (u/maybe-class class)]
+      (assoc :class the-class
+             :validated? true)
+      (throw (ex-info (str "class not found: " class)
+                      {:class class})))
     ast))
 
 (defmethod -validate :set!
@@ -76,13 +76,11 @@
         methods))))
 
 (defn validate-class
-  [{:keys [maybe-class args] :as ast}]
-  (if maybe-class
-    (if-let [the-class (u/maybe-class maybe-class)]
-      (assoc (dissoc ast :maybe-class) :class the-class)
-      (throw (ex-info (str "class not found: " maybe-class)
-                      {:class maybe-class})))
-    ast))
+  [{:keys [class] :as ast}]
+  (if-let [the-class (u/maybe-class class)]
+    (assoc ast :class the-class)
+    (throw (ex-info (str "class not found: " class)
+                    {:class class}))))
 
 (defmethod -validate :new
   [{:keys [validated?] :as ast}]
@@ -150,13 +148,13 @@
     ast))
 
 (defmethod -validate :import
-  [{:keys [maybe-class] :as ast}]
-  (if maybe-class
-    (if-let [the-class (u/maybe-class maybe-class)]
-      (assoc (dissoc ast :maybe-class)
-        :class the-class)
-      (throw (ex-info (str "class not found: " maybe-class)
-                      {:class maybe-class})))
+  [{:keys [class validated?] :as ast}]
+  (if-not validated?
+    (if-let [the-class (u/maybe-class class)]
+      (assoc :class the-class
+             :validated? true)
+      (throw (ex-info (str "class not found: " class)
+                      {:class class})))
     ast))
 
 (defn validate-tag [tag]
