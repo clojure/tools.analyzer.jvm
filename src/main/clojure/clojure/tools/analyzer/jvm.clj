@@ -10,7 +10,7 @@
   (:refer-clojure :exclude [macroexpand-1 macroexpand])
   (:require [clojure.tools.analyzer
              :as ana
-             :refer [analyze parse analyze-in-env wrapping-meta analyze-fn-method]
+             :refer [analyze analyze-in-env wrapping-meta analyze-fn-method]
              :rename {analyze -analyze}]
             [clojure.tools.analyzer.utils :refer [ctx maybe-var]]
             [clojure.tools.analyzer.passes :refer [walk prewalk postwalk cycling]]
@@ -38,6 +38,12 @@
 (def specials
   (into ana/specials
         '#{var monitor-enter monitor-exit clojure.core/import* reify* deftype* case*}))
+
+(defmulti parse (fn [[op & rest] env] op))
+
+(defmethod parse :default
+  [form env]
+  (ana/-parse form env))
 
 (defn empty-env []
   {:context :expr :locals {} :ns (ns-name *ns*)
@@ -275,7 +281,8 @@
  and form, returns an expression object (a map containing at least :form, :op and :env keys)."
   [form env]
   (binding [ana/macroexpand-1 macroexpand-1
-            ana/create-var create-var]
+            ana/create-var    create-var
+            ana/parse         parse]
     (-> (-analyze form env)
 
       uniquify-locals
