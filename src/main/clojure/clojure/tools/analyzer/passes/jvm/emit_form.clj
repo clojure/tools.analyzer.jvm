@@ -7,13 +7,19 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.emit-form
-  (:require [clojure.tools.analyzer.passes.emit-form :refer [-emit-form]]))
+  (:require [clojure.tools.analyzer.passes.emit-form :as default]))
+
+(defmulti -emit-form (fn [{:keys [op]} _] op))
 
 (defn emit-form [ast]
   (-emit-form ast false))
 
 (defn emit-hygienic-form [ast]
   (-emit-form ast true))
+
+(defmethod -emit-form :default
+  [ast hygienic?]
+  (default/-emit-form ast hygienic?))
 
 (defmethod -emit-form :monitor-enter
   [{:keys [target]} hygienic?]
