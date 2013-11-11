@@ -33,7 +33,9 @@
 (defmethod -validate :catch
   [{:keys [class validated?] :as ast}]
   (if-not validated?
-    (if-let [the-class (u/maybe-class class)]
+    (if-let [the-class (or (u/maybe-class class)
+                           (and (= :default class)
+                                Throwable))]
       (assoc :class the-class
              :validated? true)
       (throw (ex-info (str "class not found: " class)
@@ -158,7 +160,9 @@
     ast))
 
 (defn validate-tag [tag]
-  (if-let [the-class (u/maybe-class tag)]
+  (if-let [the-class (or (u/maybe-class tag)
+                         (and (= :default tag)
+                              Throwable))]
     the-class
     (throw (ex-info (str "class not found: " tag)
                     {:class tag}))))
