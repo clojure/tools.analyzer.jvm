@@ -36,8 +36,9 @@
     (if-let [the-class (or (u/maybe-class class)
                            (and (= :default class)
                                 Throwable))]
-      (assoc :class the-class
-             :validated? true)
+      (assoc ast
+        :class the-class
+        :validated? true)
       (throw (ex-info (str "class not found: " class)
                       {:class class})))
     ast))
