@@ -274,6 +274,12 @@
      :skip-check? skip-check?
      :children    [:test :tests :thens :default]}))
 
+
+(defmethod parse 'catch
+  [[_ etype ename & body :as form] env]
+  (let [etype (if (= etype :default) Throwable etype)]
+    (ana/-parse `(catch ~etype ~ename ~@body) env)))
+
 (defn analyze
   "Given an environment, a map containing
    -  :locals (mapping of names to lexical bindings),
