@@ -60,7 +60,7 @@
     (let [casts (:loop-locals-casts env)]
       (assoc ast
         :exprs (mapv (fn [e c]
-                       (if c (assoc e :tag c) c))
+                       (if c (assoc e :tag c) e))
                      exprs (vals casts))))
     ast))
 
