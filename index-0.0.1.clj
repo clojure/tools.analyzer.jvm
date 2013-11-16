@@ -1,6 +1,6 @@
 {:namespaces
  ({:source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/56157c6b3b6024eaaff476808f0e999a37163e82/src/main/clojure/clojure/tools/analyzer/jvm.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/e07dca81ce1dd6f13a73e9b72b1939ecabb20d49/src/main/clojure/clojure/tools/analyzer/jvm.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm/clojure.tools.analyzer.jvm-api.html",
    :name "clojure.tools.analyzer.jvm",
@@ -10,9 +10,9 @@
    :name "analyze",
    :namespace "clojure.tools.analyzer.jvm",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/56157c6b3b6024eaaff476808f0e999a37163e82/src/main/clojure/clojure/tools/analyzer/jvm.clj#L283",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/e07dca81ce1dd6f13a73e9b72b1939ecabb20d49/src/main/clojure/clojure/tools/analyzer/jvm.clj#L283",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/56157c6b3b6024eaaff476808f0e999a37163e82/src/main/clojure/clojure/tools/analyzer/jvm.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/e07dca81ce1dd6f13a73e9b72b1939ecabb20d49/src/main/clojure/clojure/tools/analyzer/jvm.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm/analyze",
    :doc
