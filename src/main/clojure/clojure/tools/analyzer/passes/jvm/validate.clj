@@ -152,8 +152,8 @@
   [{:keys [class validated?] :as ast}]
   (if-not validated?
     (if-let [the-class (u/maybe-class class)]
-      (assoc :class the-class
-             :validated? true)
+      (assoc ast :class the-class
+                 :validated? true)
       (throw (ex-info (str "class not found: " class)
                       {:class class})))
     ast))
