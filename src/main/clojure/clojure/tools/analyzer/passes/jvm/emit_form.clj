@@ -23,11 +23,11 @@
 
 (defmethod -emit-form :monitor-enter
   [{:keys [target]} hygienic?]
-  `(monitor-enter ~target))
+  `(monitor-enter ~(-emit-form target hygienic?)))
 
 (defmethod -emit-form :monitor-exit
   [{:keys [target]} hygienic?]
-  `(monitor-exit ~target))
+  `(monitor-exit ~(-emit-form target hygienic?)))
 
 (defmethod -emit-form :import
   [{:keys [class]} hygienic?]
