@@ -4,6 +4,8 @@
             [clojure.tools.analyzer.jvm :as ana.jvm]
             [clojure.test :refer [deftest is]]))
 
+(defprotocol p (f [_]))
+(defn f1 [^long x])
 (def e (ana.jvm/empty-env))
 
 (defmacro ast [form]

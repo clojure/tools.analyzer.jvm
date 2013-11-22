@@ -4,16 +4,19 @@
             [clojure.test :refer [deftest is]]
             [clojure.set :as set]
             [clojure.tools.analyzer.passes.add-binding-atom :refer [add-binding-atom]]
-            [clojure.tools.analyzer.jvm.core-test :refer [ast e]]
+            [clojure.tools.analyzer.jvm.core-test :refer [ast e f f1]]
             [clojure.tools.analyzer.passes.jvm.emit-form
              :refer [emit-form emit-hygienic-form]]
             [clojure.tools.analyzer.passes.jvm.validate :refer [validate]]
             [clojure.tools.analyzer.passes.jvm.annotate-tag
              :refer [annotate-literal-tag annotate-binding-tag]]
             [clojure.tools.analyzer.passes.jvm.clear-locals :refer [clear-locals]]
+            [clojure.tools.analyzer.passes.jvm.infer-tag :refer [infer-tag]]
             [clojure.tools.analyzer.passes.jvm.annotate-branch :refer [annotate-branch]]
+            [clojure.tools.analyzer.passes.jvm.annotate-methods :refer [annotate-methods]]
             [clojure.tools.analyzer.passes.jvm.fix-case-test :refer [fix-case-test]]
-            [clojure.tools.analyzer.passes.jvm.analyze-host-expr :refer [analyze-host-expr]])
+            [clojure.tools.analyzer.passes.jvm.analyze-host-expr :refer [analyze-host-expr]]
+            [clojure.tools.analyzer.passes.jvm.classify-invoke :refer [classify-invoke]])
   (:import (clojure.lang PersistentVector IPersistentMap
                          IPersistentSet ISeq Keyword Var
                          Symbol AFunction)
@@ -79,3 +82,22 @@
   (is (= Pattern (-> (ast #"foo") annotate-literal-tag :tag)))
   (is (= Var (-> (ast #'+)  annotate-literal-tag :tag)))
   (is (= Boolean (-> (ast true) annotate-literal-tag :tag))))
+
+(deftest annotate-binding-tag-test
+  (let [b-ast (-> (ast (let [a 1] a)) add-binding-atom
+                (postwalk annotate-literal-tag)
+                (postwalk annotate-binding-tag))]
+   (is (= Long/TYPE (-> b-ast :body :ret :tag)))))
+
+(deftest classify-invoke-test
+  (is (= :keyword-invoke (-> (ast (:foo {})) classify-invoke :op)))
+  (is (= :protocol-invoke (-> (ast (f nil)) classify-invoke :op)))
+  (is (= :instance? (-> (ast (instance? String ""))
+                      (prewalk validate) classify-invoke :op)))
+  (is (= :prim-invoke (-> (ast (f1 1)) (prewalk infer-tag) classify-invoke :op))))
+
+(deftest annotate-methods-test
+  (let [r-ast (-> (ast (reify Object (toString [_] ""))) (prewalk annotate-methods))]
+    (is (= 'toString (-> r-ast :expr :methods first :name)))
+    (is (= [] (-> r-ast :expr :methods first :params)))
+    (is (= '_ (-> r-ast :expr :methods first :this :name)))))
