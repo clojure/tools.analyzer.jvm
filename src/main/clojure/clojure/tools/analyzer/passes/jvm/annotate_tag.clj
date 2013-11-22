@@ -11,7 +11,7 @@
             [clojure.tools.analyzer.passes :refer [prewalk]]
             [clojure.tools.analyzer.utils :refer [update!]])
   (:import (clojure.lang IPersistentMap IPersistentSet ISeq Var ArraySeq
-                         PersistentTreeMap PersistentTreeSet)))
+                         PersistentTreeMap PersistentTreeSet PersistentVector)))
 
 (defmulti -annotate-literal-tag :op)
 (defmethod -annotate-literal-tag :default
@@ -31,6 +31,10 @@
   (if (sorted? form)
     (assoc ast :tag PersistentTreeSet)
     (assoc ast :tag IPersistentSet)))
+
+(defmethod -annotate-literal-tag :vector
+  [ast]
+  (assoc ast :tag PersistentVector))
 
 (defmethod -annotate-literal-tag :seq
   [ast]
