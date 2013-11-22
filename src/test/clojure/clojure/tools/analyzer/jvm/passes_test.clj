@@ -4,7 +4,7 @@
             [clojure.test :refer [deftest is]]
             [clojure.set :as set]
             [clojure.tools.analyzer.passes.add-binding-atom :refer [add-binding-atom]]
-            [clojure.tools.analyzer.jvm.core-test :refer [ast e f f1]]
+            [clojure.tools.analyzer.jvm.core-test :refer [ast ast1 e f f1]]
             [clojure.tools.analyzer.passes.jvm.emit-form
              :refer [emit-form emit-hygienic-form]]
             [clojure.tools.analyzer.passes.jvm.validate :refer [validate]]
@@ -101,3 +101,43 @@
     (is (= 'toString (-> r-ast :expr :methods first :name)))
     (is (= [] (-> r-ast :expr :methods first :params)))
     (is (= '_ (-> r-ast :expr :methods first :this :name)))))
+
+;; TODO: test primitives, tag matching, throwing validation, method validationbel
+(deftest validate-test
+  (is (= String (-> (ast String) validate :form)))
+  (is (= Exception (-> (ast (try (catch Exception e)))
+                     (prewalk validate) :catches first :class)))
+  (is (-> (ast (set! *warn-on-reflection* true)) validate))
+  (is (= true (-> (ast (String. "foo")) (postwalk annotate-literal-tag) validate
+              :validated?)))
+
+  (let [s-ast (-> (ast (Integer/parseInt "7")) (prewalk annotate-literal-tag) analyze-host-expr validate)]
+    (is (:validated? s-ast))
+    (is (= Integer/TYPE (:ret-tag s-ast)))
+    (is (= [String] (mapv :tag (:args s-ast)))))
+
+  (let [i-ast (-> (ast (.hashCode "7")) (prewalk annotate-literal-tag) analyze-host-expr validate)]
+    (is (:validated? i-ast))
+    (is (= Integer/TYPE (:ret-tag i-ast)))
+    (is (= [] (mapv :tag (:args i-ast))))
+    (is (= String (:class i-ast))))
+
+  (is (= true (-> (ast (import String)) (prewalk validate) :ret :validated?))))
+
+;; we need all or most those passes to perform those tests
+(deftest all-passes-test
+  (let [t-ast (ast1 (let [a 1
+                          b 2
+                          c (str a)
+                          d (Integer/parseInt c b)]
+                      (Integer/getInteger c d)))]
+    (is (= Integer (-> t-ast :body :ret :tag)))
+    (is (= Integer (-> t-ast :tag)))
+    (is (= Long/TYPE (->> t-ast :bindings (filter #(= 'a (:form %))) first :tag)))
+    (is (= String (->> t-ast :bindings (filter #(= 'c (:form %))) first :tag)))
+    (is (= Integer/TYPE (->> t-ast :bindings (filter #(= 'd (:form %))) first :tag))))
+  (is (= Void/TYPE (:tag (ast1 (.println System/out "foo")))))
+
+  (let [d-ast (ast1 (Double/isInfinite 2))]
+    (is (= Boolean/TYPE (-> d-ast :tag)))
+    (is (= Double/TYPE (->> d-ast :args first :tag)))))

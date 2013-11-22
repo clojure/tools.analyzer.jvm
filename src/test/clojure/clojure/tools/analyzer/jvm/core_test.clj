@@ -14,6 +14,12 @@
              ana/parse         ana.jvm/parse]
      (ana/analyze '~form e)))
 
+(defmacro ast1 [form]
+  `(binding [ana/macroexpand-1 ana.jvm/macroexpand-1
+             ana/create-var    ana.jvm/create-var
+             ana/parse         ana.jvm/parse]
+     (ana.jvm/analyze '~form e)))
+
 (defmacro mexpand [form]
   `(ana.jvm/macroexpand-1 '~form e))
 
