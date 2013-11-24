@@ -8,7 +8,10 @@
 
 (ns clojure.tools.analyzer.passes.jvm.fix-case-test)
 
-(defn fix-case-test [ast]
+(defn fix-case-test
+  "If the node is a :case-test, annotates in the atom shared
+   by the binding and the local node :case-test"
+  [ast]
   (when (:case-test ast)
     (swap! (:atom ast) assoc :case-test true))
   ast)

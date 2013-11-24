@@ -12,6 +12,16 @@
              :refer [maybe-class prim-or-obj primitive? prim-interface]]))
 
 (defn classify-invoke
+  "If the AST node is an :invoke, check the node in function position,
+   * if it is a keyword, transform the node in a :keyword-invoke node;
+   * if it is the clojure.core/instance? var and the first argument is a
+     literal class, transform the node in a :instance? node to be inlined by
+     the emitter
+   * if it is a protocol function var, transform the node in a :protocol-invoke
+     node
+   * if it is a regular function with primitive type hints that match a
+     clojure.lang.IFn$[primitive interface], transform the node in a :prim-invoke
+     node"
   [{:keys [op args tag env fn form] :as ast}]
   (if-not (= op :invoke)
     ast

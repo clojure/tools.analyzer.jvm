@@ -10,6 +10,8 @@
   (:require [clojure.tools.analyzer.jvm.utils :refer [type-reflect]]))
 
 (defn annotate-methods
+  "Adds a :methods key to reify/deftype :methods info representing
+   the reflected informations  for the required methods."
   [{:keys [op methods interfaces] :as ast}]
   (case op
     (:reify :deftype)
@@ -26,8 +28,8 @@
                         (conj interfaces Object)))]
       (assoc ast :methods (mapv (fn [{:keys [name params] :as ast}]
                                   (let [argc (count params)]
-                                   (assoc ast :methods
-                                          (filter #(and (= name (:name %))
-                                                        (= argc (count (:parameter-types %))))
-                                                  all-methods)))) methods)))
+                                    (assoc ast :methods
+                                           (filter #(and (= name (:name %))
+                                                         (= argc (count (:parameter-types %))))
+                                                   all-methods)))) methods)))
     ast))

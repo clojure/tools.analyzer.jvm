@@ -8,7 +8,12 @@
 
 (ns clojure.tools.analyzer.passes.jvm.annotate-branch)
 
-(defmulti annotate-branch :op)
+(defmulti annotate-branch
+  "Adds :branch? to branch AST nodes (if/case), :test? to the test children
+   node of the branching op and :path? to the branching paths.
+
+   Example: {:op if :branch? true :test {:test? true ..} :then {:path? true ..} ..}"
+  :op)
 
 (defmethod annotate-branch :if
   [ast]

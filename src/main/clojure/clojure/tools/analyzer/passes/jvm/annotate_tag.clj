@@ -13,7 +13,11 @@
   (:import (clojure.lang IPersistentMap IPersistentSet ISeq Var ArraySeq
                          PersistentTreeMap PersistentTreeSet PersistentVector)))
 
-(defmulti -annotate-literal-tag :op)
+(defmulti -annotate-literal-tag
+  "If the AST node type is a constant object, attach a :tag field to the
+   node representing the form type."
+  :op)
+
 (defmethod -annotate-literal-tag :default
   [{:keys [op form] :as ast}]
   (if (= :const op)
@@ -70,10 +74,13 @@
     (assoc ast :tag tag)
     (-annotate-literal-tag ast)))
 
-(defmulti annotate-binding-tag :op)
+(defmulti annotate-binding-tag
+  "Assocs the correct tag to local bindings, needs to be run after
+   annotate-literal-tag and add-binding-atom, in conjuction with infer-tag"
+  :op)
+
 (defmethod annotate-binding-tag :default [ast] ast)
 
-;; after a-l-t, add-binding-atom, after cycling
 (defmethod annotate-binding-tag :binding
   [{:keys [form init local name atom variadic?] :as ast}]
   (if-let [tag (and (not (:case-test @atom))

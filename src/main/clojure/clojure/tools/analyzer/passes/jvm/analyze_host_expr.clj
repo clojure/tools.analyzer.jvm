@@ -107,6 +107,11 @@
        :children    [:target]})))
 
 (defn analyze-host-expr
+  "Performing some reflection, transforms :host-interop/:host-call/:host-field
+   nodes in either: :static-field, :static-call, :instance-call, :instance-field
+   or :host-interop nodes.
+
+   A :host-interop node represents either an instance-field or a no-arg instance-method."
   [{:keys [op form tag env] :as ast}]
   (if (#{:host-interop :host-call :host-field} op)
     (let [target (:target ast)

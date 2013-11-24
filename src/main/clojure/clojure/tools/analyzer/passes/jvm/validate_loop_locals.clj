@@ -68,5 +68,8 @@
   [_ ast]
   ast)
 
-(defn validate-loop-locals [analyze]
+(defn validate-loop-locals
+  "Returns a pass that validates the loop locals, calling analyze on the loop AST when
+   a mismatched loop-local is found"
+  [analyze]
   (fn [ast] (-validate-loop-locals analyze ast)))

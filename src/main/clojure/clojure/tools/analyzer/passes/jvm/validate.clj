@@ -242,6 +242,9 @@
 (defmethod -validate :default [ast] ast)
 
 (defn validate
+  "Validate tags, classes, method calls.
+   Throws exceptions when invalid forms are encountered, replaces
+   class symbols with class objects."
   [{:keys [tag ret-tag bind-tag return-tag] :as ast}]
   (let [ast (merge ast
                    (when tag

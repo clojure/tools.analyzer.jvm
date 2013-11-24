@@ -51,6 +51,10 @@
     (update! *clears* assoc :branch-clears #{}))
   ast)
 
-(defn clear-locals [ast]
+(defn clear-locals
+  "Walks the AST and injects :to-clear? to local nodes in a position suitable for
+   their clearing (this means that they are in the last reachable position for the
+   branch they are in)"
+  [ast]
   (binding [*clears* *clears*]
     (walk ast -propagate-closed-overs clear-locals-around :reversed)))

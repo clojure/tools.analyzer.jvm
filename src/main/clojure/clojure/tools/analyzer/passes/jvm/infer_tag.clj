@@ -247,6 +247,7 @@
   (assoc ast :tag (:tag target)))
 
 (defn infer-tag
+  "Performs local type inference on the AST"
   [{:keys [tag form] :as ast}]
   (if-let [form-tag (and form
                          (:tag (meta form)))]

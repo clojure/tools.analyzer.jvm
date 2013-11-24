@@ -10,7 +10,9 @@
   (:require [clojure.tools.analyzer.jvm.utils :as u])
   (:require [clojure.tools.analyzer.utils :refer [protocol-node? arglist-for-arity]]))
 
-(defmulti box :op)
+(defmulti box
+  "Box the AST node tag where necessary"
+  :op)
 
 (defmacro if-let-box [class then else]
   `(let [c# ~class
