@@ -7,6 +7,7 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.jvm
+  "Analyzer for clojure code, extends tools.analyzer with JVM specific passes/forms"
   (:refer-clojure :exclude [macroexpand-1 macroexpand])
   (:require [clojure.tools.analyzer
              :as ana
@@ -36,18 +37,24 @@
             [clojure.tools.analyzer.passes.jvm.analyze-host-expr :refer [analyze-host-expr]]))
 
 (def specials
+  "Set of the special forms for clojure in the JVM"
   (into ana/specials
         '#{var monitor-enter monitor-exit clojure.core/import* reify* deftype* case*}))
 
-(defmulti parse (fn [[op & rest] env] op))
+(defmulti parse
+  "Extension to tools.analyzer/-parse for JVM special forms"
+  (fn [[op & rest] env] op))
 
 (defmethod parse :default
   [form env]
   (ana/-parse form env))
 
-(defn empty-env []
+(defn empty-env
+  "Returns an empty env map"
+  []
   {:context :expr :locals {} :ns (ns-name *ns*)
    :namespaces (atom
+                ;; TODO: reify IPersistentMap so that it reflects runtime edits
                 (into {} (mapv #(vector (ns-name %)
                                         {:mappings (ns-map %)
                                          :aliases  (reduce-kv (fn [a k v] (assoc a k (ns-name v)))
@@ -98,7 +105,10 @@
 
    :else form))
 
-(defn macroexpand-1 [form env]
+(defn macroexpand-1
+  "If form represents a macro form or an inlineable function,
+   returns its expansion, else returns form."
+  [form env]
   (if (seq? form)
     (let [op (first form)]
       (if (specials op)
@@ -125,7 +135,10 @@
            (desugar-host-expr form env)))))
     (desugar-host-expr form env)))
 
-(defn create-var [sym {:keys [ns]}]
+(defn create-var
+  "Creates a Var for sym and returns it.
+   The Var gets interned in the env namespace."
+  [sym {:keys [ns]}]
   (intern ns sym))
 
 (defmethod parse 'var
@@ -281,10 +294,32 @@
     (ana/-parse `(catch ~etype ~ename ~@body) env)))
 
 (defn analyze
-  "Given an environment, a map containing
-   -  :locals (mapping of names to lexical bindings),
-   -  :context (one of :statement, :expr or :return
- and form, returns an expression object (a map containing at least :form, :op and :env keys)."
+  "Returns an AST for the form that's compatible with what tools.emitter.jvm requires.
+
+   Binds tools.analyzer/{macroexpand-1,create-var,parse} to
+   tools.analyzer.jvm/{macroexpand-1,create-var,parse} and calls
+   tools.analyzer/analyzer on form.
+
+   Applies the following passes in the correct order to the returning AST:
+   * uniquify
+   * add-binding-atom
+   * cleanup
+   * source-info
+   * elide-meta
+   * constant-lifter
+   * warn-earmuff
+   * collect
+   * jvm.box
+   * jvm.annotate-branch
+   * jvm.annotate-methods
+   * jvm.fix-case-test
+   * jvm.clear-locals
+   * jvm.classify-invoke
+   * jvm.validate
+   * jvm.infer-tag
+   * jvm.annotate-tag
+   * jvm.validate-loop-locals
+   * jvm.analyze-host-expr"
   [form env]
   (binding [ana/macroexpand-1 macroexpand-1
             ana/create-var    create-var
