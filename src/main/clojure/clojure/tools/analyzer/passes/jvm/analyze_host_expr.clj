@@ -94,19 +94,19 @@
                            [(maybe-instance-field target-expr target-class m-or-f)
                             (maybe-instance-method target-expr target-class m-or-f)]))]
     (cond
-     (or (and field method)
-         (not (or class target-class)))
+
+     (not (or class target-class))
      {:op          :host-interop
       :target      target-expr
       :m-or-f      m-or-f
       :assignable? true
       :children    [:target]}
 
-     field
-     field
+     method
+     method
 
-     method
-     method
+     field
+     field
 
      class
      (throw (ex-info (str "cannot find field or no-arg method call "
