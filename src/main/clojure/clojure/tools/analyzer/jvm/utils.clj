@@ -132,7 +132,9 @@
                   box
                   (type-reflect :ancestors true)
                   :members)]
-    (when-let [members (filter #(= member (:name %)) members)]
+    (when-let [members (filter #(and (= member (:name %))
+                                     (not (:private (:flags %))))
+                               members)]
       members)))
 
 (defn static-members [class f]

@@ -86,25 +86,39 @@
 
 (defn -analyze-host-expr
   [target-type m-or-f target-expr class env]
-  (if class
-    (or (maybe-static-field (list '. class m-or-f))
-        (maybe-static-method (list '. class m-or-f))
-        (throw (ex-info (str "cannot find field or no-arg method call "
-                             m-or-f " for class " class)
-                        {:class  class
-                         :m-or-f m-or-f})))
-    (if-let [class (maybe-class (-> target-expr :tag))]
-      (or (maybe-instance-field target-expr class m-or-f)
-          (maybe-instance-method target-expr class m-or-f)
-          (throw (ex-info (str "cannot find field or no-arg method call "
-                               m-or-f " for class " class)
-                          {:instance target-expr
-                           :m-or-f   m-or-f})))
-      {:op          :host-interop
-       :target      target-expr
-       :m-or-f      m-or-f
-       :assignable? true
-       :children    [:target]})))
+  (let [target-class (maybe-class (-> target-expr :tag))
+        [field method] (if class
+                         [(maybe-static-field (list '. class m-or-f))
+                          (maybe-static-method (list '. class m-or-f))]
+                         (when target-class
+                           [(maybe-instance-field target-expr target-class m-or-f)
+                            (maybe-instance-method target-expr target-class m-or-f)]))]
+    (cond
+     (or (and field method)
+         (not (or class target-class)))
+     {:op          :host-interop
+      :target      target-expr
+      :m-or-f      m-or-f
+      :assignable? true
+      :children    [:target]}
+
+     field
+     field
+
+     method
+     method
+
+     class
+     (throw (ex-info (str "cannot find field or no-arg method call "
+                          m-or-f " for class " class)
+                     {:class  class
+                      :m-or-f m-or-f}))
+
+     target-class
+     (throw (ex-info (str "cannot find field or no-arg method call "
+                          m-or-f " for class " target-class)
+                     {:instance target-expr
+                      :m-or-f   m-or-f})))))
 
 (defn analyze-host-expr
   "Performing some reflection, transforms :host-interop/:host-call/:host-field
