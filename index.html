@@ -56,6 +56,21 @@ namespace.
     <div style="margin-left: 1em;" class="toc-entry">
       <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm/analyze">analyze</a>
       
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm/create-var">create-var</a>
+      
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm/empty-env">empty-env</a>
+      
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm/macroexpand-1">macroexpand-1</a>
+      
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm/parse">parse</a>
+      
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm/specials">specials</a>
+      
     </div>
   </div>
 </div>
@@ -68,7 +83,7 @@ namespace.
 <p></p>
 <h2>Overview</h2>
 <div id="home-page">Project home page is <a href="http://github.com/clojure/tools.analyzer.jvm/">http://github.com/clojure/tools.analyzer.jvm/</a></div>
-<pre id="namespace-docstr"></pre>
+<pre id="namespace-docstr">Analyzer for clojure code, extends tools.analyzer with JVM specific passes/forms</pre>
 
 
 <br />
@@ -85,13 +100,90 @@ namespace.
     <span id="var-type">function</span><br />
     <pre id="var-usage">Usage: (analyze form env)
 </pre>
-    <pre id="var-docstr">Given an environment, a map containing
-  -  :locals (mapping of names to lexical bindings),
-  -  :context (one of :statement, :expr or :return
-and form, returns an expression object (a map containing at least :form, :op and :env keys).</pre>
+    <pre id="var-docstr">Returns an AST for the form that's compatible with what tools.emitter.jvm requires.
+
+Binds tools.analyzer/{macroexpand-1,create-var,parse} to
+tools.analyzer.jvm/{macroexpand-1,create-var,parse} and calls
+tools.analyzer/analyzer on form.
+
+Applies the following passes in the correct order to the returning AST:
+* uniquify
+* add-binding-atom
+* cleanup
+* source-info
+* elide-meta
+* constant-lifter
+* warn-earmuff
+* collect
+* jvm.box
+* jvm.annotate-branch
+* jvm.annotate-methods
+* jvm.fix-case-test
+* jvm.clear-locals
+* jvm.classify-invoke
+* jvm.validate
+* jvm.infer-tag
+* jvm.annotate-tag
+* jvm.validate-loop-locals
+* jvm.analyze-host-expr</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/e07dca81ce1dd6f13a73e9b72b1939ecabb20d49/src/main/clojure/clojure/tools/analyzer/jvm.clj#L283" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/6bf142590b5645ce4913518239a8635236cd8e59/src/main/clojure/clojure/tools/analyzer/jvm.clj#L296" id="var-source">Source</a>
+  </div><div id="var-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.jvm/create-var">create-var</h2>
+    <span id="var-type">function</span><br />
+    <pre id="var-usage">Usage: (create-var sym {:keys [ns]})
+</pre>
+    <pre id="var-docstr">Creates a Var for sym and returns it.
+The Var gets interned in the env namespace.</pre>
+    
+    
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/6bf142590b5645ce4913518239a8635236cd8e59/src/main/clojure/clojure/tools/analyzer/jvm.clj#L138" id="var-source">Source</a>
+  </div><div id="var-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.jvm/empty-env">empty-env</h2>
+    <span id="var-type">function</span><br />
+    <pre id="var-usage">Usage: (empty-env)
+</pre>
+    <pre id="var-docstr">Returns an empty env map</pre>
+    
+    
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/6bf142590b5645ce4913518239a8635236cd8e59/src/main/clojure/clojure/tools/analyzer/jvm.clj#L52" id="var-source">Source</a>
+  </div><div id="var-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.jvm/macroexpand-1">macroexpand-1</h2>
+    <span id="var-type">function</span><br />
+    <pre id="var-usage">Usage: (macroexpand-1 form env)
+</pre>
+    <pre id="var-docstr">If form represents a macro form or an inlineable function,
+returns its expansion, else returns form.</pre>
+    
+    
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/6bf142590b5645ce4913518239a8635236cd8e59/src/main/clojure/clojure/tools/analyzer/jvm.clj#L108" id="var-source">Source</a>
+  </div><div id="var-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.jvm/parse">parse</h2>
+    <span id="var-type">multimethod</span><br />
+    <pre id="var-usage">No usage documentation available</pre>
+    <pre id="var-docstr">Extension to tools.analyzer/-parse for JVM special forms</pre>
+    
+    
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/6bf142590b5645ce4913518239a8635236cd8e59/src/main/clojure/clojure/tools/analyzer/jvm.clj#L44" id="var-source">Source</a>
+  </div><div id="var-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.jvm/specials">specials</h2>
+    <span id="var-type">var</span><br />
+    <pre id="var-usage"></pre>
+    <pre id="var-docstr">Set of the special forms for clojure in the JVM</pre>
+    
+    
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/6bf142590b5645ce4913518239a8635236cd8e59/src/main/clojure/clojure/tools/analyzer/jvm.clj#L39" id="var-source">Source</a>
   </div>
 </div>
 
