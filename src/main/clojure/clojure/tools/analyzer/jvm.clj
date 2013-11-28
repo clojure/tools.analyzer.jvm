@@ -351,10 +351,11 @@
             (comp box
                (validate-loop-locals analyze)))))) ;; empty binding atom
 
+      (prewalk cleanup2)
+
       (prewalk
-       (comp cleanup2
-          (collect :constants
-                   :callsites
-                   :closed-overs)))
+       (collect :constants
+                :callsites
+                :closed-overs))
 
       clear-locals)))
