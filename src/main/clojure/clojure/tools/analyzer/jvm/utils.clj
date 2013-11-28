@@ -28,6 +28,17 @@
    "void" Void/TYPE
    "object" Object})
 
+(def ^:private special-arrays
+  {"bytes" (Class/forName "[B")
+   "booleans" (Class/forName "[Z")
+   "chars" (Class/forName "[C")
+   "ints" (Class/forName "[I")
+   "longs" (Class/forName "[J")
+   "floats" (Class/forName "[F")
+   "doubles" (Class/forName "[D")
+   "shorts" (Class/forName "[S")
+   "objects" (Class/forName "[Ljava.lang.Object;")})
+
 (defmulti ^Class maybe-class class)
 
 (defn array-class [element-type]
@@ -55,12 +66,11 @@
   (when-not (namespace sym)
     (let [sname (name sym)
           snamec (count sname)]
-      (if-let [base-type (or (and (.endsWith sname "<>")
-                                  (maybe-class (subs sname 0 (- snamec 2))))
-                             (and (.endsWith sname "s")
-                                  (maybe-class (subs sname 0 (dec snamec)))))]
+      (if-let [base-type (and (.endsWith sname "<>")
+                              (maybe-class (subs sname 0 (- snamec 2))))]
         (array-class base-type)
-        (if-let [ret (specials sname)]
+        (if-let [ret (or (specials sname)
+                         (special-arrays sname))]
           ret
           (maybe-class-from-string sname))))))
 
