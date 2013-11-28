@@ -230,17 +230,17 @@
           (let [ret-tag  (u/maybe-class (:return-type m))
                 i-tag    (u/maybe-class (:declaring-class m))
                 arg-tags (mapv u/maybe-class (:parameter-types m))
-                args     (mapv (fn [arg tag] (assoc arg :tag tag)) params arg-tags)]
+                params   (mapv (fn [arg tag] (assoc arg :tag tag)) params arg-tags)]
             (assoc (dissoc ast :interfaces :methods)
               :bridges   (filter (fn [{:keys [return-type]}]
                                    (.isAssignableFrom (u/maybe-class return-type)
                                                       ret-tag))
                                  (disj methods-set
                                        (dissoc m :declaring-class :flags)))
-              :methods methods
+              :methods   methods
               :interface i-tag
               :tag       ret-tag
-              :args      args))
+              :params    params))
           (throw (ex-info (str "ambiguous method signature for method: " name)
                           {:method     name
                            :interfaces interfaces
