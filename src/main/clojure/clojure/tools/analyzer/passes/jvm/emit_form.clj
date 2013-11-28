@@ -13,11 +13,13 @@
 
 (defn emit-form [ast]
   "Return the form represented by the given AST"
-  (-emit-form ast false))
+  (binding [default/-emit-form* -emit-form]
+    (-emit-form ast false)))
 
 (defn emit-hygienic-form [ast]
   "Return an hygienic form represented by the given AST"
-  (-emit-form ast true))
+  (binding [default/-emit-form* -emit-form]
+    (-emit-form ast true)))
 
 (defmethod -emit-form :default
   [ast hygienic?]
