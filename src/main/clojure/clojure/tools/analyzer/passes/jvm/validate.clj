@@ -158,7 +158,7 @@
             class-name (.getName the-class)
             class-sym (-> class-name (subs (inc (.lastIndexOf class-name "."))) symbol)
             sym-val (get-in @namespaces [ns :mappings class-sym])]
-        (if (and sym-val (not= sym-val the-class))
+        (if (and sym-val (not= (.getName sym-val) class-name)) ;; allow deftype redef
           (throw (ex-info (str class-sym " already refers to: " sym-val
                                " in namespace: " ns)
                           {:class     class
