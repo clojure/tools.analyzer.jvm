@@ -16,14 +16,16 @@
 
 (defmethod -validate :maybe-class
   [{:keys [class env] :as ast}]
-  (if-let [the-class (u/maybe-class class)]
-    (assoc (-analyze :const the-class env :class)
-      :tag Class)
-    (if (.contains (str class) ".") ;; try and be smart for the exception
-      (throw (ex-info (str "class not found: " class)
-                      {:class class}))
-      (throw (ex-info (str "could not resolve var: " class)
-                      {:var class})))))
+  (let [{:keys [ns namespaces]} env]
+    (if-let [the-class (or (u/maybe-class class)
+                           (u/maybe-class (-> @namespaces (get ns) :mappings (get class))))]
+      (assoc (-analyze :const the-class env :class)
+        :tag Class)
+      (if (.contains (str class) ".") ;; try and be smart for the exception
+        (throw (ex-info (str "class not found: " class)
+                        {:class class}))
+        (throw (ex-info (str "could not resolve var: " class)
+                        {:var class}))))))
 
 (defmethod -validate :maybe-host-form
   [{:keys [class]}]
@@ -149,11 +151,24 @@
     ast))
 
 (defmethod -validate :import
-  [{:keys [class validated?] :as ast}]
+  [{:keys [class validated? env] :as ast}]
   (if-not validated?
     (if-let [the-class (u/maybe-class class)]
-      (assoc ast :class the-class
-                 :validated? true)
+      (let [{:keys [ns namespaces]} env
+            class-name (.getName the-class)
+            class-sym (-> class-name (subs (inc (.lastIndexOf class-name "."))) symbol)
+            sym-val (get-in @namespaces [ns :mappings class-sym])]
+        (if (and sym-val (not= sym-val the-class))
+          (throw (ex-info (str class-sym " already refers to: " sym-val
+                               " in namespace: " ns)
+                          {:class     class
+                           :class-sym class-sym
+                           :sym-val   sym-val}))
+          (do
+            (swap! namespaces assoc-in
+                   [ns :mappings class-sym] the-class)
+            (assoc ast :class the-class
+                   :validated? true))))
       (throw (ex-info (str "class not found: " class)
                       {:class class})))
     ast))
