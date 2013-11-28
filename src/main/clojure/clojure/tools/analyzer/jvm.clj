@@ -326,12 +326,13 @@
             ana/parse         parse]
     (-> (-analyze form env)
 
+      (prewalk cleanup1)
+
       uniquify-locals
       add-binding-atom
 
       (walk (fn [ast]
               (-> ast
-                cleanup1
                 warn-earmuff
                 annotate-branch
                 source-info
