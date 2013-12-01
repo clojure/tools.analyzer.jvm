@@ -54,7 +54,6 @@
   []
   {:context :expr :locals {} :ns (ns-name *ns*)
    :namespaces (atom
-                ;; TODO: reify IPersistentMap so that it reflects runtime edits
                 (into {} (mapv #(vector (ns-name %)
                                         {:mappings (ns-map %)
                                          :aliases  (reduce-kv (fn [a k v] (assoc a k (ns-name v)))
@@ -293,14 +292,8 @@
   (let [etype (if (= etype :default) Throwable etype)]
     (ana/-parse `(catch ~etype ~ename ~@body) env)))
 
-(defn analyze
-  "Returns an AST for the form that's compatible with what tools.emitter.jvm requires.
-
-   Binds tools.analyzer/{macroexpand-1,create-var,parse} to
-   tools.analyzer.jvm/{macroexpand-1,create-var,parse} and calls
-   tools.analyzer/analyzer on form.
-
-   Applies the following passes in the correct order to the returning AST:
+(defn run-passes
+  "Applies the following passes in the correct order to the AST:
    * uniquify
    * add-binding-atom
    * cleanup
@@ -320,42 +313,54 @@
    * jvm.annotate-tag
    * jvm.validate-loop-locals
    * jvm.analyze-host-expr"
+  [ast]
+  (-> ast
+
+    (prewalk cleanup1)
+
+    uniquify-locals
+    add-binding-atom
+
+    (walk (fn [ast]
+            (-> ast
+              warn-earmuff
+              annotate-branch
+              source-info
+              elide-meta
+              annotate-methods
+              fix-case-test))
+          constant-lift)
+
+    ((fn analyze [ast]
+       (-> ast
+         (postwalk
+          (comp (cycling infer-tag analyze-host-expr annotate-binding-tag
+                      validate classify-invoke)
+             annotate-literal-tag)) ;; not necesary, select on v-l-l
+         (prewalk
+          (comp box
+             (validate-loop-locals analyze)))))) ;; empty binding atom
+
+    (prewalk cleanup2)
+
+    (prewalk
+     (collect :constants
+              :callsites
+              :closed-overs))
+
+    clear-locals))
+
+(defn analyze
+  "Returns an AST for the form that's compatible with what tools.emitter.jvm requires.
+
+   Binds tools.analyzer/{macroexpand-1,create-var,parse} to
+   tools.analyzer.jvm/{macroexpand-1,create-var,parse} and calls
+   tools.analyzer/analyzer on form.
+
+   Calls `run-passes` on the AST."
   [form env]
+
   (binding [ana/macroexpand-1 macroexpand-1
             ana/create-var    create-var
             ana/parse         parse]
-    (-> (-analyze form env)
-
-      (prewalk cleanup1)
-
-      uniquify-locals
-      add-binding-atom
-
-      (walk (fn [ast]
-              (-> ast
-                warn-earmuff
-                annotate-branch
-                source-info
-                elide-meta
-                annotate-methods
-                fix-case-test))
-            constant-lift)
-
-      ((fn analyze [ast]
-         (-> ast
-           (postwalk
-            (comp (cycling infer-tag analyze-host-expr annotate-binding-tag
-                        validate classify-invoke)
-               annotate-literal-tag)) ;; not necesary, select on v-l-l
-           (prewalk
-            (comp box
-               (validate-loop-locals analyze)))))) ;; empty binding atom
-
-      (prewalk cleanup2)
-
-      (prewalk
-       (collect :constants
-                :callsites
-                :closed-overs))
-
-      clear-locals)))
+    (run-passes (-analyze form env))))
