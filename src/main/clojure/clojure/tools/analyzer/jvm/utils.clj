@@ -116,7 +116,8 @@
    c c))
 
 (defn numeric? [c]
-  (.isAssignableFrom Number (box c)))
+  (when c
+    (.isAssignableFrom Number (box c))))
 
 (defn subsumes? [c1 c2]
   (let [c1 (maybe-class c1)
@@ -136,6 +137,60 @@
        (.isAssignableFrom c2 c1)
        (and (primitive? c2)
             ((convertible-primitives? c2) c1))))))
+
+(def wider-than
+  {Long/TYPE    #{Integer/TYPE Short/TYPE Byte/TYPE}
+   Integer/TYPE #{Short/TYPE Byte/TYPE}
+   Float/TYPE   #{Integer/TYPE Short/TYPE Byte/TYPE Long/TYPE}
+   Double/TYPE  #{Integer/TYPE Short/TYPE Byte/TYPE Long/TYPE Float/TYPE}
+   Short/TYPE   #{Byte/TYPE}
+   Byte/TYPE    #{}})
+
+(defn wider-primitive [from to]
+  (if ((wider-than from) to)
+    from
+    to))
+
+(defn wider-tag* [from to]
+  (if (not= from to)
+    (if (primitive? from)
+      (if (primitive? to)
+        (wider-primitive from to)
+        (or (and (numeric? from)
+                 (numeric? to)
+                 to)
+            ((convertible-primitives? from) to)))
+      (if (primitive? to)
+        (or (and (numeric? from)
+                 (numeric? to)
+                 from)
+            ((convertible-primitives? to) from))
+        (if (convertible? from to)
+          to
+          (when (convertible? to from)
+            from))))
+    from))
+
+(defn wider-tag [tags]
+  (let [tags* (filter identity tags)
+        wider (loop [wider (first tags*) tags* (rest tags*)]
+                (if (seq tags*)
+                  (if-let [t (wider-tag* wider (first tags*))]
+                    (recur t (rest tags*)))
+                  wider))]
+    (when (or (= tags* tags)
+              (not (primitive? wider)))
+      wider)))
+
+(defn can-compare? [from to]
+  (or
+      (if (and to from)
+        (if (convertible? from to)
+          to
+          (if (convertible? to from)
+            from
+            false))
+        (or to from))))
 
 (defn members [class member]
   (let [members (-> (maybe-class class)

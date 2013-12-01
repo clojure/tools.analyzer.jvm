@@ -8,7 +8,8 @@
 
 (ns clojure.tools.analyzer.passes.jvm.validate-loop-locals
   (:require [clojure.tools.analyzer.passes :refer [prewalk postwalk]]
-            [clojure.tools.analyzer.utils :refer [update!]]))
+            [clojure.tools.analyzer.utils :refer [update!]]
+            [clojure.tools.analyzer.jvm.utils :refer [wider-tag]]))
 
 (def ^:dynamic ^:private validating? false)
 (def ^:dynamic ^:private mismatch? #{})
@@ -29,10 +30,12 @@
       (let [bind-tags (mapv :tag bindings)]
         (prewalk body (fn [ast] (find-mismatch ast bind-tags)))
         (if (seq mismatch?)
-          (let [bindings (apply mapv (fn [{:keys [form tag]} & mismatches]
-                                       (if (every? #{tag} mismatches)
-                                         form
-                                         (with-meta form {:tag Object})))
+          (let [bindings (apply mapv
+                                (fn [{:keys [form tag]} & mismatches]
+                                  (if (every? #{tag} mismatches)
+                                    form
+                                    (let [tags (conj mismatches tag)]
+                                      (with-meta form {:tag (or (wider-tag tags) Object)}))))
                                 bindings mismatch?)
                 binds (zipmap bindings (mapv (comp :tag meta) bindings))]
             (binding [validating? true]
@@ -41,8 +44,8 @@
                                                 (assoc bind :form f))
                                               (:bindings ast) bindings))
                                  (fn [ast]
-                                         (assoc-in (dissoc ast :tag)
-                                                   [:env :loop-locals-casts] binds)))
+                                   (assoc-in (dissoc ast :tag :validated? :ret-tag)
+                                             [:env :loop-locals-casts] binds)))
                         analyze)))
           ast)))))
 
@@ -57,11 +60,13 @@
 (defmethod -validate-loop-locals :recur
   [_ {:keys [exprs env] :as ast}]
   (if validating?
-    (let [casts (:loop-locals-casts env)]
+    (let [casts (:loop-locals-casts env)
+          locals (:loop-locals env)]
       (assoc ast
-        :exprs (mapv (fn [e c]
-                       (if c (assoc e :tag c) e))
-                     exprs (vals casts))))
+        :exprs (mapv (fn [{:keys [env] :as e} n]
+                       (if-let [c (get casts n)]
+                         (assoc e :tag c)
+                         e)) exprs locals)))
     ast))
 
 (defmethod -validate-loop-locals :default
