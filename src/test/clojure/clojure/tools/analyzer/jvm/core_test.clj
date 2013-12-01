@@ -74,3 +74,11 @@
     (is (= 0 (-> c-ast :mask))))
 
   (is (= Throwable (-> (ast (try (catch :default e))) :catches first :class))))
+
+(deftest doseq-chunk-hint
+  (let [tree (ast1 (doseq [item (range 10)]
+                     (println item)))
+        {[_ chunk] :bindings} tree]
+    (is (= :loop (:op tree)))
+    (is (.startsWith (name (:name chunk)) "chunk"))
+    (is (= clojure.lang.IChunk (:tag chunk)))))
