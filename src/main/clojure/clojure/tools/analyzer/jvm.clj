@@ -91,8 +91,11 @@
 
           (and (namespace op)
                (maybe-class (namespace op))) ; (class/field ..)
-          (let [target (maybe-class (namespace op))]
-            (with-meta (list '. target (list* (symbol opname) expr)) ;; static access in call position however are always method calls
+          (let [target (maybe-class (namespace op))
+                op (symbol opname)]
+            (with-meta (list '. target (if (zero? (count expr))
+                                         op
+                                         (list* op expr)))
               (meta form)))
 
           (= (last opname) \.) ;; (class. ..)
