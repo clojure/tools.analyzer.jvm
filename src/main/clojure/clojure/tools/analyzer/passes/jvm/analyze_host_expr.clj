@@ -77,7 +77,7 @@
       :instance (or (maybe-instance-field target-expr class field)
                     (throw (ex-info (str "cannot find field "
                                          field " for class " class)
-                                    {:instance target-expr
+                                    {:instance (dissoc target-expr :env)
                                      :field    field}))))
     {:op       :host-interop
      :target   target-expr
@@ -117,7 +117,7 @@
      target-class
      (throw (ex-info (str "cannot find field or no-arg method call "
                           m-or-f " for class " target-class)
-                     {:instance target-expr
+                     {:instance (dissoc target-expr :env)
                       :m-or-f   m-or-f})))))
 
 (defn analyze-host-expr
