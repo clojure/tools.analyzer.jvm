@@ -110,7 +110,8 @@
 
 (defn validate-call [class method args tag ast type]
   (let [argc (count args)
-        f (if (= :static type) u/static-methods u/instance-methods)
+        instance? (= :instance type)
+        f (if instance? u/instance-methods u/static-methods)
         tags (mapv :tag args)]
     (if-let [matching-methods (seq (f class method argc))]
       (if-let [[m & rest :as matching] (try-best-match tags matching-methods)]
@@ -129,14 +130,18 @@
                 :ret-tag Object
                 :tag     (or tag ret-tag)))
             ast))
-        (throw (ex-info (str "No matching method: " method " for class: " class " and given signature")
+        (if instance?
+          (dissoc ast :class :tag)
+          (throw (ex-info (str "No matching method: " method " for class: " class " and given signature")
+                          {:method method
+                           :class  class
+                           :args   args}))))
+      (if instance?
+        (dissoc ast :class :tag)
+        (throw (ex-info (str "No matching method: " method " for class: " class " and arity: " argc)
                         {:method method
                          :class  class
-                         :args   args})))
-      (throw (ex-info (str "No matching method: " method " for class: " class " and arity: " argc)
-                      {:method method
-                       :class  class
-                       :argc   argc})))))
+                         :argc   argc}))))))
 
 (defmethod -validate :static-call
   [{:keys [class method validated? tag args] :as ast}]

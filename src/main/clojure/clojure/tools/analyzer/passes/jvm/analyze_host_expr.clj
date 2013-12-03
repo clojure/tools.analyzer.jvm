@@ -75,10 +75,14 @@
                                   {:class class
                                    :field field})))
       :instance (or (maybe-instance-field target-expr class field)
-                    (throw (ex-info (str "cannot find field "
-                                         field " for class " class)
-                                    {:instance (dissoc target-expr :env)
-                                     :field    field}))))
+                    {:op       :host-interop
+                     :target   (dissoc target-expr :tag :validated?)
+                     :m-or-f   field
+                     :children [:target]}
+                    #_(throw (ex-info (str "cannot find field "
+                                           field " for class " class)
+                                      {:instance (dissoc target-expr :env)
+                                       :field    field}))))
     {:op       :host-interop
      :target   target-expr
      :m-or-f   field
@@ -95,7 +99,7 @@
                             (maybe-instance-method target-expr target-class m-or-f)]))]
     (cond
 
-     (not (or class target-class))
+     (not class)
      {:op          :host-interop
       :target      target-expr
       :m-or-f      m-or-f
@@ -114,8 +118,8 @@
                      {:class  class
                       :m-or-f m-or-f}))
 
-     target-class
-     (throw (ex-info (str "cannot find field or no-arg method call "
+     #_target-class
+     #_(throw (ex-info (str "cannot find field or no-arg method call "
                           m-or-f " for class " target-class)
                      {:instance (dissoc target-expr :env)
                       :m-or-f   m-or-f})))))
