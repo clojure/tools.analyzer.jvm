@@ -99,7 +99,7 @@
                             (maybe-instance-method target-expr target-class m-or-f)]))]
     (cond
 
-     (not class)
+     (not (or class target-class))
      {:op          :host-interop
       :target      target-expr
       :m-or-f      m-or-f
@@ -118,7 +118,12 @@
                      {:class  class
                       :m-or-f m-or-f}))
 
-     #_target-class
+     target-class
+     {:op          :host-interop
+      :target      (dissoc target-expr :tag :validated?)
+      :m-or-f      m-or-f
+      :assignable? true
+      :children    [:target]}
      #_(throw (ex-info (str "cannot find field or no-arg method call "
                           m-or-f " for class " target-class)
                      {:instance (dissoc target-expr :env)
