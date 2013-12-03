@@ -197,7 +197,7 @@
                   box
                   (type-reflect :ancestors true)
                   :members)]
-    (when-let [members (filter #(and (= member (:name %))
+    (when-let [members (filter #(and (= (munge member) (:name %))
                                      (not (:private (:flags %))))
                                members)]
       members)))
