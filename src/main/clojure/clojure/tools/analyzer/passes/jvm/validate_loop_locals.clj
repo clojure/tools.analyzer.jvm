@@ -45,7 +45,7 @@
                                                 (assoc bind :form f))
                                               (key ast) bindings))
                                  (fn [ast]
-                                   (assoc-in (dissoc ast :tag :validated? :ret-tag)
+                                   (assoc-in (dissoc ast :tag :validated? :ret-tag :bind-tag)
                                              [:env :loop-locals-casts] binds)))
                         analyze)))
           ast)))))
@@ -62,7 +62,7 @@
   [_ {:keys [form local env] :as ast}]
   (if validating?
     (if-let [cast ((:loop-locals-casts env) form)]
-      (assoc ast :tag cast)
+      (assoc ast :bind-tag cast)
       ast)
     ast))
 
