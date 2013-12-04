@@ -100,8 +100,9 @@
       ast)))
 
 (defmethod annotate-binding-tag :local
-  [{:keys [name form atom case-test] :as ast}]
-  (if-let [tag (or (and (not case-test)
+  [{:keys [name form tag atom case-test] :as ast}]
+  (if-let [tag (or tag
+                   (and (not case-test)
                         (:tag (meta form))) ;;explicit tag first
                    (@atom :tag))]
     (assoc ast :tag tag)
