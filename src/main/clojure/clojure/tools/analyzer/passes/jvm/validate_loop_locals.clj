@@ -22,12 +22,13 @@
 
 (defmulti -validate-loop-locals (fn [_ {:keys [op]}] op))
 
-(defmethod -validate-loop-locals :loop
-  [analyze {:keys [bindings body env] :as ast}]
+(defn -validate-loop-locals*
+  [analyze {:keys [body env] :as ast} key]
   (if validating?
     ast
     (binding [mismatch? #{}]
-      (let [bind-tags (mapv :tag bindings)]
+      (let [bindings (key ast)
+            bind-tags (mapv :tag bindings)]
         (prewalk body (fn [ast] (find-mismatch ast bind-tags)))
         (if (seq mismatch?)
           (let [bindings (apply mapv
@@ -39,15 +40,23 @@
                                 bindings mismatch?)
                 binds (zipmap bindings (mapv (comp :tag meta) bindings))]
             (binding [validating? true]
-              (postwalk (prewalk (assoc ast :bindings
+              (postwalk (prewalk (assoc ast key
                                         (mapv (fn [bind f]
                                                 (assoc bind :form f))
-                                              (:bindings ast) bindings))
+                                              (key ast) bindings))
                                  (fn [ast]
                                    (assoc-in (dissoc ast :tag :validated? :ret-tag)
                                              [:env :loop-locals-casts] binds)))
                         analyze)))
           ast)))))
+
+(defmethod -validate-loop-locals :loop
+  [analyze ast]
+  (-validate-loop-locals* analyze ast :bindings))
+
+(defmethod -validate-loop-locals :fn-method
+  [analyze ast]
+  (-validate-loop-locals* analyze ast :params))
 
 (defmethod -validate-loop-locals :local
   [_ {:keys [form local env] :as ast}]
