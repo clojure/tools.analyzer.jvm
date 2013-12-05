@@ -250,6 +250,7 @@
   "Performs local type inference on the AST"
   [{:keys [tag form] :as ast}]
   (if-let [form-tag (and form
-                         (:tag (meta form)))]
+                         (or tag
+                             (:tag (meta form))))]
     (assoc (-infer-tag ast) :tag form-tag)
     (-infer-tag ast)))
