@@ -69,8 +69,8 @@
 
 ;; postwalk
 (defn annotate-literal-tag
-  [{:keys [form] :as ast}]
-  (if-let [tag (:tag (meta form))]
+  [{:keys [form tag] :as ast}]
+  (if-let [tag (or tag (:tag (meta form)))]
     (assoc ast :tag tag)
     (-annotate-literal-tag ast)))
 
