@@ -91,7 +91,8 @@
               (meta form)))
 
           (and (namespace op)
-               (maybe-class (namespace op))) ; (class/field ..)
+               (maybe-class (namespace op))
+               (not (-> env :namespaces deref (get (symbol (namespace op)))))) ; (class/field ..)
           (let [target (maybe-class (namespace op))
                 op (symbol opname)]
             (with-meta (list '. target (if (zero? (count expr))
