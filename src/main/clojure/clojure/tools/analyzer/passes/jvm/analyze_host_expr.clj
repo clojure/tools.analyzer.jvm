@@ -12,21 +12,21 @@
             [clojure.tools.analyzer.jvm.utils :refer :all]))
 
 (defn maybe-static-field [[_ class sym]]
-  (when-let [{:keys [flags type]} (static-field class sym)]
+  (when-let [{:keys [flags type name]} (static-field class sym)]
     {:op          :static-field
      :assignable? (not (:final flags))
      :class       class
-     :field       sym
+     :field       name
      :ret-tag     (maybe-class type)
      :tag         (maybe-class type)}))
 
 (defn maybe-static-method [[_ class sym]]
-  (when-let [{:keys [return-type]} (static-method class sym)]
+  (when-let [{:keys [name return-type]} (static-method class sym)]
     {:op      :static-call
      :tag     (maybe-class return-type)
      :ret-tag (maybe-class return-type)
      :class   class
-     :method  sym}))
+     :method  name}))
 
 (defn maybe-instance-method [target-expr class sym]
   (when-let [{:keys [return-type]} (instance-method class sym)]
@@ -39,12 +39,12 @@
        :children [:instance]}))
 
 (defn maybe-instance-field [target-expr class sym]
-  (when-let [{:keys [flags type]} (instance-field class sym)]
+  (when-let [{:keys [flags name type]} (instance-field class sym)]
     {:op          :instance-field
      :assignable? (not (:final flags))
      :class       class
      :instance    target-expr
-     :field       sym
+     :field       name
      :tag         (maybe-class type)
      :ret-tag     (maybe-class type)
      :children    [:instance]}))

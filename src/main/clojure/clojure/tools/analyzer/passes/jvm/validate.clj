@@ -120,6 +120,7 @@
                 arg-tags (mapv u/maybe-class (:parameter-types m))
                 args (mapv (fn [arg tag] (assoc arg :tag tag)) args arg-tags)]
             (assoc ast
+              :method     (:name m)
               :validated? true
               :ret-tag    ret-tag
               :tag        (or tag ret-tag)
