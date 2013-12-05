@@ -66,7 +66,8 @@
    (symbol? form)
    (let [target (maybe-class (namespace form))
          field (symbol (name form))]
-     (if (and (namespace form) target)
+     (if (and (namespace form) target
+              (not (-> env :namespaces deref (get (symbol (namespace form))))))
        (with-meta (list '. target field)
          (merge (meta form)
                 {:field true})) ;; should use this
