@@ -201,7 +201,9 @@
            (when tag
              {:tag tag
               :ret-tag (or body-tag tag)})
-           {:arglist (with-meta (mapv :form params)
+           {:arglist (with-meta (vec (mapcat (fn [{:keys [form variadic?]}]
+                                               (if variadic? ['& form] [form]))
+                                             params))
                        (when tag {:tag tag}))})))
 
 (defmethod -infer-tag :fn
