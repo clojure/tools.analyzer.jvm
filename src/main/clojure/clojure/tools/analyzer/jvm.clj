@@ -17,7 +17,7 @@
             [clojure.tools.analyzer.passes :refer [walk prewalk postwalk cycling]]
             [clojure.tools.analyzer.jvm.utils :refer :all :exclude [box]]
             [clojure.tools.analyzer.passes.source-info :refer [source-info]]
-            [clojure.tools.analyzer.passes.cleanup :refer [cleanup1 cleanup2]]
+            [clojure.tools.analyzer.passes.cleanup :refer [cleanup]]
             [clojure.tools.analyzer.passes.elide-meta :refer [elide-meta]]
             [clojure.tools.analyzer.passes.constant-lifter :refer [constant-lift]]
             [clojure.tools.analyzer.passes.warn-earmuff :refer [warn-earmuff]]
@@ -321,8 +321,6 @@
   [ast]
   (-> ast
 
-    (prewalk cleanup1)
-
     uniquify-locals
     add-binding-atom
 
@@ -346,12 +344,12 @@
           (comp box
              (validate-loop-locals analyze)))))) ;; empty binding atom
 
-    (prewalk cleanup2)
 
     (prewalk
-     (collect :constants
-              :callsites
-              :closed-overs))
+     (comp cleanup
+        (collect :constants
+                 :callsites
+                 :closed-overs)))
 
     clear-locals))
 
