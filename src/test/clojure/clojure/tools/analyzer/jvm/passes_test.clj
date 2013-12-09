@@ -131,7 +131,7 @@
                           c (str a)
                           d (Integer/parseInt c b)]
                       (Integer/getInteger c d)))]
-    (is (= Integer (-> t-ast :body :ret :tag)))
+    (is (= Integer (-> t-ast :body :tag)))
     (is (= Integer (-> t-ast :tag)))
     (is (= Long/TYPE (->> t-ast :bindings (filter #(= 'a (:form %))) first :tag)))
     (is (= String (->> t-ast :bindings (filter #(= 'c (:form %))) first :tag)))
