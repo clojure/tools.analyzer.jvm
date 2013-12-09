@@ -9,7 +9,7 @@
 (ns clojure.tools.analyzer.passes.jvm.validate-loop-locals
   (:require [clojure.tools.analyzer.passes :refer [prewalk postwalk]]
             [clojure.tools.analyzer.utils :refer [update!]]
-            [clojure.tools.analyzer.jvm.utils :refer [wider-tag]]))
+            [clojure.tools.analyzer.jvm.utils :refer [wider-tag maybe-class]]))
 
 (def ^:dynamic ^:private validating? false)
 (def ^:dynamic ^:private mismatch? #{})
@@ -40,14 +40,16 @@
                                 bindings mismatch?)
                 binds (zipmap bindings (mapv (comp :tag meta) bindings))]
             (binding [validating? true]
-              (postwalk (prewalk (assoc ast key
-                                        (mapv (fn [bind f]
-                                                (assoc bind :form f))
-                                              (key ast) bindings))
-                                 (fn [ast]
-                                   (assoc-in (dissoc ast :tag :validated? :ret-tag :bind-tag)
-                                             [:env :loop-locals-casts] binds)))
-                        analyze)))
+              (analyze (prewalk (assoc ast key
+                                       (mapv (fn [bind f]
+                                               (assoc bind :form f))
+                                             (key ast) bindings))
+                                (fn [{:keys [op] :as ast}]
+                                  (let [ast (assoc-in (dissoc ast :tag :validated? :ret-tag :bind-tag)
+                                                      [:env :loop-locals-casts] binds)]
+                                    (if (= :instance-call op)
+                                      (dissoc ast :class)
+                                      ast)))))))
           ast)))))
 
 (defmethod -validate-loop-locals :loop

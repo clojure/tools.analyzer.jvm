@@ -151,10 +151,11 @@
     (validate-call class method args tag ast :static)))
 
 (defmethod -validate :instance-call
-  [{:keys [class validated? method tag args] :as ast}]
-  (if (and class (not validated?))
-    (validate-call class method args tag ast :instance)
-    ast))
+  [{:keys [class validated? method tag args instance] :as ast}]
+  (let [class (or class (u/maybe-class (:tag instance)))]
+   (if (and class (not validated?))
+     (validate-call class method args tag (assoc ast :class class) :instance)
+     ast)))
 
 (defmethod -validate :import
   [{:keys [class validated? env] :as ast}]
