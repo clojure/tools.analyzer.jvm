@@ -365,17 +365,7 @@
 
    Calls `run-passes` on the AST."
   [form env]
-
-  (let [cl (.getContextClassLoader (Thread/currentThread))
-        bl (or cl (.getClassLoader clojure.lang.Compiler))
-        l  (clojure.lang.DynamicClassLoader.
-            (java.net.URLClassLoader. (.getURLs bl)))]
-    (try (.setContextClassLoader (Thread/currentThread) l)
-         (with-bindings {#'ana/macroexpand-1          macroexpand-1
-                         #'ana/create-var             create-var
-                         #'ana/parse                  parse
-                         #'*use-context-classloader*  true
-                         clojure.lang.Compiler/LOADER l}
-           (run-passes (-analyze form env)))
-         (finally
-           (.setContextClassLoader (Thread/currentThread) cl)))))
+  (binding [ana/macroexpand-1 macroexpand-1
+            ana/create-var    create-var
+            ana/parse         parse]
+    (run-passes (-analyze form env))))
