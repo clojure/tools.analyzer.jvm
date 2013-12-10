@@ -325,23 +325,26 @@
     uniquify-locals
     add-binding-atom
 
-    (walk (fn [ast]
-            (-> ast
-              trim-do
-              warn-earmuff
-              annotate-branch
-              source-info
-              elide-meta
-              annotate-methods
-              fix-case-test))
-          constant-lift)
+    (prewalk (fn [ast]
+               (-> ast
+                 trim-do
+                 warn-earmuff
+                 annotate-branch
+                 source-info
+                 elide-meta
+                 annotate-methods
+                 fix-case-test)))
 
     ((fn analyze [ast]
        (-> ast
          (postwalk
-          (comp (cycling infer-tag analyze-host-expr annotate-binding-tag
-                      validate classify-invoke)
-             annotate-literal-tag)) ;; not necesary, select on v-l-l
+          (cycling constant-lift
+                   annotate-literal-tag
+                   infer-tag
+                   analyze-host-expr
+                   annotate-binding-tag
+                   validate
+                   classify-invoke))
          (prewalk
           (comp box
              (validate-loop-locals analyze)))))) ;; empty binding atom
