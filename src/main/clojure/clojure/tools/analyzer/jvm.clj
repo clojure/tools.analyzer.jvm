@@ -340,9 +340,9 @@
          (postwalk
           (cycling constant-lift
                    annotate-literal-tag
+                   annotate-binding-tag
                    infer-tag
                    analyze-host-expr
-                   annotate-binding-tag
                    validate
                    classify-invoke))
          (prewalk

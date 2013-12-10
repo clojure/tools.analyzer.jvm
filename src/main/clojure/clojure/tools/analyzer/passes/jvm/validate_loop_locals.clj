@@ -60,14 +60,6 @@
   [analyze ast]
   (-validate-loop-locals* analyze ast :params))
 
-(defmethod -validate-loop-locals :local
-  [_ {:keys [form local env] :as ast}]
-  (if validating?
-    (if-let [cast ((:loop-locals-casts env) form)]
-      (assoc ast :bind-tag cast)
-      ast)
-    ast))
-
 (defmethod -validate-loop-locals :recur
   [_ {:keys [exprs env] :as ast}]
   (if validating?

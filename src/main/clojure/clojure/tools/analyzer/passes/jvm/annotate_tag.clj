@@ -82,9 +82,10 @@
 (defmethod annotate-binding-tag :default [ast] ast)
 
 (defmethod annotate-binding-tag :binding
-  [{:keys [form init local name atom variadic?] :as ast}]
-  (if-let [tag (and (not (:case-test @atom))
-                    (maybe-class (:tag (meta form))))] ;;explicit tag first
+  [{:keys [form tag init local name atom variadic?] :as ast}]
+  (if-let [tag (or tag
+                   (and (not (:case-test @atom))
+                        (maybe-class (:tag (meta form)))))] ;;explicit tag first
     (let [ast (assoc ast :tag tag)]
       (swap! atom assoc :tag tag)
       (if init
