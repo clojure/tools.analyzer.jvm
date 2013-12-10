@@ -7,7 +7,7 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.validate-loop-locals
-  (:require [clojure.tools.analyzer.passes :refer [prewalk postwalk]]
+  (:require [clojure.tools.analyzer.passes :refer [prewalk postwalk children update-children]]
             [clojure.tools.analyzer.utils :refer [update!]]
             [clojure.tools.analyzer.jvm.utils :refer [wider-tag maybe-class]]))
 
@@ -21,6 +21,34 @@
   ast)
 
 (defmulti -validate-loop-locals (fn [_ {:keys [op]}] op))
+
+(defmulti -cleanup-dirty-nodes :op)
+
+(defmethod -cleanup-dirty-nodes :local
+  [{:keys [form env] :as ast}]
+  (if-let [cast ((:loop-locals-casts env) form)]
+    (assoc ast
+      :dirty?    true
+      :bind-tag cast
+      :tag      (or (:tag (meta form)) cast))
+    ast))
+
+(defn dirty [ast]
+  (assoc (update-children ast (fn [ast] (dissoc ast :dirty?)))
+    :dirty? true))
+
+(defmethod -cleanup-dirty-nodes :do
+  [{:keys [op ret] :as ast}]
+  (if (:dirty? ret)
+    (dissoc (dirty ast) :tag)
+    ast))
+
+(defmethod -cleanup-dirty-nodes :default
+  [{:keys [op] :as ast}]
+  (if (some :dirty? (children ast))
+    (dissoc (dirty ast)
+            :tag :validated? :ret-tag (when (= :instance-call op) :class))
+    ast))
 
 (defn -validate-loop-locals*
   [analyze {:keys [body env] :as ast} key]
@@ -40,16 +68,13 @@
                                 bindings mismatch?)
                 binds (zipmap bindings (mapv (comp :tag meta) bindings))]
             (binding [validating? true]
-              (analyze (prewalk (assoc ast key
-                                       (mapv (fn [bind f]
-                                               (assoc bind :form f))
-                                             (key ast) bindings))
-                                (fn [{:keys [op] :as ast}]
-                                  (let [ast (assoc-in (dissoc ast :tag :validated? :ret-tag :bind-tag)
-                                                      [:env :loop-locals-casts] binds)]
-                                    (if (= :instance-call op)
-                                      (dissoc ast :class)
-                                      ast)))))))
+              (analyze (dissoc (postwalk (assoc ast key
+                                                (mapv (fn [bind f]
+                                                        (assoc bind :form f))
+                                                      (key ast) bindings))
+                                         (comp -cleanup-dirty-nodes
+                                            (fn [ast] (assoc-in ast [:env :loop-locals-casts] binds))))
+                               :dirty?))))
           ast)))))
 
 (defmethod -validate-loop-locals :loop
@@ -59,14 +84,6 @@
 (defmethod -validate-loop-locals :fn-method
   [analyze ast]
   (-validate-loop-locals* analyze ast :params))
-
-(defmethod -validate-loop-locals :local
-  [_ {:keys [form local env] :as ast}]
-  (if validating?
-    (if-let [cast ((:loop-locals-casts env) form)]
-      (assoc ast :bind-tag cast)
-      ast)
-    ast))
 
 (defmethod -validate-loop-locals :recur
   [_ {:keys [exprs env] :as ast}]
