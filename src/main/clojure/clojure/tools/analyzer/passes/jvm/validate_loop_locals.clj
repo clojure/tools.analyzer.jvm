@@ -14,8 +14,8 @@
 (def ^:dynamic ^:private validating? false)
 (def ^:dynamic ^:private mismatch? #{})
 
-(defn find-mismatch [{:keys [op exprs] :as ast} tags]
-  (when (and (= op :recur)
+(defn find-mismatch [{:keys [op exprs] :as ast} tags loop-id]
+  (when (and (= op :recur) (= loop-id (:loop-id ast))
              (not= (mapv :tag exprs) tags))
     (update! mismatch? conj (mapv :tag exprs)))
   ast)
@@ -23,13 +23,13 @@
 (defmulti -validate-loop-locals (fn [_ {:keys [op]}] op))
 
 (defn -validate-loop-locals*
-  [analyze {:keys [body env] :as ast} key]
+  [analyze {:keys [body env loop-id] :as ast} key]
   (if validating?
     ast
     (binding [mismatch? #{}]
       (let [bindings (key ast)
             bind-tags (mapv :tag bindings)]
-        (prewalk body (fn [ast] (find-mismatch ast bind-tags)))
+        (prewalk body (fn [ast] (find-mismatch ast bind-tags loop-id)))
         (if (seq mismatch?)
           (let [bindings (apply mapv
                                 (fn [{:keys [form tag]} & mismatches]
@@ -57,6 +57,10 @@
   (-validate-loop-locals* analyze ast :bindings))
 
 (defmethod -validate-loop-locals :fn-method
+  [analyze ast]
+  (-validate-loop-locals* analyze ast :params))
+
+(defmethod -validate-loop-locals :method
   [analyze ast]
   (-validate-loop-locals* analyze ast :params))
 
