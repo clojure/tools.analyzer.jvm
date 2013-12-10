@@ -338,13 +338,17 @@
     ((fn analyze [ast]
        (-> ast
          (postwalk
-          (cycling constant-lift
-                   annotate-literal-tag
-                   annotate-binding-tag
-                   infer-tag
-                   analyze-host-expr
-                   validate
-                   classify-invoke))
+          (comp (fn [ast]
+               (when-let [atom (:atom ast)]
+                 (swap! atom dissoc :dirty?))
+               ast)
+             (cycling constant-lift
+                      annotate-literal-tag
+                      annotate-binding-tag
+                      infer-tag
+                      analyze-host-expr
+                      validate
+                      classify-invoke)))
          (prewalk
           (comp box
              (validate-loop-locals analyze)))))) ;; empty binding atom
