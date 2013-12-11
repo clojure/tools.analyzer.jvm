@@ -93,20 +93,21 @@
           c-name (symbol (.getName class))
           argc (count args)
           tags (mapv :tag args)]
-      (if-let [[ctor & rest] (->> (filter #(= (count (:parameter-types %)) argc)
-                                          (u/members class c-name))
-                                  (try-best-match tags))]
-        (if (empty? rest)
-          (let [arg-tags (mapv u/maybe-class (:parameter-types ctor))
-                args (mapv (fn [arg tag] (assoc arg :tag tag))
-                           args arg-tags)]
-            (assoc ast
-              :args       args
-              :validated? true))
-          ast)
-        (throw (ex-info (str "no ctor found for ctor of class: " class " and give signature")
-                        {:class class
-                         :args  args}))))))
+      (let [[ctor & rest] (->> (filter #(= (count (:parameter-types %)) argc)
+                                       (u/members class c-name))
+                               (try-best-match tags))]
+        (if ctor
+          (if (empty? rest)
+            (let [arg-tags (mapv u/maybe-class (:parameter-types ctor))
+                  args (mapv (fn [arg tag] (assoc arg :tag tag))
+                             args arg-tags)]
+              (assoc ast
+                :args       args
+                :validated? true))
+            ast)
+          (throw (ex-info (str "no ctor found for ctor of class: " class " and give signature")
+                          {:class class
+                           :args  args})))))))
 
 (defn validate-call [class method args tag ast type]
   (let [argc (count args)
@@ -114,29 +115,30 @@
         f (if instance? u/instance-methods u/static-methods)
         tags (mapv :tag args)]
     (if-let [matching-methods (seq (f class method argc))]
-      (if-let [[m & rest :as matching] (try-best-match tags matching-methods)]
-        (if (empty? rest)
-          (let [ret-tag  (u/maybe-class (:return-type m))
-                arg-tags (mapv u/maybe-class (:parameter-types m))
-                args (mapv (fn [arg tag] (assoc arg :tag tag)) args arg-tags)]
-            (assoc ast
-              :method     (:name m)
-              :validated? true
-              :ret-tag    ret-tag
-              :tag        (or tag ret-tag)
-              :args       args))
-          (if (apply = (mapv (comp u/maybe-class :return-type) matching))
-            (let [ret-tag (u/maybe-class (:return-type m))]
+      (let [[m & rest :as matching] (try-best-match tags matching-methods)]
+        (if m
+          (if (empty? rest)
+            (let [ret-tag  (u/maybe-class (:return-type m))
+                  arg-tags (mapv u/maybe-class (:parameter-types m))
+                  args (mapv (fn [arg tag] (assoc arg :tag tag)) args arg-tags)]
               (assoc ast
-                :ret-tag Object
-                :tag     (or tag ret-tag)))
-            ast))
-        (if instance?
-          (dissoc ast :class :tag)
-          (throw (ex-info (str "No matching method: " method " for class: " class " and given signature")
-                          {:method method
-                           :class  class
-                           :args   args}))))
+                :method     (:name m)
+                :validated? true
+                :ret-tag    ret-tag
+                :tag        (or tag ret-tag)
+                :args       args))
+            (if (apply = (mapv (comp u/maybe-class :return-type) matching))
+              (let [ret-tag (u/maybe-class (:return-type m))]
+                (assoc ast
+                  :ret-tag Object
+                  :tag     (or tag ret-tag)))
+              ast))
+          (if instance?
+            (dissoc ast :class :tag)
+            (throw (ex-info (str "No matching method: " method " for class: " class " and given signature")
+                            {:method method
+                             :class  class
+                             :args   args})))))
       (if instance?
         (dissoc ast :class :tag)
         (throw (ex-info (str "No matching method: " method " for class: " class " and arity: " argc)
@@ -153,9 +155,9 @@
 (defmethod -validate :instance-call
   [{:keys [class validated? method tag args instance] :as ast}]
   (let [class (or class (u/maybe-class (:tag instance)))]
-   (if (and class (not validated?))
-     (validate-call class method args tag (assoc ast :class class) :instance)
-     ast)))
+    (if (and class (not validated?))
+      (validate-call class method args tag (assoc ast :class class) :instance)
+      ast)))
 
 (defmethod -validate :import
   [{:keys [class validated? env] :as ast}]
