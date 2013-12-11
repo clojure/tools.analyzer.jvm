@@ -233,34 +233,34 @@
   (if interfaces
     (let [tags (mapv :tag params)
           methods-set (set (mapv (fn [x] (dissoc x :declaring-class :flags)) methods))]
-      (if-let [[m & rest :as matches]
-               (try-best-match tags methods)]
-        (if (empty? rest)
-          (let [ret-tag  (u/maybe-class (:return-type m))
-                i-tag    (u/maybe-class (:declaring-class m))
-                arg-tags (mapv u/maybe-class (:parameter-types m))
-                params   (mapv (fn [arg tag] (assoc arg :tag tag)) params arg-tags)]
-            (assoc (dissoc ast :interfaces :methods)
-              :bridges   (filter (fn [{:keys [return-type]}]
-                                   (.isAssignableFrom (u/maybe-class return-type)
-                                                      ret-tag))
-                                 (disj methods-set
-                                       (dissoc m :declaring-class :flags)))
-              :methods   methods
-              :interface i-tag
-              :tag       ret-tag
-              :params    params))
-          (throw (ex-info (str "ambiguous method signature for method: " name)
-                          {:method     name
-                           :interfaces interfaces
-                           :params     params
-                           :matches    matches})))
-        (throw (ex-info (str "no such method found: " name " with given signature in any of the"
-                             " provided interfaces: " interfaces)
-                        {:method     name
-                         :methods    methods
-                         :interfaces interfaces
-                         :params     params}))))
+      (let [[m & rest :as matches] (try-best-match tags methods)]
+        (if m
+         (if (empty? rest)
+           (let [ret-tag  (u/maybe-class (:return-type m))
+                 i-tag    (u/maybe-class (:declaring-class m))
+                 arg-tags (mapv u/maybe-class (:parameter-types m))
+                 params   (mapv (fn [arg tag] (assoc arg :tag tag)) params arg-tags)]
+             (assoc (dissoc ast :interfaces :methods)
+               :bridges   (filter (fn [{:keys [return-type]}]
+                                    (.isAssignableFrom (u/maybe-class return-type)
+                                                       ret-tag))
+                                  (disj methods-set
+                                        (dissoc m :declaring-class :flags)))
+               :methods   methods
+               :interface i-tag
+               :tag       ret-tag
+               :params    params))
+           (throw (ex-info (str "ambiguous method signature for method: " name)
+                           {:method     name
+                            :interfaces interfaces
+                            :params     params
+                            :matches    matches})))
+         (throw (ex-info (str "no such method found: " name " with given signature in any of the"
+                              " provided interfaces: " interfaces)
+                         {:method     name
+                          :methods    methods
+                          :interfaces interfaces
+                          :params     params})))))
     ast))
 
 (defmethod -validate :default [ast] ast)
