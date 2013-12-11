@@ -197,8 +197,13 @@
   (let [members (-> (maybe-class class)
                   box
                   (type-reflect :ancestors true)
-                  :members)]
-    (when-let [members (filter #(and (= (symbol (s/replace (str member) "-" "_")) (:name %))
+                  :members)
+        member-name (str member)
+        i (.lastIndexOf member-name ".")
+        member-name (if (pos? i)
+                      (str (s/replace (subs member-name 0 i) "-" "_") (subs member-name i))
+                      member-name)]
+    (when-let [members (filter #(and (= member-name (str (:name %)))
                                      (not (:private (:flags %))))
                                members)]
       members)))
