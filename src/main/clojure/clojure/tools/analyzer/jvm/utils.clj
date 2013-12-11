@@ -7,7 +7,8 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.jvm.utils
-  (:require [clojure.reflect :as reflect])
+  (:require [clojure.reflect :as reflect]
+            [clojure.string :as s])
   (:import (clojure.lang RT Symbol Var)
            (org.objectweb.asm Type)))
 
@@ -197,7 +198,7 @@
                   box
                   (type-reflect :ancestors true)
                   :members)]
-    (when-let [members (filter #(and (= (munge member) (:name %))
+    (when-let [members (filter #(and (= (symbol (s/replace (str member) "-" "_")) (:name %))
                                      (not (:private (:flags %))))
                                members)]
       members)))
