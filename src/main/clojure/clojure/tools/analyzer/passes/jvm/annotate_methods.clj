@@ -7,7 +7,7 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.annotate-methods
-  (:require [clojure.tools.analyzer.jvm.utils :refer [type-reflect]]))
+  (:require [clojure.tools.analyzer.jvm.utils :refer [type-reflect name-matches?]]))
 
 (defn annotate-methods
   "Adds a :methods key to reify/deftype :methods info representing
@@ -29,7 +29,7 @@
       (assoc ast :methods (mapv (fn [{:keys [name params] :as ast}]
                                   (let [argc (count params)]
                                     (assoc ast :methods
-                                           (filter #(and (= name (:name %))
+                                           (filter #(and ((name-matches? name) (:name %))
                                                          (= argc (count (:parameter-types %))))
                                                    all-methods)))) methods)))
     ast))

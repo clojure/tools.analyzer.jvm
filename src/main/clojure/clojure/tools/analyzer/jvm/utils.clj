@@ -193,17 +193,25 @@
             false))
         (or to from))))
 
+(defn name-matches? [member]
+  (let [member-name (str member)
+        i (.lastIndexOf member-name ".")
+        member-name* (when (pos? i)
+                       (str (s/replace (subs member-name 0 i) "-" "_") (subs member-name i)))
+        member-name** (s/replace member-name "-" "_")]
+    (fn [name]
+      (let [name (str name)]
+        (or (= member-name name)
+            (= member-name* name)
+            (= member-name** name))))))
+
+
 (defn members [class member]
   (let [members (-> (maybe-class class)
                   box
                   (type-reflect :ancestors true)
-                  :members)
-        member-name (str member)
-        i (.lastIndexOf member-name ".")
-        member-name (if (pos? i)
-                      (str (s/replace (subs member-name 0 i) "-" "_") (subs member-name i))
-                      member-name)]
-    (when-let [members (filter #(and (= member-name (str (:name %)))
+                  :members)]
+    (when-let [members (filter #(and ((name-matches? member) (:name %))
                                      (not (:private (:flags %))))
                                members)]
       members)))
