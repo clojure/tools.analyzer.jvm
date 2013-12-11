@@ -199,9 +199,10 @@
       :name     (symbol (clojure.core/name name))
       :children (into [:this] (:children method)))))
 
-(defn -deftype [name class-name args interfaces]
+(defn -deftype [name class-name args interfaces & [methods]]
   (let [interfaces (mapv #(symbol (.getName ^Class %)) interfaces)]
-    (eval (list 'do (list 'deftype* name class-name args :implements interfaces)
+    (eval (list 'let []
+                (list* 'deftype* name class-name args :implements interfaces methods)
                 (list 'import class-name)))))
 
 (defmethod parse 'reify*
@@ -244,10 +245,10 @@
                :context :expr
                :locals (zipmap fields fields-expr)
                :this class-name)
-        methods (mapv #(assoc (analyze-method-impls % menv) :interfaces interfaces)
+        methods* (mapv #(assoc (analyze-method-impls % menv) :interfaces interfaces)
                       methods)]
 
-    (-deftype name class-name fields interfaces)
+    (-deftype name class-name fields interfaces methods)
 
     {:op         :deftype
      :env        env
@@ -255,7 +256,7 @@
      :name       name
      :class-name class-name
      :fields     fields-expr
-     :methods    methods
+     :methods    methods*
      :interfaces interfaces
      :children   [:fields :methods]}))
 

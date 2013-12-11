@@ -48,7 +48,7 @@
 
   (let [r-ast (ast (reify
                      Object (toString [this] "")
-                     Appendable (append [this ^char x] this)))]
+                     Appendable (^Appendable append [this ^char x] this)))]
     (is (= :with-meta (-> r-ast :op))) ;; line/column info
     (is (= :reify (-> r-ast :expr :op)))
     (is (= #{Appendable clojure.lang.IObj} (-> r-ast :expr :interfaces)))
@@ -56,7 +56,7 @@
 
   (let [dt-ast (ast (deftype* x user.x [a b]
                       :implements [Appendable]
-                      (append [this ^char x] this)))]
+                      (^Appendable append [this ^char x] this)))]
     (is (= :deftype (-> dt-ast :op)))
     (is (= '[a b] (->> dt-ast :fields (mapv :name))))
     (is (= '[append] (->> dt-ast :methods (mapv :name))))
