@@ -144,7 +144,10 @@
   "Creates a Var for sym and returns it.
    The Var gets interned in the env namespace."
   [sym {:keys [ns]}]
-  (intern ns sym))
+  (if-let [v (find-var (symbol (str ns) (name sym)))]
+    (doto v
+      (alter-meta! merge (meta sym)))
+    (intern ns sym)))
 
 (defmethod parse 'var
   [[_ var :as form] env]
