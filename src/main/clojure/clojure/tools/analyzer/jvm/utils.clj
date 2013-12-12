@@ -198,12 +198,14 @@
         i (.lastIndexOf member-name ".")
         member-name* (when (pos? i)
                        (str (s/replace (subs member-name 0 i) "-" "_") (subs member-name i)))
-        member-name** (s/replace member-name "-" "_")]
+        member-name** (s/replace member-name "-" "_")
+        member-name*** (munge member-name)]
     (fn [name]
       (let [name (str name)]
         (or (= member-name name)
             (= member-name* name)
-            (= member-name** name))))))
+            (= member-name** name)
+            (= member-name*** name))))))
 
 
 (defn members [class member]
