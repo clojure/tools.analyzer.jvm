@@ -17,17 +17,25 @@
 
 (defn -clear-locals
   [{:keys [op name local path? should-not-clear env] :as ast}]
-  (if (and (= :local op)
-           (#{:let :loop :letfn :arg} local)
-           (or (not ((:closes *clears*) name))
-               (:once env))
-           (not ((:clears *clears*) name))
-           (not should-not-clear))
-    (do
-      (update! *clears* update-in [:branch-clears] conj name)
-      (update! *clears* update-in [:clears] conj name)
-      (assoc ast :to-clear? true))
-    ast))
+  (cond
+   (and (= :local op)
+        (#{:let :loop :letfn :arg} local)
+        (or (not ((:closes *clears*) name))
+            (:once env))
+        (not ((:clears *clears*) name))
+        (not should-not-clear))
+   (do
+     (update! *clears* update-in [:branch-clears] conj name)
+     (update! *clears* update-in [:clears] conj name)
+     (assoc ast :to-clear? true))
+
+   (and (= :invoke op)
+        (= :return (:context env))
+        (not (:in-try env)))
+   (assoc ast :to-clear? true)
+
+   :else
+   ast))
 
 (defn clear-locals-around
   [{:keys [path? branch?] :as ast}]
