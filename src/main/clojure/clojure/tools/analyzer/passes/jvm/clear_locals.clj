@@ -29,7 +29,7 @@
      (update! *clears* update-in [:clears] conj name)
      (assoc ast :to-clear? true))
 
-   (and (= :invoke op)
+   (and (#{:invoke :static-call :instance-call} op)
         (= :return (:context env))
         (not (:in-try env)))
    (assoc ast :to-clear? true)
