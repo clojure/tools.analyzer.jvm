@@ -58,7 +58,7 @@
 
 (defmethod -emit-form :reify
   [{:keys [interfaces methods]} hygienic?]
-  `(reify* ~(mapv class->sym interfaces)
+  `(reify* ~(mapv class->sym (disj interfaces clojure.lang.IObj))
            ~@(mapv #(-emit-form % hygienic?) methods)))
 
 (defmethod -emit-form :case
