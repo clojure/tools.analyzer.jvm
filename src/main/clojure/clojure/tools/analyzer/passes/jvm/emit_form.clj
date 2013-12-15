@@ -47,15 +47,18 @@
     `(~name ~(mapv #(-emit-form % hygienic?) params)
             ~(-emit-form body hygienic?))))
 
+(defn class->sym [class]
+  (symbol (.getName ^Class class)))
+
 (defmethod -emit-form :deftype
   [{:keys [name class-name fields interfaces methods]} hygienic?]
-  `(deftype* ~name ~class-name ~(mapv #(-emit-form % hygienic?) fields)
-     :implements ~(vec interfaces)
+  `(deftype* ~name ~(class->sym class-name) ~(mapv #(-emit-form % hygienic?) fields)
+     :implements ~(mapv class->sym interfaces)
      ~@(mapv #(-emit-form % hygienic?) methods)))
 
 (defmethod -emit-form :reify
   [{:keys [interfaces methods]} hygienic?]
-  `(reify* ~(vec interfaces)
+  `(reify* ~(mapv class->sym interfaces)
            ~@(mapv #(-emit-form % hygienic?) methods)))
 
 (defmethod -emit-form :case
