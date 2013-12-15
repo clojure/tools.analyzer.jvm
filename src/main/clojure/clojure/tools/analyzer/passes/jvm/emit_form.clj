@@ -90,3 +90,22 @@
 (defmethod -emit-form :host-interop
   [{:keys [target m-or-f]} hygienic?]
   `(~(symbol (str "." (name m-or-f))) ~(-emit-form target hygienic?)))
+
+(defmethod -emit-form :prim-invoke
+  [{:keys [fn args]} hygienic?]
+  `(~(-emit-form fn hygienic?)
+    ~@(mapv #(-emit-form % hygienic?) args)))
+
+(defmethod -emit-form :protocol-invoke
+  [{:keys [fn args]} hygienic?]
+  `(~(-emit-form fn hygienic?)
+    ~@(mapv #(-emit-form % hygienic?) args)))
+
+(defmethod -emit-form :keyword-invoke
+  [{:keys [fn args]} hygienic?]
+  `(~(-emit-form fn hygienic?)
+    ~@(mapv #(-emit-form % hygienic?) args)))
+
+(defmethod -emit-form :instance?
+  [{:keys [class target]} hygienic?]
+  `(instance? ~class ~(-emit-form target hygienic?)))
