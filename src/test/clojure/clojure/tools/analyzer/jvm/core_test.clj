@@ -64,7 +64,7 @@
 
   (let [c-ast (ast (case* 1 0 0 :number {2 [2 :two] 3 [3 :three]} :compact :int))]
     (is (= :number (-> c-ast :default :form)))
-    (is (= #{2 3} (->> c-ast :tests (mapv (comp :form :expr :test)) set)))
+    (is (= #{2 3} (->> c-ast :tests (mapv (comp :form :test)) set)))
     (is (= #{:three :two} (->> c-ast :thens (mapv (comp :form :then)) set)))
     (is (= 3 (-> c-ast :high)))
     (is (= :int (-> c-ast :test-type)))
