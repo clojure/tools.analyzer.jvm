@@ -44,10 +44,12 @@
   `(var ~(symbol (name (ns-name (.ns var))) (name (.sym var)))))
 
 (defmethod -emit-form :method
-  [{:keys [params body this name]} hygienic?]
+  [{:keys [params body this name form]} hygienic?]
   (let [params (into [this] params)]
-    `(~name ~(mapv #(-emit-form % hygienic?) params)
-            ~(-emit-form body hygienic?))))
+    `(~(with-meta name (meta (first form)))
+      ~(with-meta (mapv #(-emit-form % hygienic?) params)
+         (meta (second form)))
+      ~(-emit-form body hygienic?))))
 
 (defn class->sym [class]
   (symbol (.getName ^Class class)))
