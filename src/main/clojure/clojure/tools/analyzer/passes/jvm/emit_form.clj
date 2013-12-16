@@ -11,13 +11,15 @@
 
 (defmulti -emit-form (fn [{:keys [op]} _] op))
 
-(defn emit-form [ast]
+(defn emit-form
   "Return the form represented by the given AST"
+  [ast]
   (binding [default/-emit-form* -emit-form]
     (-emit-form ast false)))
 
-(defn emit-hygienic-form [ast]
+(defn emit-hygienic-form
   "Return an hygienic form represented by the given AST"
+  [ast]
   (binding [default/-emit-form* -emit-form]
     (-emit-form ast true)))
 
