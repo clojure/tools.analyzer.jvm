@@ -202,16 +202,17 @@
 (defmethod -validate :invoke
   [{:keys [args tag env fn form] :as ast}]
   (let [argc (count args)]
-    (when (:arglists fn)
-      (when-not (arglist-for-arity fn argc)
-        #_(throw (ex-info (str "No matching arity found for function: " (:name fn))
-                        {:arity (count args)
-                         :fn    fn}))))
     (when (and (= :const (:op fn))
                (not (instance? IFn (:form fn))))
       (throw (ex-info (str (class (:form fn)) " is not a function, but it's used as such")
                       {:form form})))
-    ast))
+    (if (and (:arglists fn)
+             (not (arglist-for-arity fn argc)))
+      (assoc ast :maybe-mismatch-arity true)
+      #_(throw (ex-info (str "No matching arity found for function: " (:name fn))
+                        {:arity (count args)
+                         :fn    fn}))
+      ast)))
 
 (defn validate-interfaces [interfaces]
   (when-not (every? #(.isInterface ^Class %) (disj interfaces Object))
