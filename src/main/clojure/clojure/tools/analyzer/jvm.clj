@@ -14,7 +14,7 @@
              :refer [analyze analyze-in-env wrapping-meta analyze-fn-method]
              :rename {analyze -analyze}]
             [clojure.tools.analyzer.utils :refer [ctx maybe-var]]
-            [clojure.tools.analyzer.passes :refer [walk prewalk postwalk cycling]]
+            [clojure.tools.analyzer.ast :refer [walk prewalk postwalk cycling]]
             [clojure.tools.analyzer.jvm.utils :refer :all :exclude [box]]
             [clojure.tools.analyzer.passes.source-info :refer [source-info]]
             [clojure.tools.analyzer.passes.trim-do :refer [trim-do]]

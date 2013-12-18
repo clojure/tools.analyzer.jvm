@@ -1,6 +1,6 @@
 (ns clojure.tools.analyzer.jvm.passes-test
   (:refer-clojure :exclude [macroexpand-1])
-  (:require [clojure.tools.analyzer.passes :refer :all]
+  (:require [clojure.tools.analyzer.ast :refer :all]
             [clojure.test :refer [deftest is]]
             [clojure.set :as set]
             [clojure.tools.analyzer.passes.add-binding-atom :refer [add-binding-atom]]

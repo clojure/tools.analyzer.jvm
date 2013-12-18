@@ -7,7 +7,7 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.clear-locals
-  (:require [clojure.tools.analyzer.passes :refer [walk]]
+  (:require [clojure.tools.analyzer.ast :refer [walk]]
             [clojure.tools.analyzer.utils :refer [update!]]))
 
 (def ^:dynamic *clears* {:branch-clears #{}

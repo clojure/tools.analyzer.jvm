@@ -8,7 +8,7 @@
 
 (ns clojure.tools.analyzer.passes.jvm.annotate-tag
   (:require [clojure.tools.analyzer.jvm.utils :refer [unbox maybe-class]]
-            [clojure.tools.analyzer.passes :refer [prewalk]]
+            [clojure.tools.analyzer.ast :refer [prewalk]]
             [clojure.tools.analyzer.utils :refer [update!]])
   (:import (clojure.lang IPersistentMap IPersistentSet ISeq Var ArraySeq
                          PersistentTreeMap PersistentTreeSet PersistentVector)))

@@ -7,7 +7,7 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.validate-loop-locals
-  (:require [clojure.tools.analyzer.passes :refer [prewalk postwalk children update-children]]
+  (:require [clojure.tools.analyzer.ast :refer [prewalk postwalk children update-children]]
             [clojure.tools.analyzer.utils :refer [update!]]
             [clojure.tools.analyzer.jvm.utils :refer [wider-tag maybe-class]]))
 
