@@ -204,7 +204,7 @@
   (let [argc (count args)]
     (when (:arglists fn)
       (when-not (arglist-for-arity fn argc)
-        (throw (ex-info (str "No matching arity found for function: " (:name fn))
+        #_(throw (ex-info (str "No matching arity found for function: " (:name fn))
                         {:arity (count args)
                          :fn    fn}))))
     (when (and (= :const (:op fn))
