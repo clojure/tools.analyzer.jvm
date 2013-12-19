@@ -196,7 +196,14 @@
   (when-let [arglists (:arglists init)]
     (doseq [arglist arglists]
       (when-let [tag (:tag (meta arglist))]
-        (validate-tag tag)))
+        (try
+          (validate-tag tag)
+          (catch Exception e
+            (throw (ex-info (str "class: " tag
+                                 " not found for metadata of var: " var)
+                            (assoc (ex-data e)
+                              :tag-kind :var-metadata
+                              :ast ast)))))))
     #_(alter-meta! var assoc :arg-lists arglists))
   ast)
 
@@ -270,6 +277,16 @@
 
 (defmethod -validate :default [ast] ast)
 
+(defn wrap-validate-tag [tag kind ast]
+  (try
+    {kind (validate-tag tag)}
+    (catch Exception e
+      (throw (ex-info (str "class: " tag " of kind " kind
+                           " not found in expr with op: " (:op ast))
+                      (assoc (ex-data e)
+                        :tag-kind kind
+                        :ast ast))))))
+
 (defn validate
   "Validate tags, classes, method calls.
    Throws exceptions when invalid forms are encountered, replaces
@@ -277,11 +294,11 @@
   [{:keys [tag ret-tag bind-tag return-tag] :as ast}]
   (let [ast (merge ast
                    (when tag
-                     {:tag (validate-tag tag)})
+                     (wrap-validate-tag tag :tag ast))
                    (when ret-tag
-                     {:ret-tag (validate-tag ret-tag)})
+                     (wrap-validate-tag ret-tag :ret-tag ast))
                    (when return-tag
-                     {:return-tag (validate-tag return-tag)})
+                     (wrap-validate-tag return-tag :return-tag ast))
                    (when bind-tag
-                     {:bind-tag (validate-tag bind-tag)}))]
+                     (wrap-validate-tag bind-tag :bind-tag ast)))]
     (-validate ast)))
