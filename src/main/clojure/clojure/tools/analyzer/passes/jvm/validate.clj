@@ -15,12 +15,13 @@
 (defmulti -validate :op)
 
 (defmethod -validate :maybe-class
-  [{:keys [class env] :as ast}]
+  [{:keys [class form env] :as ast}]
   (let [{:keys [ns namespaces]} env]
     (if-let [the-class (or (u/maybe-class class)
                            (u/maybe-class (-> @namespaces (get ns) :mappings (get class))))]
       (assoc (-analyze :const the-class env :class)
-        :tag Class)
+        :tag  Class
+        :form form)
       (if (.contains (str class) ".") ;; try and be smart for the exception
         (throw (ex-info (str "class not found: " class)
                         {:class class}))

@@ -19,22 +19,24 @@
   :op)
 
 (defmethod -annotate-literal-tag :default
-  [{:keys [op form] :as ast}]
+  [{:keys [op val] :as ast}]
   (if (= :const op)
-    (assoc ast :tag (class form))
+    (assoc ast :tag (class val))
     ast))
 
 (defmethod -annotate-literal-tag :map
-  [{:keys [form] :as ast}]
-  (if (sorted? form)
-    (assoc ast :tag PersistentTreeMap)
-    (assoc ast :tag IPersistentMap)))
+  [{:keys [form val] :as ast}]
+  (let [form (or val form)]
+    (if (sorted? form)
+      (assoc ast :tag PersistentTreeMap)
+      (assoc ast :tag IPersistentMap))))
 
 (defmethod -annotate-literal-tag :set
-  [{:keys [form] :as ast}]
-  (if (sorted? form)
-    (assoc ast :tag PersistentTreeSet)
-    (assoc ast :tag IPersistentSet)))
+  [{:keys [form val] :as ast}]
+  (let [form (or val form)]
+    (if (sorted? form)
+      (assoc ast :tag PersistentTreeSet)
+      (assoc ast :tag IPersistentSet))))
 
 (defmethod -annotate-literal-tag :vector
   [ast]
@@ -59,7 +61,7 @@
   (assoc ast :tag Var))
 
 (defmethod -annotate-literal-tag :const
-  [{:keys [op type form] :as ast}]
+  [{:keys [op type] :as ast}]
   ((get-method -annotate-literal-tag type) ast))
 
 (defmethod -annotate-literal-tag :quote
@@ -69,8 +71,10 @@
 
 ;; postwalk
 (defn annotate-literal-tag
-  [{:keys [form tag] :as ast}]
-  (if-let [tag (or tag (:tag (meta form)))]
+  [{:keys [form val tag] :as ast}]
+  (if-let [tag (or tag
+                   (:tag (meta form))
+                   (:tag (meta val)))]
     (assoc ast :tag tag)
     (-annotate-literal-tag ast)))
 

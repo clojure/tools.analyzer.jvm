@@ -68,13 +68,14 @@
     (is (= true (-> c-ast :body :ret :test :atom deref :case-test)))))
 
 (deftest annotate-literal-tag-test
-  (is (= PersistentVector (-> {:op :const :form []} annotate-literal-tag :tag)))
+  (is (= PersistentVector (-> {:op :const :form [] :val []} annotate-literal-tag :tag)))
   (is (= PersistentVector (-> (ast []) annotate-literal-tag :tag)))
   (is (= PersistentVector (-> (ast '[]) annotate-literal-tag :tag)))
   (is (= IPersistentMap (-> (ast {}) annotate-literal-tag :tag)))
   (is (= IPersistentSet (-> (ast #{}) annotate-literal-tag :tag)))
   (is (= ISeq (-> (ast '()) annotate-literal-tag :tag)))
-  (is (= Class (-> {:op :const :type :class :form Object} annotate-literal-tag :tag)))
+  (is (= Class (-> {:op :const :type :class :form Object :val Object}
+                 annotate-literal-tag :tag)))
   (is (= String (-> (ast "foo") annotate-literal-tag :tag)))
   (is (= Keyword (-> (ast :foo) annotate-literal-tag :tag)))
   (is (= Character/TYPE (-> (ast \f) annotate-literal-tag :tag)))
@@ -104,7 +105,8 @@
 
 ;; TODO: test primitives, tag matching, throwing validation, method validationbel
 (deftest validate-test
-  (is (= String (-> (ast String) validate :form)))
+  (is (= String (-> (ast String) validate :val)))
+  (is (= 'String (-> (ast String) validate :form)))
   (is (= Exception (-> (ast (try (catch Exception e)))
                      (prewalk validate) :catches first :class)))
   (is (-> (ast (set! *warn-on-reflection* true)) validate))
