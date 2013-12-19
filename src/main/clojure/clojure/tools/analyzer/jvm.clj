@@ -13,7 +13,7 @@
              :as ana
              :refer [analyze analyze-in-env wrapping-meta analyze-fn-method]
              :rename {analyze -analyze}]
-            [clojure.tools.analyzer.utils :refer [ctx maybe-var]]
+            [clojure.tools.analyzer.utils :refer [ctx resolve-var]]
             [clojure.tools.analyzer.ast :refer [walk prewalk postwalk cycling]]
             [clojure.tools.analyzer.jvm.utils :refer :all :exclude [box]]
             [clojure.tools.analyzer.passes.source-info :refer [source-info]]
@@ -118,7 +118,7 @@
     (let [op (first form)]
       (if (specials op)
         form
-        (let [v (maybe-var op env)
+        (let [v (resolve-var op env)
               m (meta v)
               local? (-> env :locals (get op))
               macro? (and (not local?) (:macro m))
@@ -151,7 +151,7 @@
 
 (defmethod parse 'var
   [[_ var :as form] env]
-  (if-let [var (maybe-var var env)]
+  (if-let [var (resolve-var var env)]
     {:op   :the-var
      :env  env
      :form form
@@ -378,5 +378,6 @@
   [form env]
   (binding [ana/macroexpand-1 macroexpand-1
             ana/create-var    create-var
-            ana/parse         parse]
+            ana/parse         parse
+            ana/var?          var?]
     (run-passes (-analyze form env))))
