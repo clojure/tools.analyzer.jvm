@@ -71,16 +71,22 @@
                                     (let [tags (conj mismatches tag)]
                                       (with-meta form {:tag (or (wider-tag tags) Object)}))))
                                 bindings mismatch?)
-                binds (zipmap bindings (mapv (comp :tag meta) bindings))]
+                binds (zipmap bindings (mapv (comp :tag meta) bindings))
+                analyze* (fn [ast]
+                           (analyze (postwalk ast
+                                              (fn [ast]
+                                                (when-let [atom (:atom ast)]
+                                                  (swap! atom dissoc :dirty?))
+                                                ast))))]
             (binding [validating? true]
-              (analyze (dissoc (postwalk (assoc ast key
-                                               (mapv (fn [{:keys [atom] :as bind} f]
-                                                       (swap! atom assoc :dirty? true)
-                                                       (assoc (dissoc bind :tag) :form f))
-                                                     (key ast) bindings))
-                                        (comp -cleanup-dirty-nodes
-                                           (fn [ast] (assoc-in ast [:env :loop-locals-casts] binds))))
-                               :dirty?))))
+              (analyze* (dissoc (postwalk (assoc ast key
+                                                 (mapv (fn [{:keys [atom] :as bind} f]
+                                                         (swap! atom assoc :dirty? true)
+                                                         (assoc (dissoc bind :tag) :form f))
+                                                       (key ast) bindings))
+                                          (comp -cleanup-dirty-nodes
+                                             (fn [ast] (assoc-in ast [:env :loop-locals-casts] binds))))
+                                :dirty?))))
           ast)))))
 
 (defmethod -validate-loop-locals :loop
