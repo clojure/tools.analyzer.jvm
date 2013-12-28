@@ -146,7 +146,7 @@
   [sym {:keys [ns]}]
   (if-let [v (find-var (symbol (str ns) (name sym)))]
     (doto v
-      (reset-meta! (meta sym)))
+      (reset-meta! (or (meta sym) {})))
     (intern ns sym)))
 
 (defmethod parse 'var
