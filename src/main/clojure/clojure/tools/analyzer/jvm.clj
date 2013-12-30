@@ -13,7 +13,7 @@
              :as ana
              :refer [analyze analyze-in-env wrapping-meta analyze-fn-method]
              :rename {analyze -analyze}]
-            [clojure.tools.analyzer.utils :refer [ctx resolve-var]]
+            [clojure.tools.analyzer.utils :refer [ctx resolve-var -source-info]]
             [clojure.tools.analyzer.ast :refer [walk prewalk postwalk cycling]]
             [clojure.tools.analyzer.jvm.utils :refer :all :exclude [box]]
             [clojure.tools.analyzer.passes.source-info :refer [source-info]]
@@ -183,10 +183,21 @@
 
 (defn analyze-method-impls
   [[name [this & params :as args] & body :as form] env]
-  {:pre [(symbol? name)
-         (vector? args)
-         this]}
-  (let [meth (cons params body)
+  (when-let [error-msg (cond
+                        (not (symbol? name))
+                        (str "Method name must be a symbol, had: " (class name))
+                        (not (vector? args))
+                        (str "Parameter listing should be a vector, had: " (class args))
+                        (not (first args))
+                        (str"Must supply at least one argument for 'this' in: " name))]
+    (throw (ex-info error-msg
+                    (merge {:form     form
+                            :in       (:this env)
+                            :method   name
+                            :args     args}
+                           (-source-info form env)))))
+  (let [[this & params] args
+        meth (cons params body)
         this-expr {:name  this
                    :env   env
                    :form  this

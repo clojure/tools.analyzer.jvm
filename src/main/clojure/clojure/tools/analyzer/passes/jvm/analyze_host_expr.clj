@@ -8,7 +8,7 @@
 
 (ns clojure.tools.analyzer.passes.jvm.analyze-host-expr
   (:require [clojure.tools.analyzer :as ana]
-            [clojure.tools.analyzer.utils :refer [ctx]]
+            [clojure.tools.analyzer.utils :refer [ctx source-info]]
             [clojure.tools.analyzer.jvm.utils :refer :all]))
 
 (defn maybe-static-field [[_ class sym]]
@@ -70,19 +70,22 @@
   (if class
     (case target-type
       :static (or (maybe-static-field (list '. class field))
-                  (throw (ex-info (str "cannot find field "
+                  (throw (ex-info (str "Cannot find field "
                                        field " for class " class)
-                                  {:class class
-                                   :field field})))
+                                  (merge {:class class
+                                          :field field}
+                                         (source-info env)))))
       :instance (or (maybe-instance-field target-expr class field)
                     {:op       :host-interop
                      :target   (dissoc target-expr :tag :validated?)
                      :m-or-f   field
                      :children [:target]}
-                    #_(throw (ex-info (str "cannot find field "
+                    (when (:literal? target-expr)
+                      (throw (ex-info (str "Cannot find field "
                                            field " for class " class)
-                                      {:instance (dissoc target-expr :env)
-                                       :field    field}))))
+                                      (merge {:instance (dissoc target-expr :env)
+                                              :field    field}
+                                             (source-info env)))))))
     {:op       :host-interop
      :target   target-expr
      :m-or-f   field
@@ -113,10 +116,11 @@
      field
 
      class
-     (throw (ex-info (str "cannot find field or no-arg method call "
+     (throw (ex-info (str "Cannot find field or no-arg method call "
                           m-or-f " for class " class)
-                     {:class  class
-                      :m-or-f m-or-f}))
+                     (merge {:class  class
+                             :m-or-f m-or-f}
+                            (source-info env))))
 
      target-class
      {:op          :host-interop
@@ -124,10 +128,14 @@
       :m-or-f      m-or-f
       :assignable? true
       :children    [:target]}
-     #_(throw (ex-info (str "cannot find field or no-arg method call "
-                          m-or-f " for class " target-class)
-                     {:instance (dissoc target-expr :env)
-                      :m-or-f   m-or-f})))))
+
+     :else
+     (when (:literal? target-expr)
+       (throw (ex-info (str "Cannot find field or no-arg method call "
+                            m-or-f " for class " target-class)
+                       (merge {:instance (dissoc target-expr :env)
+                               :m-or-f   m-or-f}
+                              (source-info env))))))))
 
 (defn analyze-host-expr
   "Performing some reflection, transforms :host-interop/:host-call/:host-field
