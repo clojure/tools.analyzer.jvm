@@ -183,16 +183,6 @@
               (not (primitive? wider)))
       wider)))
 
-(defn can-compare? [from to]
-  (or
-      (if (and to from)
-        (if (convertible? from to)
-          to
-          (if (convertible? to from)
-            from
-            false))
-        (or to from))))
-
 (defn name-matches? [member]
   (let [member-name (str member)
         i (.lastIndexOf member-name ".")
@@ -206,7 +196,6 @@
             (= member-name* name)
             (= member-name** name)
             (= member-name*** name))))))
-
 
 (defn members [class member]
   (let [members (-> (maybe-class class)

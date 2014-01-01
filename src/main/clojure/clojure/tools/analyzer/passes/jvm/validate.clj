@@ -204,8 +204,8 @@
 
 (defmethod -validate :def
   [{:keys [var init form env] :as ast}]
-  (when-let [tag (:tag init)]
-    #_(alter-meta! var assoc :tag tag))
+  #_(when-let [tag (:tag init)]
+      (alter-meta! var assoc :tag tag))
   (when-let [arglists (:arglists init)]
     (doseq [arglist arglists]
       (when-let [tag (:tag (meta arglist))]
