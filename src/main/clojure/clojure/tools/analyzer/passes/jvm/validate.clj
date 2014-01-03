@@ -301,6 +301,7 @@
       {t the-class}
       (throw (ex-info (str "Class not found: " tag " as tag of kind: " t)
                       (merge {:class    tag
+                              :ast      (prewalk ast cleanup)
                               :tag-kind t}
                              (source-info env)))))))
 
