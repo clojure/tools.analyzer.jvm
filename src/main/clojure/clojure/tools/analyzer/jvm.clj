@@ -115,7 +115,7 @@
    returns its expansion, else returns form."
   [form env]
   (if (seq? form)
-    (let [op (first form)]
+    (let [[op & args] form]
       (if (specials op)
         form
         (let [v (resolve-var op env)
@@ -123,7 +123,6 @@
               local? (-> env :locals (get op))
               macro? (and (not local?) (:macro m))
               inline-arities-f (:inline-arities m)
-              args (rest form)
               inline? (and (not local?)
                            (or (not inline-arities-f)
                                (inline-arities-f (count args)))
@@ -151,6 +150,10 @@
 
 (defmethod parse 'var
   [[_ var :as form] env]
+  (when-not (= 2 (count form))
+    (throw (ex-info (str "Wrong number of args to var, had: " (dec (count form)))
+                    (merge {:form form}
+                           (-source-info form env)))))
   (if-let [var (resolve-var var env)]
     {:op   :the-var
      :env  env
@@ -160,6 +163,10 @@
 
 (defmethod parse 'monitor-enter
   [[_ target :as form] env]
+  (when-not (= 2 (count form))
+    (throw (ex-info (str "Wrong number of args to monitor-enter, had: " (dec (count form)))
+                    (merge {:form form}
+                           (-source-info form env)))))
   {:op       :monitor-enter
    :env      env
    :form     form
@@ -168,6 +175,10 @@
 
 (defmethod parse 'monitor-exit
   [[_ target :as form] env]
+  (when-not (= 2 (count form))
+    (throw (ex-info (str "Wrong number of args to monitor-exit, had: " (dec (count form)))
+                    (merge {:form form}
+                           (-source-info form env)))))
   {:op       :monitor-exit
    :env      env
    :form     form
@@ -176,6 +187,10 @@
 
 (defmethod parse 'clojure.core/import*
   [[_ class :as form] env]
+  (when-not (= 2 (count form))
+    (throw (ex-info (str "Wrong number of args to import*, had: " (dec (count form)))
+                    (merge {:form form}
+                           (-source-info form env)))))
   {:op    :import
    :env   env
    :form  form
