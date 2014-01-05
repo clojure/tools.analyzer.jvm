@@ -35,7 +35,8 @@
             [clojure.tools.analyzer.passes.jvm.infer-tag :refer [infer-tag]]
             [clojure.tools.analyzer.passes.jvm.annotate-tag :refer [annotate-literal-tag annotate-binding-tag]]
             [clojure.tools.analyzer.passes.jvm.validate-loop-locals :refer [validate-loop-locals]]
-            [clojure.tools.analyzer.passes.jvm.analyze-host-expr :refer [analyze-host-expr]]))
+            [clojure.tools.analyzer.passes.jvm.analyze-host-expr :refer [analyze-host-expr]]
+            [clojure.tools.analyzer.passes.jvm.type-coerce :refer [type-coerce]]))
 
 (def specials
   "Set of the special forms for clojure in the JVM"
@@ -387,7 +388,7 @@
 
     clear-locals
 
-    (prewalk cleanup)))
+    (postwalk (comp type-coerce cleanup))))
 
 (defn analyze
   "Returns an AST for the form that's compatible with what tools.emitter.jvm requires.
