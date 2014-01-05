@@ -39,17 +39,19 @@
                           :form form}
                          (source-info env)))))
 
+(defn validate-class
+  [{:keys [class form env] :as ast}]
+  (if-let [the-class (u/maybe-class class)]
+    (assoc ast :class the-class)
+    (throw (ex-info (str "Class not found: " class)
+                    (merge {:class      class
+                            :form       form}
+                           (source-info env))))))
+
 (defmethod -validate :catch
-  [{:keys [class validated? env form] :as ast}]
+  [{:keys [validated?] :as ast}]
   (if-not validated?
-    (if-let [the-class (u/maybe-class class)]
-      (assoc ast
-        :class the-class
-        :validated? true)
-      (throw (ex-info (str "Class not found: " class)
-                      (merge {:class class
-                              :form  form}
-                             (source-info env)))))
+    (assoc (validate-class ast) :validated? true)
     ast))
 
 (defmethod -validate :set!
@@ -89,14 +91,6 @@
                     [next]
                     (conj p next))) [] methods)
         methods))))
-
-(defn validate-class
-  [{:keys [class env] :as ast}]
-  (if-let [the-class (u/maybe-class class)]
-    (assoc ast :class the-class)
-    (throw (ex-info (str "Class not found: " class)
-                    (merge {:class class}
-                           (source-info env))))))
 
 (defmethod -validate :new
   [{:keys [validated? env] :as ast}]
