@@ -99,6 +99,16 @@
     (assoc-in [:body :tag] tag)
     (assoc-in [:body :ret-tag] (or (:tag body) Object))))
 
+(defmethod -type-coerce :case
+  [{:keys [test test-type tests] :as ast}]
+  (let [test-tag (:tag test)
+        ast (if (or (nil? test-tag) (numeric? test-tag))
+              (assoc-in ast [:test :tag] Long/TYPE)
+              ast)]
+    (if (= :int test-type)
+      (assoc ast :tests (mapv (fn [test] (assoc test :tag Long/TYPE)) tests))
+      ast)))
+
 (defmethod -type-coerce :set!
   [{:keys [target val] :as ast}]
   (let [t-op (:op target)]
