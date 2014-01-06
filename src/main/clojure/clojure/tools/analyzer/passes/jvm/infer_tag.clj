@@ -39,7 +39,10 @@
 
 (defmethod -infer-tag :var
   [{:keys [var] :as ast}]
-  (let [{:keys [tag arglists]} (meta var)]
+  (let [{:keys [tag arglists]} (meta var)
+        arglists (if (= 'quote (first arglists))
+                   (second arglists)
+                   arglists)]
     ;;if (not dynamic)
     (merge ast
            (when tag
