@@ -35,7 +35,8 @@
             [clojure.tools.analyzer.passes.jvm.infer-tag :refer [infer-tag]]
             [clojure.tools.analyzer.passes.jvm.annotate-tag :refer [annotate-literal-tag annotate-binding-tag]]
             [clojure.tools.analyzer.passes.jvm.validate-loop-locals :refer [validate-loop-locals]]
-            [clojure.tools.analyzer.passes.jvm.analyze-host-expr :refer [analyze-host-expr]]))
+            [clojure.tools.analyzer.passes.jvm.analyze-host-expr :refer [analyze-host-expr]])
+  (:import clojure.lang.IObj))
 
 (def specials
   "Set of the special forms for clojure in the JVM"
@@ -126,14 +127,18 @@
               inline? (and (not local?)
                            (or (not inline-arities-f)
                                (inline-arities-f (count args)))
-                           (:inline m))]
+                           (:inline m))
+              t (:tag m)]
           (cond
 
            macro?
            (apply v form env (rest form)) ; (m &form &env & args)
 
            inline?
-           (vary-meta (apply inline? args) merge m)
+           (let [res (apply inline? args)]
+             (if (and t (instance? IObj res))
+               (vary-meta res assoc :tag t)
+               res))
 
            :else
            (desugar-host-expr form env)))))
@@ -237,7 +242,7 @@
 (defmethod parse 'reify*
   [[_ interfaces & methods :as form] env]
   (let [interfaces (conj (disj (set (mapv maybe-class interfaces)) Object)
-                         clojure.lang.IObj)
+                         IObj)
         name (gensym "reify__")
         class-name (symbol (str (namespace-munge *ns*) "$" name))
         menv (assoc env :this class-name)
