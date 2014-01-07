@@ -17,7 +17,7 @@
             [clojure.tools.analyzer.ast :refer [walk prewalk postwalk cycling]]
             [clojure.tools.analyzer.jvm.utils :refer :all :exclude [box]]
             [clojure.tools.analyzer.passes.source-info :refer [source-info]]
-            [clojure.tools.analyzer.passes.trim-do :refer [trim-do]]
+            [clojure.tools.analyzer.passes.trim :refer [trim]]
             [clojure.tools.analyzer.passes.cleanup :refer [cleanup]]
             [clojure.tools.analyzer.passes.elide-meta :refer [elide-meta]]
             [clojure.tools.analyzer.passes.constant-lifter :refer [constant-lift]]
@@ -362,7 +362,7 @@
 
     (prewalk (fn [ast]
                (-> ast
-                 trim-do
+                 trim
                  warn-earmuff
                  annotate-branch
                  source-info
