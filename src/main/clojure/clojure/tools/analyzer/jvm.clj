@@ -362,7 +362,6 @@
 
     (prewalk (fn [ast]
                (-> ast
-                 trim
                  warn-earmuff
                  annotate-branch
                  source-info
@@ -373,15 +372,17 @@
     ((fn analyze [ast]
        (-> ast
          (postwalk
-          (cycling constant-lift
-                   annotate-literal-tag
-                   annotate-binding-tag
-                   infer-tag
-                   analyze-host-expr
-                   validate
-                   classify-invoke))
+          (comp trim
+             classify-invoke
+             (cycling constant-lift
+                      annotate-literal-tag
+                      annotate-binding-tag
+                      infer-tag
+                      analyze-host-expr
+                      validate)))
          (prewalk
-          (comp box
+          (comp cleanup
+             box
              (validate-loop-locals analyze)))))) ;; empty binding atom
 
     ((collect {:what       #{:constants
@@ -390,9 +391,7 @@
                :where      #{:deftype :reify :fn}
                :top-level? false}))
 
-    clear-locals
-
-    (prewalk cleanup)))
+    clear-locals))
 
 (defn analyze
   "Returns an AST for the form that's compatible with what tools.emitter.jvm requires.
