@@ -381,8 +381,7 @@
                       analyze-host-expr
                       validate)))
          (prewalk
-          (comp cleanup
-             box
+          (comp box
              (validate-loop-locals analyze)))))) ;; empty binding atom
 
     ((collect {:what       #{:constants
@@ -391,7 +390,9 @@
                :where      #{:deftype :reify :fn}
                :top-level? false}))
 
-    clear-locals))
+    clear-locals
+
+    (prewalk cleanup)))
 
 (defn analyze
   "Returns an AST for the form that's compatible with what tools.emitter.jvm requires.
