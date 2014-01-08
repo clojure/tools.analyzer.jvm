@@ -70,9 +70,7 @@
 ;; postwalk
 (defn annotate-literal-tag
   [{:keys [form val tag] :as ast}]
-  (if-let [tag (or tag
-                   (:tag (meta form))
-                   (:tag (meta val)))]
+  (if-let [tag (or tag (:tag (meta val)))]
     (assoc ast :tag tag)
     (-annotate-literal-tag ast)))
 
@@ -84,29 +82,32 @@
 (defmethod annotate-binding-tag :default [ast] ast)
 
 (defmethod annotate-binding-tag :binding
-  [{:keys [form tag init local name atom variadic?] :as ast}]
-  (if-let [tag (or tag
-                   (and (not (:case-test @atom))
-                        (maybe-class (:tag (meta form)))))] ;;explicit tag first
-    (let [ast (assoc ast :tag tag)]
-      (swap! atom assoc :tag tag)
-      (if init
-        (assoc ast :init (assoc init :tag tag))
-        ast))
-    (if-let [tag (maybe-class
-                  (or (and init (:tag init))
-                      (and (= :fn local) clojure.lang.AFunction)
-                      (and (= :arg local)
-                           (and variadic? clojure.lang.ArraySeq))))] ;;?
-      (do (swap! atom assoc :tag tag)
-          (assoc ast :tag tag))
-      ast)))
+  [{:keys [tag init local name atom variadic?] :as ast}]
+  (let [{:keys [form] :as ast} (if (:case-test @atom)
+                                 (update-in ast [:form] vary-meta dissoc :tag)
+                                 ast)]
+    (if-let [tag (or tag (maybe-class (:tag (meta form))))] ;;explicit tag first
+      (let [ast (assoc ast :tag tag)]
+        (swap! atom assoc :tag tag)
+        (if init
+          (assoc ast :init (assoc init :tag tag))
+          ast))
+      (if-let [tag (maybe-class
+                    (or (and init (:tag init))
+                        (and (= :fn local) clojure.lang.AFunction)
+                        (and (= :arg local)
+                             (and variadic? clojure.lang.ArraySeq))))] ;;?
+        (do (swap! atom assoc :tag tag)
+            (assoc ast :tag tag))
+        ast))))
 
 (defmethod annotate-binding-tag :local
   [{:keys [name form tag atom case-test] :as ast}]
-  (if-let [tag (or tag
-                   (and (not case-test)
-                        (:tag (meta form))) ;;explicit tag first
-                   (@atom :tag))]
-    (assoc ast :tag tag)
-    ast))
+  (let [{:keys [form] :as ast} (if (:case-test @atom)
+                                 (update-in ast [:form] vary-meta dissoc :tag)
+                                 ast)]
+    (if-let [tag (or tag
+                     (:tag (meta form)) ;;explicit tag first
+                     (@atom :tag))]
+      (assoc ast :tag tag)
+      ast)))
