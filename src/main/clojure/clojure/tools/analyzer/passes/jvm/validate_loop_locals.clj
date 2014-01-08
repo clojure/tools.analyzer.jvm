@@ -29,7 +29,10 @@
     (assoc ast
       :dirty? true
       :bind-tag cast
-      :tag (or (:tag (meta form)) cast))
+      :tag (or (:tag (meta form)) cast)
+      :form (if (:tag (meta form))
+              (vary-meta form assoc :tag cast)
+              form))
     (if (and (:dirty? @atom)
              (not (:tag (meta form))))
       (dissoc (assoc ast :dirty? true) :bind-tag :tag)
@@ -108,8 +111,8 @@
           locals (:loop-locals env)]
       (assoc ast
         :exprs (mapv (fn [{:keys [env] :as e} n]
-                       (if-let [c (get casts n)]
-                         (assoc e :tag c)
+                       (if-let [[form c] (find casts n)]
+                         (assoc e :tag c :form form)
                          e)) exprs locals)))
     ast))
 

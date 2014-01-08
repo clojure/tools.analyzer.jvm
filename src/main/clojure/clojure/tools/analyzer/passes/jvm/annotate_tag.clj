@@ -70,7 +70,9 @@
 ;; postwalk
 (defn annotate-literal-tag
   [{:keys [form val tag] :as ast}]
-  (if-let [tag (or tag (:tag (meta val)))]
+  (if-let [tag (or tag
+                   (:tag (meta val))
+                   (:tag (meta form)))]
     (assoc ast :tag tag)
     (-annotate-literal-tag ast)))
 
@@ -86,17 +88,16 @@
   (let [{:keys [form] :as ast} (if (:case-test @atom)
                                  (update-in ast [:form] vary-meta dissoc :tag)
                                  ast)]
-    (if-let [tag (or tag (maybe-class (:tag (meta form))))] ;;explicit tag first
+    (if-let [tag (or (:tag (meta form)) tag)] ;;explicit tag first
       (let [ast (assoc ast :tag tag)]
         (swap! atom assoc :tag tag)
         (if init
           (assoc ast :init (assoc init :tag tag))
           ast))
-      (if-let [tag (maybe-class
-                    (or (and init (:tag init))
-                        (and (= :fn local) clojure.lang.AFunction)
-                        (and (= :arg local)
-                             (and variadic? clojure.lang.ArraySeq))))] ;;?
+      (if-let [tag (or (and init (:tag init))
+                       (and (= :fn local) clojure.lang.AFunction)
+                       (and (= :arg local)
+                            (and variadic? clojure.lang.ArraySeq)))]
         (do (swap! atom assoc :tag tag)
             (assoc ast :tag tag))
         ast))))
@@ -106,8 +107,8 @@
   (let [{:keys [form] :as ast} (if (:case-test @atom)
                                  (update-in ast [:form] vary-meta dissoc :tag)
                                  ast)]
-    (if-let [tag (or tag
-                     (:tag (meta form)) ;;explicit tag first
+    (if-let [tag (or (:tag (meta form)) ;;explicit tag first
+                     tag
                      (@atom :tag))]
       (assoc ast :tag tag)
       ast)))
