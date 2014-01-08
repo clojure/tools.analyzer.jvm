@@ -95,6 +95,10 @@
   [{:keys [args] :as ast}]
   (assoc ast :args (mapv -box args)))
 
+(defmethod box :protocol-invoke
+  [{:keys [args] :as ast}]
+  (assoc ast :args (mapv -box args)))
+
 (defmethod box :let
   [{:keys [tag body] :as ast}]
   (if (boxed? tag body)
