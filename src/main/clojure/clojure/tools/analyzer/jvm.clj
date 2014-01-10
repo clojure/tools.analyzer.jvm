@@ -343,6 +343,7 @@
    * constant-lifter
    * warn-earmuff
    * collect
+   * trim
    * jvm.box
    * jvm.annotate-branch
    * jvm.annotate-methods
