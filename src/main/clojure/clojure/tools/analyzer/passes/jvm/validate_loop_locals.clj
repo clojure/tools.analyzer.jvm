@@ -29,7 +29,10 @@
     (assoc ast
       :dirty? true
       :bind-tag cast
-      :tag (or (:tag (meta form)) cast))
+      :tag (or (:tag (meta form)) cast)
+      :form (if (:tag (meta form))
+              (vary-meta form assoc :tag (symbol (.getName ^Class cast)))
+              form))
     (if (and (:dirty? @atom)
              (not (:tag (meta form))))
       (dissoc (assoc ast :dirty? true) :bind-tag :tag)
@@ -71,7 +74,7 @@
                                     (let [tags (conj mismatches tag)]
                                       (with-meta form {:tag (or (wider-tag tags) Object)}))))
                                 bindings mismatch?)
-                binds (zipmap bindings (mapv (comp :tag meta) bindings))
+                binds (zipmap bindings (mapv (comp maybe-class :tag meta) bindings))
                 analyze* (fn [ast]
                            (analyze (postwalk ast
                                               (fn [ast]
@@ -108,8 +111,8 @@
           locals (:loop-locals env)]
       (assoc ast
         :exprs (mapv (fn [{:keys [env] :as e} n]
-                       (if-let [c (get casts n)]
-                         (assoc e :tag c)
+                       (if-let [[form c] (find casts n)]
+                         (assoc e :tag c :form form)
                          e)) exprs locals)))
     ast))
 

@@ -42,6 +42,7 @@
   (-> ast
     (assoc :branch? true)
     (assoc-in [:test :test?] true)
+    (assoc-in [:test :should-not-clear] true)
     (assoc-in [:default :path?] true)))
 
 (defmethod annotate-branch :case-then

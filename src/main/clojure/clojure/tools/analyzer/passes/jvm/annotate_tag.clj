@@ -25,18 +25,16 @@
     ast))
 
 (defmethod -annotate-literal-tag :map
-  [{:keys [form val] :as ast}]
-  (let [form (or val form)]
-    (if (sorted? form)
-      (assoc ast :tag PersistentTreeMap)
-      (assoc ast :tag IPersistentMap))))
+  [{:keys [val] :as ast}]
+  (if (sorted? val)
+    (assoc ast :tag PersistentTreeMap)
+    (assoc ast :tag IPersistentMap)))
 
 (defmethod -annotate-literal-tag :set
-  [{:keys [form val] :as ast}]
-  (let [form (or val form)]
-    (if (sorted? form)
-      (assoc ast :tag PersistentTreeSet)
-      (assoc ast :tag IPersistentSet))))
+  [{:keys [val] :as ast}]
+  (if (sorted? val)
+    (assoc ast :tag PersistentTreeSet)
+    (assoc ast :tag IPersistentSet)))
 
 (defmethod -annotate-literal-tag :vector
   [ast]
@@ -49,8 +47,8 @@
 ;; char and numbers are unboxed by default
 
 (defmethod -annotate-literal-tag :number
-  [{:keys [form] :as ast}]
-  (assoc ast :tag (unbox (class form))))
+  [{:keys [val] :as ast}]
+  (assoc ast :tag (unbox (class val))))
 
 (defmethod -annotate-literal-tag :char
   [ast]
@@ -73,8 +71,8 @@
 (defn annotate-literal-tag
   [{:keys [form val tag] :as ast}]
   (if-let [tag (or tag
-                   (:tag (meta form))
-                   (:tag (meta val)))]
+                   (:tag (meta val))
+                   (:tag (meta form)))]
     (assoc ast :tag tag)
     (-annotate-literal-tag ast)))
 
@@ -86,29 +84,31 @@
 (defmethod annotate-binding-tag :default [ast] ast)
 
 (defmethod annotate-binding-tag :binding
-  [{:keys [form tag init local name atom variadic?] :as ast}]
-  (if-let [tag (or tag
-                   (and (not (:case-test @atom))
-                        (maybe-class (:tag (meta form)))))] ;;explicit tag first
-    (let [ast (assoc ast :tag tag)]
-      (swap! atom assoc :tag tag)
-      (if init
-        (assoc ast :init (assoc init :tag tag))
-        ast))
-    (if-let [tag (maybe-class
-                  (or (and init (:tag init))
-                      (and (= :fn local) clojure.lang.AFunction)
-                      (and (= :arg local)
-                           (and variadic? clojure.lang.ArraySeq))))] ;;?
-      (do (swap! atom assoc :tag tag)
-          (assoc ast :tag tag))
-      ast)))
+  [{:keys [tag init local name atom variadic?] :as ast}]
+  (let [{:keys [form] :as ast} (if (:case-test @atom)
+                                 (update-in ast [:form] vary-meta dissoc :tag)
+                                 ast)]
+    (if-let [tag (or (:tag (meta form)) tag)] ;;explicit tag first
+      (let [ast (assoc ast :tag tag)]
+        (swap! atom assoc :tag tag)
+        (if init
+          (assoc ast :init (assoc init :tag tag))
+          ast))
+      (if-let [tag (or (and init (:tag init))
+                       (and (= :fn local) clojure.lang.AFunction)
+                       (and (= :arg local)
+                            (and variadic? clojure.lang.ArraySeq)))]
+        (do (swap! atom assoc :tag tag)
+            (assoc ast :tag tag))
+        ast))))
 
 (defmethod annotate-binding-tag :local
   [{:keys [name form tag atom case-test] :as ast}]
-  (if-let [tag (or tag
-                   (and (not case-test)
-                        (:tag (meta form))) ;;explicit tag first
-                   (@atom :tag))]
-    (assoc ast :tag tag)
-    ast))
+  (let [{:keys [form] :as ast} (if (:case-test @atom)
+                                 (update-in ast [:form] vary-meta dissoc :tag)
+                                 ast)]
+    (if-let [tag (or (:tag (meta form)) ;;explicit tag first
+                     tag
+                     (@atom :tag))]
+      (assoc ast :tag tag)
+      ast)))

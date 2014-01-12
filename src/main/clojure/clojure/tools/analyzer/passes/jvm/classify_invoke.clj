@@ -7,7 +7,7 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.classify-invoke
-  (:require [clojure.tools.analyzer.utils :refer [arglist-for-arity protocol-node?]]
+  (:require [clojure.tools.analyzer.utils :refer [arglist-for-arity protocol-node? source-info]]
             [clojure.tools.analyzer.jvm.utils
              :refer [maybe-class prim-or-obj primitive? prim-interface]]))
 
@@ -41,7 +41,8 @@
        (if (<= 1 argc 2)
          (assoc ast :op :keyword-invoke)
          (throw (ex-info (str "Cannot invoke keyword with " argc " arguments")
-                         {:form form})))
+                         (merge {:form form}
+                                (source-info env)))))
        (and (= 2 argc)
             var?
             (= #'clojure.core/instance? the-var)
@@ -60,7 +61,8 @@
        (if (>= argc 1)
          (assoc ast :op :protocol-invoke)
          (throw (ex-info "Cannot invoke protocol method with no args"
-                         {:form form})))
+                         (merge {:form form}
+                                (source-info env)))))
 
        prim-interface
        (assoc ast

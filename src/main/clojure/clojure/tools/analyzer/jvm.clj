@@ -13,11 +13,11 @@
              :as ana
              :refer [analyze analyze-in-env wrapping-meta analyze-fn-method]
              :rename {analyze -analyze}]
-            [clojure.tools.analyzer.utils :refer [ctx resolve-var]]
+            [clojure.tools.analyzer.utils :refer [ctx resolve-var -source-info]]
             [clojure.tools.analyzer.ast :refer [walk prewalk postwalk cycling]]
             [clojure.tools.analyzer.jvm.utils :refer :all :exclude [box]]
             [clojure.tools.analyzer.passes.source-info :refer [source-info]]
-            [clojure.tools.analyzer.passes.trim-do :refer [trim-do]]
+            [clojure.tools.analyzer.passes.trim :refer [trim]]
             [clojure.tools.analyzer.passes.cleanup :refer [cleanup]]
             [clojure.tools.analyzer.passes.elide-meta :refer [elide-meta]]
             [clojure.tools.analyzer.passes.constant-lifter :refer [constant-lift]]
@@ -35,7 +35,8 @@
             [clojure.tools.analyzer.passes.jvm.infer-tag :refer [infer-tag]]
             [clojure.tools.analyzer.passes.jvm.annotate-tag :refer [annotate-literal-tag annotate-binding-tag]]
             [clojure.tools.analyzer.passes.jvm.validate-loop-locals :refer [validate-loop-locals]]
-            [clojure.tools.analyzer.passes.jvm.analyze-host-expr :refer [analyze-host-expr]]))
+            [clojure.tools.analyzer.passes.jvm.analyze-host-expr :refer [analyze-host-expr]])
+  (:import clojure.lang.IObj))
 
 (def specials
   "Set of the special forms for clojure in the JVM"
@@ -115,7 +116,7 @@
    returns its expansion, else returns form."
   [form env]
   (if (seq? form)
-    (let [op (first form)]
+    (let [[op & args] form]
       (if (specials op)
         form
         (let [v (resolve-var op env)
@@ -123,18 +124,21 @@
               local? (-> env :locals (get op))
               macro? (and (not local?) (:macro m))
               inline-arities-f (:inline-arities m)
-              args (rest form)
               inline? (and (not local?)
                            (or (not inline-arities-f)
                                (inline-arities-f (count args)))
-                           (:inline m))]
+                           (:inline m))
+              t (:tag m)]
           (cond
 
            macro?
            (apply v form env (rest form)) ; (m &form &env & args)
 
            inline?
-           (vary-meta (apply inline? args) merge m)
+           (let [res (apply inline? args)]
+             (if (and t (instance? IObj res))
+               (vary-meta res assoc :tag t)
+               res))
 
            :else
            (desugar-host-expr form env)))))
@@ -146,11 +150,15 @@
   [sym {:keys [ns]}]
   (if-let [v (find-var (symbol (str ns) (name sym)))]
     (doto v
-      (reset-meta! (meta sym)))
+      (reset-meta! (or (meta sym) {})))
     (intern ns sym)))
 
 (defmethod parse 'var
   [[_ var :as form] env]
+  (when-not (= 2 (count form))
+    (throw (ex-info (str "Wrong number of args to var, had: " (dec (count form)))
+                    (merge {:form form}
+                           (-source-info form env)))))
   (if-let [var (resolve-var var env)]
     {:op   :the-var
      :env  env
@@ -160,6 +168,10 @@
 
 (defmethod parse 'monitor-enter
   [[_ target :as form] env]
+  (when-not (= 2 (count form))
+    (throw (ex-info (str "Wrong number of args to monitor-enter, had: " (dec (count form)))
+                    (merge {:form form}
+                           (-source-info form env)))))
   {:op       :monitor-enter
    :env      env
    :form     form
@@ -168,6 +180,10 @@
 
 (defmethod parse 'monitor-exit
   [[_ target :as form] env]
+  (when-not (= 2 (count form))
+    (throw (ex-info (str "Wrong number of args to monitor-exit, had: " (dec (count form)))
+                    (merge {:form form}
+                           (-source-info form env)))))
   {:op       :monitor-exit
    :env      env
    :form     form
@@ -176,6 +192,10 @@
 
 (defmethod parse 'clojure.core/import*
   [[_ class :as form] env]
+  (when-not (= 2 (count form))
+    (throw (ex-info (str "Wrong number of args to import*, had: " (dec (count form)))
+                    (merge {:form form}
+                           (-source-info form env)))))
   {:op    :import
    :env   env
    :form  form
@@ -183,10 +203,21 @@
 
 (defn analyze-method-impls
   [[name [this & params :as args] & body :as form] env]
-  {:pre [(symbol? name)
-         (vector? args)
-         this]}
-  (let [meth (cons params body)
+  (when-let [error-msg (cond
+                        (not (symbol? name))
+                        (str "Method name must be a symbol, had: " (class name))
+                        (not (vector? args))
+                        (str "Parameter listing should be a vector, had: " (class args))
+                        (not (first args))
+                        (str"Must supply at least one argument for 'this' in: " name))]
+    (throw (ex-info error-msg
+                    (merge {:form     form
+                            :in       (:this env)
+                            :method   name
+                            :args     args}
+                           (-source-info form env)))))
+  (let [[this & params] args
+        meth (cons params body)
         this-expr {:name  this
                    :env   env
                    :form  this
@@ -211,7 +242,7 @@
 (defmethod parse 'reify*
   [[_ interfaces & methods :as form] env]
   (let [interfaces (conj (disj (set (mapv maybe-class interfaces)) Object)
-                         clojure.lang.IObj)
+                         IObj)
         name (gensym "reify__")
         class-name (symbol (str (namespace-munge *ns*) "$" name))
         menv (assoc env :this class-name)
@@ -312,6 +343,7 @@
    * constant-lifter
    * warn-earmuff
    * collect
+   * trim
    * jvm.box
    * jvm.annotate-branch
    * jvm.annotate-methods
@@ -331,7 +363,6 @@
 
     (prewalk (fn [ast]
                (-> ast
-                 trim-do
                  warn-earmuff
                  annotate-branch
                  source-info
@@ -342,13 +373,14 @@
     ((fn analyze [ast]
        (-> ast
          (postwalk
-          (cycling constant-lift
-                   annotate-literal-tag
-                   annotate-binding-tag
-                   infer-tag
-                   analyze-host-expr
-                   validate
-                   classify-invoke))
+          (comp trim
+             classify-invoke
+             (cycling constant-lift
+                      annotate-literal-tag
+                      annotate-binding-tag
+                      infer-tag
+                      analyze-host-expr
+                      validate)))
          (prewalk
           (comp box
              (validate-loop-locals analyze)))))) ;; empty binding atom

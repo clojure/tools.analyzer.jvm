@@ -95,6 +95,10 @@
   [{:keys [args] :as ast}]
   (assoc ast :args (mapv -box args)))
 
+(defmethod box :protocol-invoke
+  [{:keys [args] :as ast}]
+  (assoc ast :args (mapv -box args)))
+
 (defmethod box :let
   [{:keys [tag body] :as ast}]
   (if (boxed? tag body)
@@ -136,12 +140,17 @@
             :else else})))
 
 (defmethod box :case
-  [{:keys [tag default tests thens] :as ast}]
-  (if (and tag (u/primitive? tag))
-    ast
-    (-> ast
-      (assoc-in [:thens] (mapv (fn [t] (update-in t [:then] -box)) thens))
-      (update-in [:default] -box))))
+  [{:keys [tag default tests thens test-type] :as ast}]
+  (let [ast (if (and tag (u/primitive? tag))
+              ast
+              (-> ast
+                (assoc-in [:thens] (mapv (fn [t] (update-in t [:then] -box)) thens))
+                (update-in [:default] -box)))]
+    (if (= :hash-equiv test-type)
+      (-> ast
+        (update-in [:test] -box)
+        (assoc-in [:tests] (mapv (fn [t] (update-in t [:test] -box)) tests)))
+      ast)))
 
 (defmethod box :try
   [ast]
