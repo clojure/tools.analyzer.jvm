@@ -41,7 +41,10 @@
    "shorts" (Class/forName "[S")
    "objects" (Class/forName "[Ljava.lang.Object;")})
 
-(defmulti ^Class maybe-class class)
+(defmulti ^Class -maybe-class class)
+
+(def ^Class maybe-class
+  (lru (fn [x] (-maybe-class x))))
 
 (defn array-class [element-type]
   (RT/classForName
@@ -59,12 +62,12 @@
         (when (class? maybe-class)
           maybe-class)))))
 
-(defmethod maybe-class :default [_] nil)
-(defmethod maybe-class Class [c] c)
-(defmethod maybe-class String [s]
+(defmethod -maybe-class :default [_] nil)
+(defmethod -maybe-class Class [c] c)
+(defmethod -maybe-class String [s]
   (maybe-class (symbol s)))
 
-(defmethod maybe-class Symbol [sym]
+(defmethod -maybe-class Symbol [sym]
   (when-not (namespace sym)
     (let [sname (name sym)
           snamec (count sname)]
