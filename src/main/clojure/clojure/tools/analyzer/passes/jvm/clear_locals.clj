@@ -13,36 +13,38 @@
 
 (defn -clear-locals
   [{:keys [op name local path? should-not-clear env] :as ast}]
-  (cond
-   (and (= :local op)
-        (#{:let :loop :letfn :arg} local)
-        (or (not ((:closes @*clears*) name))
-            (:once env))
-        (not ((:clears @*clears*) name))
-        (not should-not-clear))
-   (do
-     (swap! *clears* update-in [:branch-clears] conj name)
-     (swap! *clears* update-in [:clears] conj name)
-     (assoc ast :to-clear? true))
+  (let [{:keys [closes clears]} @*clears*]
+   (cond
+    (and (= :local op)
+         (#{:let :loop :letfn :arg} local)
+         (or (not (closes name))
+             (:once env))
+         (not (clears name))
+         (not should-not-clear))
+    (do
+      (swap! *clears* update-in [:branch-clears] conj name)
+      (swap! *clears* update-in [:clears] conj name)
+      (assoc ast :to-clear? true))
 
-   (and (#{:invoke :static-call :instance-call} op)
-        (= :return (:context env))
-        (not (:in-try env)))
-   (assoc ast :to-clear? true)
+    (and (#{:invoke :static-call :instance-call} op)
+         (= :return (:context env))
+         (not (:in-try env)))
+    (assoc ast :to-clear? true)
 
-   :else
-   ast))
+    :else
+    ast)))
 
 (defn clear-locals-around
   [{:keys [path? branch?] :as ast}]
   (let [ast (-clear-locals ast)]
     (when path?
-      (when branch?
-        (swap! *clears* assoc :branch-clears (:top-clears @*clears*))
-        (swap! *clears* assoc :top-clears #{}))
-      (doseq [c (:clears @*clears*)]
-        (when ((:branch-clears @*clears*) c)
-          (swap! *clears* update-in [:clears] disj c))))
+      (let [{:keys [top-clears clears branch-clears]} @*clears*]
+        (when branch?
+          (swap! *clears* assoc :branch-clears top-clears)
+          (swap! *clears* assoc :top-clears #{}))
+        (doseq [c (:branch-clears @*clears*)]
+          (when (clears c)
+            (swap! *clears* update-in [:clears] disj c)))))
     ast))
 
 (defn -propagate-closed-overs
