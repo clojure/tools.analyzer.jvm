@@ -7,26 +7,22 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.clear-locals
-  (:require [clojure.tools.analyzer.ast :refer [walk]]
-            [clojure.tools.analyzer.utils :refer [update!]]))
+  (:require [clojure.tools.analyzer.ast :refer [walk]]))
 
-(def ^:dynamic *clears* {:branch-clears #{}
-                         :top-clears    #{}
-                         :clears        #{}
-                         :closes        #{}})
+(def ^:dynamic *clears*)
 
 (defn -clear-locals
   [{:keys [op name local path? should-not-clear env] :as ast}]
   (cond
    (and (= :local op)
         (#{:let :loop :letfn :arg} local)
-        (or (not ((:closes *clears*) name))
+        (or (not ((:closes @*clears*) name))
             (:once env))
-        (not ((:clears *clears*) name))
+        (not ((:clears @*clears*) name))
         (not should-not-clear))
    (do
-     (update! *clears* update-in [:branch-clears] conj name)
-     (update! *clears* update-in [:clears] conj name)
+     (swap! *clears* update-in [:branch-clears] conj name)
+     (swap! *clears* update-in [:clears] conj name)
      (assoc ast :to-clear? true))
 
    (and (#{:invoke :static-call :instance-call} op)
@@ -42,21 +38,21 @@
   (let [ast (-clear-locals ast)]
     (when path?
       (when branch?
-        (update! *clears* assoc :branch-clears (:top-clears *clears*))
-        (update! *clears* assoc :top-clears #{}))
-      (doseq [c (:clears *clears*)]
-        (when ((:branch-clears *clears*) c)
-          (update! *clears* update-in [:clears] disj c))))
+        (swap! *clears* assoc :branch-clears (:top-clears @*clears*))
+        (swap! *clears* assoc :top-clears #{}))
+      (doseq [c (:clears @*clears*)]
+        (when ((:branch-clears @*clears*) c)
+          (swap! *clears* update-in [:clears] disj c))))
     ast))
 
 (defn -propagate-closed-overs
   [{:keys [op test? path? closed-overs] :as ast}]
   (when (#{:reify :fn :deftype} op)
-    (update! *clears* assoc-in [:closes] (or closed-overs #{})))
+    (swap! *clears* assoc-in [:closes] (or closed-overs #{})))
   (when test?
-    (update! *clears* update-in [:clears] into (:branch-clears *clears*))
-    (update! *clears* assoc :top-clears (:branch-clears *clears*))
-    (update! *clears* assoc :branch-clears #{}))
+    (swap! *clears* update-in [:clears] into (:branch-clears @*clears*))
+    (swap! *clears* assoc :top-clears (:branch-clears @*clears*))
+    (swap! *clears* assoc :branch-clears #{}))
   ast)
 
 (defn clear-locals
@@ -64,5 +60,8 @@
    their clearing (this means that they are in the last reachable position for the
    branch they are in)"
   [ast]
-  (binding [*clears* *clears*]
+  (binding [*clears* (atom {:branch-clears #{}
+                            :top-clears    #{}
+                            :clears        #{}
+                            :closes        #{}})]
     (walk ast -propagate-closed-overs clear-locals-around :reversed)))
