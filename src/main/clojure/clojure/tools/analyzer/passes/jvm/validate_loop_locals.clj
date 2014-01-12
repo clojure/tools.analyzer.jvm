@@ -31,7 +31,7 @@
       :bind-tag cast
       :tag (or (:tag (meta form)) cast)
       :form (if (:tag (meta form))
-              (vary-meta form assoc :tag cast)
+              (vary-meta form assoc :tag (symbol (.getName ^Class cast)))
               form))
     (if (and (:dirty? @atom)
              (not (:tag (meta form))))
