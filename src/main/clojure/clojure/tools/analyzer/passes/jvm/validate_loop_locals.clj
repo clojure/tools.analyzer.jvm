@@ -8,16 +8,15 @@
 
 (ns clojure.tools.analyzer.passes.jvm.validate-loop-locals
   (:require [clojure.tools.analyzer.ast :refer [prewalk postwalk children update-children]]
-            [clojure.tools.analyzer.utils :refer [update!]]
             [clojure.tools.analyzer.jvm.utils :refer [wider-tag maybe-class]]))
 
 (def ^:dynamic ^:private validating? false)
-(def ^:dynamic ^:private mismatch? #{})
+(def ^:dynamic ^:private mismatch?)
 
 (defn find-mismatch [{:keys [op exprs] :as ast} tags loop-id]
   (when (and (= op :recur) (= loop-id (:loop-id ast))
              (not= (mapv :tag exprs) tags))
-    (update! mismatch? conj (mapv :tag exprs)))
+    (swap! mismatch? conj (mapv :tag exprs)))
   ast)
 
 (defmulti -validate-loop-locals (fn [_ {:keys [op]}] op))
@@ -62,18 +61,18 @@
   [analyze {:keys [body env loop-id] :as ast} key]
   (if validating?
     ast
-    (binding [mismatch? #{}]
+    (binding [mismatch? (atom #{})]
       (let [bindings (key ast)
             bind-tags (mapv :tag bindings)]
         (prewalk body (fn [ast] (find-mismatch ast bind-tags loop-id)))
-        (if (seq mismatch?)
+        (if-let [mismatches (seq @mismatch?)]
           (let [bindings (apply mapv
                                 (fn [{:keys [form tag]} & mismatches]
                                   (if (every? #{tag} mismatches)
                                     form
                                     (let [tags (conj mismatches tag)]
                                       (with-meta form {:tag (or (wider-tag tags) Object)}))))
-                                bindings mismatch?)
+                                bindings mismatches)
                 binds (zipmap bindings (mapv (comp maybe-class :tag meta) bindings))
                 analyze* (fn [ast]
                            (analyze (postwalk ast
