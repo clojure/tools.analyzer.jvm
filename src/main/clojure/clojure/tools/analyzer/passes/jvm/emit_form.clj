@@ -37,11 +37,11 @@
 
 (defmethod -emit-form :monitor-enter
   [{:keys [target]} hygienic?]
-  `(monitor-enter ~(-emit-form target hygienic?)))
+  `(monitor-enter ~(-emit-form* target hygienic?)))
 
 (defmethod -emit-form :monitor-exit
   [{:keys [target]} hygienic?]
-  `(monitor-exit ~(-emit-form target hygienic?)))
+  `(monitor-exit ~(-emit-form* target hygienic?)))
 
 (defmethod -emit-form :import
   [{:keys [class]} hygienic?]
@@ -55,32 +55,32 @@
   [{:keys [params body this name form]} hygienic?]
   (let [params (into [this] params)]
     `(~(with-meta name (meta (first form)))
-      ~(with-meta (mapv #(-emit-form % hygienic?) params)
+      ~(with-meta (mapv #(-emit-form* % hygienic?) params)
          (meta (second form)))
-      ~(-emit-form body hygienic?))))
+      ~(-emit-form* body hygienic?))))
 
 (defn class->sym [class]
   (symbol (.getName ^Class class)))
 
 (defmethod -emit-form :deftype
   [{:keys [name class-name fields interfaces methods]} hygienic?]
-  `(deftype* ~name ~(class->sym class-name) ~(mapv #(-emit-form % hygienic?) fields)
+  `(deftype* ~name ~(class->sym class-name) ~(mapv #(-emit-form* % hygienic?) fields)
      :implements ~(mapv class->sym interfaces)
-     ~@(mapv #(-emit-form % hygienic?) methods)))
+     ~@(mapv #(-emit-form* % hygienic?) methods)))
 
 (defmethod -emit-form :reify
   [{:keys [interfaces methods]} hygienic?]
   `(reify* ~(mapv class->sym (disj interfaces clojure.lang.IObj))
-           ~@(mapv #(-emit-form % hygienic?) methods)))
+           ~@(mapv #(-emit-form* % hygienic?) methods)))
 
 (defmethod -emit-form :case
   [{:keys [test default tests thens shift mask low high switch-type test-type skip-check?]} hygienic?]
-  `(case* ~(-emit-form test hygienic?)
+  `(case* ~(-emit-form* test hygienic?)
           ~shift ~mask
-          ~(-emit-form default hygienic?)
+          ~(-emit-form* default hygienic?)
           ~(apply sorted-map
                   (mapcat (fn [{:keys [hash test]} {:keys [then]}]
-                            [hash [(-emit-form test hygienic?) (-emit-form then hygienic?)]])
+                            [hash [(-emit-form* test hygienic?) (-emit-form* then hygienic?)]])
                           tests thens))
           ~switch-type ~test-type ~skip-check?))
 
@@ -91,36 +91,36 @@
 (defmethod -emit-form :static-call
   [{:keys [class method args]} hygienic?]
   `(~(symbol (.getName ^Class class) (name method))
-    ~@(mapv #(-emit-form % hygienic?) args)))
+    ~@(mapv #(-emit-form* % hygienic?) args)))
 
 (defmethod -emit-form :instance-field
   [{:keys [instance field]} hygienic?]
-  `(~(symbol (str ".-" (name field))) ~(-emit-form instance hygienic?)))
+  `(~(symbol (str ".-" (name field))) ~(-emit-form* instance hygienic?)))
 
 (defmethod -emit-form :instance-call
   [{:keys [instance method args]} hygienic?]
-  `(~(symbol (str "." (name method))) ~(-emit-form instance hygienic?)
-    ~@(mapv #(-emit-form % hygienic?) args)))
+  `(~(symbol (str "." (name method))) ~(-emit-form* instance hygienic?)
+    ~@(mapv #(-emit-form* % hygienic?) args)))
 
 (defmethod -emit-form :host-interop
   [{:keys [target m-or-f]} hygienic?]
-  `(~(symbol (str "." (name m-or-f))) ~(-emit-form target hygienic?)))
+  `(~(symbol (str "." (name m-or-f))) ~(-emit-form* target hygienic?)))
 
 (defmethod -emit-form :prim-invoke
   [{:keys [fn args]} hygienic?]
-  `(~(-emit-form fn hygienic?)
-    ~@(mapv #(-emit-form % hygienic?) args)))
+  `(~(-emit-form* fn hygienic?)
+    ~@(mapv #(-emit-form* % hygienic?) args)))
 
 (defmethod -emit-form :protocol-invoke
   [{:keys [fn args]} hygienic?]
-  `(~(-emit-form fn hygienic?)
-    ~@(mapv #(-emit-form % hygienic?) args)))
+  `(~(-emit-form* fn hygienic?)
+    ~@(mapv #(-emit-form* % hygienic?) args)))
 
 (defmethod -emit-form :keyword-invoke
   [{:keys [fn args]} hygienic?]
-  `(~(-emit-form fn hygienic?)
-    ~@(mapv #(-emit-form % hygienic?) args)))
+  `(~(-emit-form* fn hygienic?)
+    ~@(mapv #(-emit-form* % hygienic?) args)))
 
 (defmethod -emit-form :instance?
   [{:keys [class target]} hygienic?]
-  `(instance? ~class ~(-emit-form target hygienic?)))
+  `(instance? ~class ~(-emit-form* target hygienic?)))
