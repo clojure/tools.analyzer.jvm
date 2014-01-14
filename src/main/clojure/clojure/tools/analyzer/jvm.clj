@@ -373,7 +373,7 @@
     ((fn analyze [ast]
        (-> ast
          (postwalk
-          (comp trim
+          (comp #_trim
              classify-invoke
              (cycling constant-lift
                       annotate-literal-tag

@@ -11,17 +11,24 @@
 
 (defmulti -emit-form (fn [{:keys [op]} _] op))
 
+(defn -emit-form*
+  [{:keys [form] :as ast} hygienic?]
+  (let [expr (-emit-form ast hygienic?)]
+    (if-let [m (meta form)]
+      (with-meta expr (merge (meta expr) m))
+      expr)))
+
 (defn emit-form
   "Return the form represented by the given AST"
   [ast]
-  (binding [default/-emit-form* -emit-form]
-    (-emit-form ast false)))
+  (binding [default/-emit-form* -emit-form*]
+    (-emit-form* ast false)))
 
 (defn emit-hygienic-form
   "Return an hygienic form represented by the given AST"
   [ast]
-  (binding [default/-emit-form* -emit-form]
-    (-emit-form ast true)))
+  (binding [default/-emit-form* -emit-form*]
+    (-emit-form* ast true)))
 
 (defmethod -emit-form :default
   [ast hygienic?]
