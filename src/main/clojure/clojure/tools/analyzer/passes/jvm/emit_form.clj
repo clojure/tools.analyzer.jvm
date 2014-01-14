@@ -62,6 +62,11 @@
 (defn class->sym [class]
   (symbol (.getName ^Class class)))
 
+(defmethod -emit-form :catch
+  [{:keys [class local body]} hygienic?]
+  `(catch ~(class->sym class) ~(-emit-form* local hygienic?)
+     ~(-emit-form* body hygienic?)))
+
 (defmethod -emit-form :deftype
   [{:keys [name class-name fields interfaces methods]} hygienic?]
   `(deftype* ~name ~(class->sym class-name) ~(mapv #(-emit-form* % hygienic?) fields)
