@@ -14,7 +14,8 @@
 (defn -emit-form*
   [{:keys [form] :as ast} hygienic?]
   (let [expr (-emit-form ast hygienic?)]
-    (if-let [m (meta form)]
+    (if-let [m (and (instance? clojure.lang.IObj expr)
+                    (meta form))]
       (with-meta expr (merge (meta expr) m))
       expr)))
 
