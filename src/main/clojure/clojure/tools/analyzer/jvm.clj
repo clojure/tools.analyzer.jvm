@@ -85,7 +85,8 @@
           (let [[target & args] expr
                 target (if-let [target (and (not (get (:locals env) target))
                                             (maybe-class target))]
-                         (with-meta (list 'clojure.core/identity target) {:tag Class})
+                         (with-meta (list 'clojure.core/identity target)
+                           {:tag 'java.lang.Class})
                          target)
                 args (list* (symbol (subs opname 1)) args)]
             (with-meta (list '. target (if (= 1 (count args)) ;; we don't know if (.foo bar) is
