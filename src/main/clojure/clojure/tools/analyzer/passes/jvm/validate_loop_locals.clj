@@ -8,14 +8,16 @@
 
 (ns clojure.tools.analyzer.passes.jvm.validate-loop-locals
   (:require [clojure.tools.analyzer.ast :refer [prewalk postwalk children update-children]]
-            [clojure.tools.analyzer.jvm.utils :refer [wider-tag maybe-class]]))
+            [clojure.tools.analyzer.jvm.utils :refer [wider-tag maybe-class primitive?]]))
 
 (def ^:dynamic ^:private validating? false)
 (def ^:dynamic ^:private mismatch?)
 
 (defn find-mismatch [{:keys [op exprs] :as ast} tags loop-id]
   (when (and (= op :recur) (= loop-id (:loop-id ast))
-             (not= (mapv :tag exprs) tags))
+             (some true? (mapv (fn [e t]
+                              (and (primitive? t)
+                                   (not= e t))) (mapv :tag exprs) tags)))
     (swap! mismatch? conj (mapv :tag exprs)))
   ast)
 
