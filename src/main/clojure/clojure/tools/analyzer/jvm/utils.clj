@@ -201,15 +201,18 @@
             (= member-name** name)
             (= member-name*** name))))))
 
-(defn members [class member]
-  (let [members (-> (maybe-class class)
-                  box
-                  (type-reflect :ancestors true)
-                  :members)]
-    (when-let [members (filter #(and ((name-matches? member) (:name %))
-                                     (not (:private (:flags %))))
-                               members)]
-      members)))
+(def members
+  (lru (fn ([class]
+             (remove (fn [{:keys [flags]}]
+                       (not-any? #{:public :protected} flags))
+              (-> (maybe-class class)
+                box
+                (type-reflect :ancestors true)
+                :members)))
+         ([class member]
+            (when-let [members (filter #((name-matches? member) (:name %))
+                                       (members class))]
+              members)))))
 
 (defn static-members [class f]
   (when-let [members (members class f)]
@@ -221,13 +224,15 @@
     (when-let [i-members (remove (comp :static :flags) members)]
       i-members)))
 
-(defn static-methods [class method argc]
-  (filter #(= argc (count (:parameter-types %)))
-          (filter :return-type (static-members class method))))
+(def static-methods
+  (lru (fn [class method argc]
+         (filter #(= argc (count (:parameter-types %)))
+                 (filter :return-type (static-members class method))))))
 
-(defn instance-methods [class method argc]
-  (filter #(= argc (count (:parameter-types %)))
-          (filter :return-type (instance-members class method))))
+(def instance-methods
+  (lru (fn [class method argc]
+         (filter #(= argc (count (:parameter-types %)))
+                 (filter :return-type (instance-members class method))))))
 
 (def static-field
   (lru (fn [class f]
