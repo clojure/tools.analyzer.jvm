@@ -71,26 +71,42 @@
   (let [o-tags (mapv #(or (u/maybe-class %) Object) tags)
         exact-matches (seq (filter
                             #(= o-tags (mapv u/maybe-class  (:parameter-types %))) methods))]
-    (if exact-matches
-      (if (next exact-matches)
-        [(reduce (fn [prev next]
-                   (if (.isAssignableFrom (u/maybe-class (:return-type prev))
-                                          (u/maybe-class (:return-type next)))
-                     next
-                     prev)) exact-matches)]
-        exact-matches)
-      (if-let [methods (seq (filter #(tag-match? tags %) methods))]
-        (reduce (fn [[prev & _ :as p] next]
-                  (if (or (not prev)
-                          (and (= (mapv u/maybe-class (:parameter-types prev))
-                                  (mapv u/maybe-class (:parameter-types next)))
-                               (.isAssignableFrom (u/maybe-class (:return-type prev))
-                                                  (u/maybe-class (:return-type next))))
-                          (some true? (mapv u/subsumes? (:parameter-types next)
-                                         (:parameter-types prev))))
-                    [next]
-                    (conj p next))) [] methods)
-        methods))))
+    (-> (if exact-matches
+         (if (next exact-matches)
+           [(reduce (fn [prev next]
+                      (if (.isAssignableFrom (u/maybe-class (:return-type prev))
+                                             (u/maybe-class (:return-type next)))
+                        next
+                        prev)) exact-matches)]
+           exact-matches)
+         (if-let [methods (seq (filter #(tag-match? tags %) methods))]
+           (reduce (fn [[prev & _ :as p] next]
+                     (if (or (not prev)
+                             (and (= (mapv u/maybe-class (:parameter-types prev))
+                                     (mapv u/maybe-class (:parameter-types next)))
+                                  (.isAssignableFrom (u/maybe-class (:return-type prev))
+                                                     (u/maybe-class (:return-type next))))
+                             (some true? (mapv u/subsumes? (:parameter-types next)
+                                            (:parameter-types prev))))
+                       [next]
+                       (conj p next))) [] methods)
+           methods))
+      ((fn [methods]
+         (reduce (fn [[prev & _ :as p] next]
+                   (if (or (not prev)
+                           (and (= (mapv u/maybe-class (:parameter-types prev))
+                                   (mapv u/maybe-class (:parameter-types next)))
+                                (= (u/maybe-class (:return-type prev))
+                                   (u/maybe-class (:return-type next)))))
+                     (if (or (not prev)
+                             (.isAssignableFrom (u/maybe-class (:declaring-class prev))
+                                                (u/maybe-class (:declaring-class next))))
+                       [next]
+                       (if (.isAssignableFrom (u/maybe-class (:declaring-class next))
+                                              (u/maybe-class (:declaring-class prev)))
+                         p
+                         (conj p next)))
+                     (conj p next))) [] methods))))))
 
 (defmethod -validate :new
   [{:keys [validated? env] :as ast}]
@@ -128,10 +144,12 @@
           (if (empty? rest)
             (let [ret-tag  (u/maybe-class (:return-type m))
                   arg-tags (mapv u/maybe-class (:parameter-types m))
-                  args (mapv (fn [arg tag] (assoc arg :tag tag)) args arg-tags)]
+                  args (mapv (fn [arg tag] (assoc arg :tag tag)) args arg-tags)
+                  class (u/maybe-class (:declaring-class m))]
               (assoc ast
                 :method     (:name m)
                 :validated? true
+                :class      class
                 :ret-tag    ret-tag
                 :tag        (or tag ret-tag)
                 :args       args))
