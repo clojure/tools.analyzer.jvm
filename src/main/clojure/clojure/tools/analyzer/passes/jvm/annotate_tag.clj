@@ -25,24 +25,28 @@
     ast))
 
 (defmethod -annotate-literal-tag :map
-  [{:keys [val] :as ast}]
-  (if (sorted? val)
-    (assoc ast :tag PersistentTreeMap)
-    (assoc ast :tag IPersistentMap)))
+  [{:keys [val form] :as ast}]
+  (if val
+    (assoc ast :tag (class val))
+    (assoc ast :tag (class form))))
 
 (defmethod -annotate-literal-tag :set
-  [{:keys [val] :as ast}]
-  (if (sorted? val)
-    (assoc ast :tag PersistentTreeSet)
-    (assoc ast :tag IPersistentSet)))
+  [{:keys [val form] :as ast}]
+  (if val
+    (assoc ast :tag (class val))
+    (assoc ast :tag (class form))))
 
 (defmethod -annotate-literal-tag :vector
-  [ast]
-  (assoc ast :tag PersistentVector))
+  [{:keys [val form] :as ast}]
+  (if val
+    (assoc ast :tag (class val))
+    (assoc ast :tag (class form))))
 
 (defmethod -annotate-literal-tag :seq
-  [ast]
-  (assoc ast :tag ISeq))
+  [{:keys [val form] :as ast}]
+  (if val
+    (assoc ast :tag (class val))
+    (assoc ast :tag (class form))))
 
 ;; char and numbers are unboxed by default
 
