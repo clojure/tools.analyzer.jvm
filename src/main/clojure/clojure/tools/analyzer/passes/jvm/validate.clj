@@ -69,36 +69,42 @@
 
 (defn try-best-match [tags methods]
   (let [o-tags (mapv #(or (u/maybe-class %) Object) tags)]
-    (-> (if-let [methods (or (seq (filter
-                                  #(= o-tags (mapv u/maybe-class  (:parameter-types %))) methods))
-                            (seq (filter #(tag-match? tags %) methods)))]
-         (reduce (fn [[prev & _ :as p] next]
-                   (if (or (not prev)
-                           (and (= (mapv u/maybe-class (:parameter-types prev))
-                                   (mapv u/maybe-class (:parameter-types next)))
-                                (.isAssignableFrom (u/maybe-class (:return-type prev))
-                                                   (u/maybe-class (:return-type next))))
-                           (some true? (mapv u/subsumes? (:parameter-types next)
-                                          (:parameter-types prev))))
-                     [next]
-                     (conj p next))) [] methods)
-         methods)
-      ((fn [methods]
-         (reduce (fn [[prev & _ :as p] next]
-                   (if (or (not prev)
-                           (and (= (mapv u/maybe-class (:parameter-types prev))
-                                   (mapv u/maybe-class (:parameter-types next)))
-                                (= (u/maybe-class (:return-type prev))
-                                   (u/maybe-class (:return-type next)))))
-                     (if (or (not prev)
-                             (.isAssignableFrom (u/maybe-class (:declaring-class prev))
-                                                (u/maybe-class (:declaring-class next))))
-                       [next]
-                       (if (.isAssignableFrom (u/maybe-class (:declaring-class next))
-                                              (u/maybe-class (:declaring-class prev)))
-                         p
-                         (conj p next)))
-                     (conj p next))) [] methods))))))
+    (if-let [methods (or (seq (filter
+                               #(= o-tags (mapv u/maybe-class  (:parameter-types %))) methods))
+                         (seq (filter #(tag-match? tags %) methods)))]
+      (reduce (fn [[prev & _ :as p] next]
+                (let [prev-params (mapv u/maybe-class (:parameter-types prev))
+                      next-params (mapv u/maybe-class (:parameter-types next))
+                      prev-ret    (u/maybe-class (:return-type prev))
+                      next-ret    (u/maybe-class (:return-type next))
+                      prev-decl   (u/maybe-class (:declaring-class prev))
+                      next-decl   (u/maybe-class (:declaring-class next))]
+                  (cond
+                  (not prev)
+                  [next]
+                  (= prev-params next-params)
+                  (cond
+                   (= prev-ret next-ret)
+                   (cond
+                    (.isAssignableFrom prev-decl next-decl)
+                    [next]
+                    (.isAssignableFrom next-decl prev-decl)
+                    p
+                    :else
+                    (conj p next))
+                   (.isAssignableFrom prev-ret next-ret)
+                   [next]
+                   (.isAssignableFrom next-ret prev-ret)
+                   p
+                   :else
+                   (conj p next))
+                  (every? true? (mapv (fn [n p] (or (u/subsumes? n p)
+                                           (= n p)))
+                              next-params prev-params))
+                  [next]
+                  :else
+                  (conj p next)))) [] methods)
+      methods)))
 
 (defmethod -validate :new
   [{:keys [validated? env] :as ast}]
