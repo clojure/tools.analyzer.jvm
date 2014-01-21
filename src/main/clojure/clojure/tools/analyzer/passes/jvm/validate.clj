@@ -69,20 +69,20 @@
 
 (defn try-best-match [tags methods]
   (let [o-tags (mapv #(or (u/maybe-class %) Object) tags)]
-    (-> (or (seq (filter
-                 #(= o-tags (mapv u/maybe-class  (:parameter-types %))) methods))
-           (if-let [methods (seq (filter #(tag-match? tags %) methods))]
-             (reduce (fn [[prev & _ :as p] next]
-                       (if (or (not prev)
-                               (and (= (mapv u/maybe-class (:parameter-types prev))
-                                       (mapv u/maybe-class (:parameter-types next)))
-                                    (.isAssignableFrom (u/maybe-class (:return-type prev))
-                                                       (u/maybe-class (:return-type next))))
-                               (some true? (mapv u/subsumes? (:parameter-types next)
-                                              (:parameter-types prev))))
-                         [next]
-                         (conj p next))) [] methods)
-             methods))
+    (-> (if-let [methods (or (seq (filter
+                                  #(= o-tags (mapv u/maybe-class  (:parameter-types %))) methods))
+                            (seq (filter #(tag-match? tags %) methods)))]
+         (reduce (fn [[prev & _ :as p] next]
+                   (if (or (not prev)
+                           (and (= (mapv u/maybe-class (:parameter-types prev))
+                                   (mapv u/maybe-class (:parameter-types next)))
+                                (.isAssignableFrom (u/maybe-class (:return-type prev))
+                                                   (u/maybe-class (:return-type next))))
+                           (some true? (mapv u/subsumes? (:parameter-types next)
+                                          (:parameter-types prev))))
+                     [next]
+                     (conj p next))) [] methods)
+         methods)
       ((fn [methods]
          (reduce (fn [[prev & _ :as p] next]
                    (if (or (not prev)
