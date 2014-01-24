@@ -120,7 +120,8 @@
         (if ctor
           (if (empty? rest)
             (let [arg-tags (mapv u/maybe-class (:parameter-types ctor))
-                  args (mapv (fn [arg tag] (assoc arg :tag tag))
+                  args (mapv (fn [{:keys [ret-tag bind-tag] :as arg} tag]
+                               (assoc arg :tag tag :ret-tag (or ret-tag bind-tag Object)))
                              args arg-tags)]
               (assoc ast
                 :args       args
@@ -142,7 +143,9 @@
           (if (empty? rest)
             (let [ret-tag  (u/maybe-class (:return-type m))
                   arg-tags (mapv u/maybe-class (:parameter-types m))
-                  args (mapv (fn [arg tag] (assoc arg :tag tag)) args arg-tags)
+                  args (mapv (fn [{:keys [ret-tag bind-tag] :as arg} tag]
+                               (assoc arg :tag tag :ret-tag (or ret-tag bind-tag Object)))
+                             args arg-tags)
                   class (u/maybe-class (:declaring-class m))]
               (assoc ast
                 :method     (:name m)

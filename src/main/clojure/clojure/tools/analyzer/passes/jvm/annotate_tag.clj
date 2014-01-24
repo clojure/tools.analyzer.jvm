@@ -87,7 +87,7 @@
   (let [{:keys [form] :as ast} (if (:case-test @atom)
                                  (update-in ast [:form] vary-meta dissoc :tag)
                                  ast)]
-    (if-let [tag (or (:tag (meta form)) tag)] ;;explicit tag first
+    (if-let [tag (maybe-class (or (:tag (meta form)) tag))] ;;explicit tag first
       (let [ast (assoc ast :tag tag)]
         (swap! atom assoc :tag tag)
         (if init
