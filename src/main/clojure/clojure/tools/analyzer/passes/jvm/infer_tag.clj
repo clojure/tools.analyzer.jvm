@@ -35,7 +35,7 @@
                        (if (u/primitive? tag)
                          tag
                          Object)
-                       tag)})))
+                       (or tag Object))})))
 
 (defmethod -infer-tag :var
   [{:keys [var] :as ast}]
