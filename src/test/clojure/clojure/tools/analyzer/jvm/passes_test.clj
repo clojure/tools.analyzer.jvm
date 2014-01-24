@@ -18,7 +18,7 @@
             [clojure.tools.analyzer.passes.jvm.analyze-host-expr :refer [analyze-host-expr]]
             [clojure.tools.analyzer.passes.jvm.classify-invoke :refer [classify-invoke]])
   (:import (clojure.lang Keyword Var Symbol AFunction
-                         PersistentVector PersistentArrayMap PersistentHashSet PersistentList$EmptyList)
+                         PersistentVector PersistentArrayMap PersistentHashSet ISeq)
            java.util.regex.Pattern))
 
 (deftest emit-form-test
@@ -72,7 +72,7 @@
   (is (= PersistentVector (-> (ast '[]) annotate-literal-tag :tag)))
   (is (= PersistentArrayMap(-> (ast {}) annotate-literal-tag :tag)))
   (is (= PersistentHashSet (-> (ast #{}) annotate-literal-tag :tag)))
-  (is (= PersistentList$EmptyList (-> (ast '()) annotate-literal-tag :tag)))
+  (is (= ISeq (-> (ast '()) annotate-literal-tag :tag)))
   (is (= Class (-> {:op :const :type :class :form Object :val Object}
                  annotate-literal-tag :tag)))
   (is (= String (-> (ast "foo") annotate-literal-tag :tag)))

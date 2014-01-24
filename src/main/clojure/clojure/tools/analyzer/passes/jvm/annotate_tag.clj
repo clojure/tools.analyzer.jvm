@@ -26,27 +26,22 @@
 
 (defmethod -annotate-literal-tag :map
   [{:keys [val form] :as ast}]
-  (if val
-    (assoc ast :tag (class val))
-    (assoc ast :tag (class form))))
+  (assoc ast :tag (class (or val form))))
 
 (defmethod -annotate-literal-tag :set
   [{:keys [val form] :as ast}]
-  (if val
-    (assoc ast :tag (class val))
-    (assoc ast :tag (class form))))
+  (assoc ast :tag (class (or val form))))
 
 (defmethod -annotate-literal-tag :vector
   [{:keys [val form] :as ast}]
-  (if val
-    (assoc ast :tag (class val))
-    (assoc ast :tag (class form))))
+  (assoc ast :tag (class (or val form))))
 
 (defmethod -annotate-literal-tag :seq
   [{:keys [val form] :as ast}]
-  (if val
-    (assoc ast :tag (class val))
-    (assoc ast :tag (class form))))
+  (let [v (or val form)]
+    (assoc ast :tag (if (= () v)
+                      ISeq
+                      (class v)))))
 
 ;; char and numbers are unboxed by default
 
