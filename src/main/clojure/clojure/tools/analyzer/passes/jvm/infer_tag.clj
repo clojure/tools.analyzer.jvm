@@ -150,8 +150,8 @@
 
 (defmethod -infer-tag :fn-method
   [{:keys [form body params local] :as ast}]
-  (let [annotated-tag (u/maybe-class (or (:tag (meta (first form)))
-                                         (:tag (meta (:form local)))))
+  (let [annotated-tag (or (:tag (meta (first form)))
+                          (:tag (meta (:form local))))
         body-tag (:tag body)
         tag (or annotated-tag body-tag)]
     (merge ast

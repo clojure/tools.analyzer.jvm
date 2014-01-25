@@ -217,14 +217,6 @@
   #_(when-let [tag (:tag init)]
       (alter-meta! var assoc :tag tag))
   (when-let [arglists (:arglists init)]
-    (doseq [arglist arglists]
-      (when-let [tag (:tag (meta arglist))]
-        (if-not (u/maybe-class tag)
-          (throw (ex-info (str "Class: " tag " not found as tag for var: " var)
-                          (merge {:tag-kind :var-metadata
-                                  :class    tag
-                                  :form     form}
-                                 (source-info env)))))))
     #_(alter-meta! var assoc :arg-lists arglists))
   ast)
 
@@ -310,17 +302,22 @@
   (let [tag (ast t)]
     (if-let [the-class (u/maybe-class tag)]
       {t the-class}
-      (throw (ex-info (str "Class not found: " tag " as tag of kind: " t)
+      (throw (ex-info (str "Class not found: " tag)
                       (merge {:class    tag
-                              :ast      (prewalk ast cleanup)
-                              :tag-kind t}
+                              :ast      (prewalk ast cleanup)}
                              (source-info env)))))))
 
 (defn validate
   "Validate tags, classes, method calls.
    Throws exceptions when invalid forms are encountered, replaces
    class symbols with class objects."
-  [{:keys [tag o-tag return-tag] :as ast}]
+  [{:keys [tag o-tag return-tag form env] :as ast}]
+  (when-let [t (:tag (meta form))]
+    (when-not (u/maybe-class t)
+      (throw (ex-info (str "Class not found: " t)
+                      (merge {:class    t
+                              :ast      (prewalk ast cleanup)}
+                             (source-info env))))))
   (let [ast (merge ast
                    (when tag
                      (validate-tag :tag ast))
