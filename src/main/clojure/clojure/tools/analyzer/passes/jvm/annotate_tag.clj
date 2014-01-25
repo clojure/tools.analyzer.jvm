@@ -64,16 +64,19 @@
 (defmethod -annotate-literal-tag :quote
   [{:keys [expr] :as ast}]
   (let [{:keys [tag]} (-annotate-literal-tag expr)]
-    (assoc ast :tag tag)))
+    (assoc ast :tag tag :o-tag tag)))
 
 ;; postwalk
 (defn annotate-literal-tag
   "If the AST node type is a constant object, attach a :tag field to the
    node representing the form type."
-  [{:keys [form val tag] :as ast}]
+  [{:keys [form val tag atom] :as ast}]
   (if-let [tag (or tag
                    (:tag (meta val))
-                   (:tag (meta form)))]
+                   (let [form-tag (:tag (meta form))]
+                     (when (or (not atom)
+                             (not (:case-test @atom)))
+                       form-tag)))]
     (assoc (-annotate-literal-tag ast) :tag (maybe-class tag))
     (-annotate-literal-tag ast)))
 
