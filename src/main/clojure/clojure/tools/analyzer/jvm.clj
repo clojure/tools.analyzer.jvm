@@ -223,6 +223,7 @@
                    :env   env
                    :form  this
                    :op    :binding
+                   :o-tag (:this env)
                    :tag   (:this env)
                    :local :this}
         env (assoc-in (dissoc env :this) [:locals this] this-expr)

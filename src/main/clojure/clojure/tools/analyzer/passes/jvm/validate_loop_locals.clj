@@ -29,14 +29,14 @@
   (if-let [cast ((:loop-locals-casts env) form)]
     (assoc ast
       :dirty? true
-      :bind-tag cast
+      :o-tag cast
       :tag (or (:tag (meta form)) cast)
       :form (if (:tag (meta form))
               (vary-meta form assoc :tag (symbol (.getName ^Class cast)))
               form))
     (if (and (:dirty? @atom)
              (not (:tag (meta form))))
-      (dissoc (assoc ast :dirty? true) :bind-tag :tag)
+      (dissoc (assoc ast :dirty? true) :o-tag :tag)
       ast)))
 
 (defn dirty [ast]
@@ -56,7 +56,7 @@
   [{:keys [op] :as ast}]
   (if (some :dirty? (children ast))
     (dissoc (dirty ast)
-            :tag :validated? :ret-tag (when (= :instance-call op) :class))
+            :tag :validated? (when (= :instance-call op) :class))
     ast))
 
 (defn -validate-loop-locals*

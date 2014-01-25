@@ -22,8 +22,9 @@
     (if-let [the-class (or (u/maybe-class class)
                            (u/maybe-class (-> @namespaces (get ns) :mappings (get class))))]
       (assoc (-analyze :const the-class env :class)
-        :tag  Class
-        :form form)
+        :tag   Class
+        :o-tag Class
+        :form  form)
       (if (.contains (str class) ".") ;; try and be smart for the exception
         (throw (ex-info (str "Class not found: " class)
                         (merge {:class class}
@@ -120,9 +121,7 @@
         (if ctor
           (if (empty? rest)
             (let [arg-tags (mapv u/maybe-class (:parameter-types ctor))
-                  args (mapv (fn [{:keys [ret-tag bind-tag] :as arg} tag]
-                               (assoc arg :tag tag :ret-tag (or ret-tag bind-tag Object)))
-                             args arg-tags)]
+                  args (mapv (fn [arg tag] (assoc arg :tag tag)) args arg-tags)]
               (assoc ast
                 :args       args
                 :validated? true))
@@ -143,32 +142,30 @@
           (if (empty? rest)
             (let [ret-tag  (u/maybe-class (:return-type m))
                   arg-tags (mapv u/maybe-class (:parameter-types m))
-                  args (mapv (fn [{:keys [ret-tag bind-tag] :as arg} tag]
-                               (assoc arg :tag tag :ret-tag (or ret-tag bind-tag Object)))
-                             args arg-tags)
+                  args (mapv (fn [arg tag] (assoc arg :tag tag)) args arg-tags)
                   class (u/maybe-class (:declaring-class m))]
               (assoc ast
                 :method     (:name m)
                 :validated? true
                 :class      class
-                :ret-tag    ret-tag
+                :o-tag      ret-tag
                 :tag        (or tag ret-tag)
                 :args       args))
             (if (apply = (mapv (comp u/maybe-class :return-type) matching))
               (let [ret-tag (u/maybe-class (:return-type m))]
                 (assoc ast
-                  :ret-tag Object
+                  :o-tag   Object
                   :tag     (or tag ret-tag)))
               ast))
           (if instance?
-            (dissoc ast :class :tag)
+            (assoc (dissoc ast :class) :tag Object :o-tag Object)
             (throw (ex-info (str "No matching method: " method " for class: " class " and given signature")
                             (merge {:method method
                                     :class  class
                                     :args   (mapv (fn [a] (prewalk a cleanup)) args)}
                                    (source-info env)))))))
       (if instance?
-        (dissoc ast :class :tag)
+        (assoc (dissoc ast :class) :tag Object :o-tag Object)
         (throw (ex-info (str "No matching method: " method " for class: " class " and arity: " argc)
                         (merge {:method method
                                 :class  class
@@ -274,7 +271,7 @@
           (let [ret-tag  (u/maybe-class (:return-type m))
                 i-tag    (u/maybe-class (:declaring-class m))
                 arg-tags (mapv u/maybe-class (:parameter-types m))
-                params   (mapv (fn [arg tag] (assoc arg :tag tag)) params arg-tags)]
+                params   (mapv (fn [arg tag] (assoc arg :tag tag :o-tag tag)) params arg-tags)]
             (if (or (empty? rest)
                     (every? (fn [{:keys [return-type parameter-types]}]
                          (and (= (u/maybe-class return-type) ret-tag)
@@ -288,6 +285,7 @@
                 :methods   methods
                 :interface i-tag
                 :tag       ret-tag
+                :o-tag     ret-tag
                 :params    params)
               (throw (ex-info (str "Ambiguous method signature for method: " name)
                               (merge {:method     name
@@ -322,14 +320,12 @@
   "Validate tags, classes, method calls.
    Throws exceptions when invalid forms are encountered, replaces
    class symbols with class objects."
-  [{:keys [tag ret-tag bind-tag return-tag] :as ast}]
+  [{:keys [tag o-tag return-tag] :as ast}]
   (let [ast (merge ast
                    (when tag
                      (validate-tag :tag ast))
-                   (when ret-tag
-                     (validate-tag :ret-tag ast))
+                   (when o-tag
+                     (validate-tag :o-tag ast))
                    (when return-tag
-                     (validate-tag :return-tag ast))
-                   (when bind-tag
-                     (validate-tag :bind-tag ast)))]
+                     (validate-tag :return-tag ast)))]
     (-validate ast)))

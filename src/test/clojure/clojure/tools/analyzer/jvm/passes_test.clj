@@ -114,12 +114,12 @@
 
   (let [s-ast (-> (ast (Integer/parseInt "7")) (prewalk annotate-literal-tag) analyze-host-expr validate)]
     (is (:validated? s-ast))
-    (is (= Integer/TYPE (:ret-tag s-ast)))
+    (is (= Integer/TYPE (:tag s-ast)))
     (is (= [String] (mapv :tag (:args s-ast)))))
 
   (let [i-ast (-> (ast (.hashCode "7")) (prewalk annotate-literal-tag) analyze-host-expr validate)]
     (is (:validated? i-ast))
-    (is (= Integer/TYPE (:ret-tag i-ast)))
+    (is (= Integer/TYPE (:tag i-ast)))
     (is (= [] (mapv :tag (:args i-ast))))
     (is (= String (:class i-ast))))
 

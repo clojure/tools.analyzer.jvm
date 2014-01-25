@@ -162,7 +162,7 @@
 (defmethod box :invoke
   [{:keys [fn args] :as ast}]
   (assoc ast
-    :args (mapv -box args)
-    :ret-tag Object))
+    :args  (mapv -box args)
+    :o-tag Object))
 
 (defmethod box :default [ast] ast)

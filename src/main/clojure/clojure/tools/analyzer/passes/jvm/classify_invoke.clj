@@ -22,14 +22,15 @@
    * if it is a regular function with primitive type hints that match a
      clojure.lang.IFn$[primitive interface], transform the node in a :prim-invoke
      node"
-  [{:keys [op args tag env fn form] :as ast}]
+  [{:keys [op args tag env form] :as ast}]
   (if-not (= op :invoke)
     ast
     (let [argc (count args)
-          op (:op fn)
+          the-fn (:fn ast)
+          op (:op the-fn)
           var? (= :var op)
-          the-var (:var fn)
-          arglist (arglist-for-arity fn argc)
+          the-var (:var the-fn)
+          arglist (arglist-for-arity the-fn argc)
           arg-tags (mapv (comp prim-or-obj maybe-class :tag meta) arglist)
           ret-tag (prim-or-obj (maybe-class (:tag (meta arglist))))
           prim-interface (prim-interface (conj arg-tags ret-tag))]
@@ -37,7 +38,7 @@
       (cond
 
        (and (= :const op)
-            (= :keyword (:type fn)))
+            (= :keyword (:type the-fn)))
        (if (<= 1 argc 2)
          (assoc ast :op :keyword-invoke)
          (throw (ex-info (str "Cannot invoke keyword with " argc " arguments")
@@ -49,11 +50,11 @@
             (= :const (:op (first args)))
             (= :class (:type (first args))))
        {:op       :instance?
-        :class    (:form (first args))
+        :class    (:val (first args))
         :target   (second args)
         :form     form
         :env      env
-        :ret-tag  Boolean/TYPE
+        :o-tag    Boolean/TYPE
         :tag      (or tag Boolean/TYPE)
         :children [:target]}
 
@@ -65,12 +66,12 @@
                                 (source-info env)))))
 
        prim-interface
-       (assoc ast
-         :op :prim-invoke
-         :prim-interface prim-interface
-         :arg-tags arg-tags
-         :ret-tag ret-tag
-         :tag (or tag ret-tag))
+       (merge ast
+              {:op             :prim-invoke
+               :prim-interface prim-interface
+               :args           (mapv (fn [arg tag] (assoc arg :tag tag)) args arg-tags)
+               :o-tag          ret-tag
+               :tag            (or tag ret-tag)})
 
        :else
        ast))))
