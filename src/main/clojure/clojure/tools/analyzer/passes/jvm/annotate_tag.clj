@@ -98,7 +98,7 @@
       (let [ast (assoc ast :tag tag :o-tag tag)]
         (swap! atom assoc :tag tag)
         (if init
-          (assoc ast :o-tag (:tag init))
+          (assoc-in ast [:init :tag] tag)
           ast))
       (do (swap! atom assoc :tag o-tag)
           (assoc ast :tag o-tag :o-tag o-tag)))))
