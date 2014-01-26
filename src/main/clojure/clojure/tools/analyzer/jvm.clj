@@ -22,7 +22,7 @@
             [clojure.tools.analyzer.passes.elide-meta :refer [elide-meta]]
             [clojure.tools.analyzer.passes.constant-lifter :refer [constant-lift]]
             [clojure.tools.analyzer.passes.warn-earmuff :refer [warn-earmuff]]
-            [clojure.tools.analyzer.passes.collect :refer [collect]]
+            [clojure.tools.analyzer.passes.collect :refer [collect collect-closed-overs]]
             [clojure.tools.analyzer.passes.add-binding-atom :refer [add-binding-atom]]
             [clojure.tools.analyzer.passes.uniquify :refer [uniquify-locals]]
             [clojure.tools.analyzer.passes.jvm.box :refer [box]]
@@ -389,10 +389,13 @@
              (validate-loop-locals analyze)))))) ;; empty binding atom
 
     ((collect {:what       #{:constants
-                             :callsites
-                             :closed-overs}
+                             :callsites}
                :where      #{:deftype :reify :fn}
                :top-level? false}))
+
+    (collect-closed-overs {:what  #{:closed-overs}
+                           :where #{:deftype :reify :fn :loop}
+                           :top-level? false})
 
     clear-locals
 

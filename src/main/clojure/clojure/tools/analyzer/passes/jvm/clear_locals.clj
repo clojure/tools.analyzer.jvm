@@ -48,9 +48,9 @@
     ast))
 
 (defn -propagate-closed-overs
-  [{:keys [op test? path? closed-overs] :as ast}]
-  (when (#{:reify :fn :deftype} op)
-    (swap! *clears* assoc-in [:closes] (or closed-overs #{})))
+  [{:keys [test? path? closed-overs] :as ast}]
+  (when closed-overs
+    (swap! *clears* assoc-in [:closes] closed-overs))
   (when test?
     (swap! *clears* update-in [:clears] into (:branch-clears @*clears*))
     (swap! *clears* assoc :top-clears (:branch-clears @*clears*))
