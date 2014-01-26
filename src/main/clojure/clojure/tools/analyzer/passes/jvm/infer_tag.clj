@@ -208,6 +208,16 @@
 (defn infer-tag
   "Performs local type inference on the AST"
   [{:keys [tag form] :as ast}]
-  (if-let [tag (or tag (:tag (meta form)))]
-    (assoc (-infer-tag ast) :tag tag)
-    (-infer-tag ast)))
+  (let [tag (or tag (:tag (meta form)))
+        {:keys [o-tag] :as ast} (-infer-tag ast)]
+    (merge ast
+           (when tag
+             {:tag (u/maybe-class tag)})
+           (when o-tag
+             {:o-tag (u/maybe-class o-tag)}))))
+
+(defn ensure-tag
+  [{:keys [o-tag tag] :as ast}]
+  (assoc ast
+    :tag (or tag Object)
+    :o-tag (or o-tag Object)))

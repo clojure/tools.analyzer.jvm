@@ -32,7 +32,7 @@
             [clojure.tools.analyzer.passes.jvm.clear-locals :refer [clear-locals]]
             [clojure.tools.analyzer.passes.jvm.classify-invoke :refer [classify-invoke]]
             [clojure.tools.analyzer.passes.jvm.validate :refer [validate]]
-            [clojure.tools.analyzer.passes.jvm.infer-tag :refer [infer-tag]]
+            [clojure.tools.analyzer.passes.jvm.infer-tag :refer [infer-tag ensure-tag]]
             [clojure.tools.analyzer.passes.jvm.annotate-tag :refer [annotate-literal-tag annotate-binding-tag]]
             [clojure.tools.analyzer.passes.jvm.validate-loop-locals :refer [validate-loop-locals]]
             [clojure.tools.analyzer.passes.jvm.analyze-host-expr :refer [analyze-host-expr]])
@@ -384,7 +384,8 @@
                       analyze-host-expr
                       validate)))
          (prewalk
-          (comp box
+          (comp ensure-tag
+             box
              (validate-loop-locals analyze)))))) ;; empty binding atom
 
     ((collect {:what       #{:constants

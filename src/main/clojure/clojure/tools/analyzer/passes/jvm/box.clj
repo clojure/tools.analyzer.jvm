@@ -82,13 +82,17 @@
 (defmethod box :do
   [{:keys [tag ret] :as ast}]
   (if (boxed? tag ret)
-    (update-in ast [:ret] -box)
+    (-> ast
+      (update-in [:ret] -box)
+      (update-in [:o-tag] u/box))
     ast))
 
 (defmethod box :quote
   [{:keys [tag expr] :as ast}]
   (if (boxed? tag expr)
-    (update-in ast [:expr] -box)
+    (-> ast
+      (update-in [:expr] -box)
+      (update-in [:o-tag] u/box))
     ast))
 
 (defmethod box :keyword-invoke
@@ -102,42 +106,51 @@
 (defmethod box :let
   [{:keys [tag body] :as ast}]
   (if (boxed? tag body)
-    (update-in ast [:body] -box)
+    (-> ast
+      (update-in [:body] -box)
+      (update-in [:o-tag] u/box))
     ast))
 
 (defmethod box :letfn
   [{:keys [tag body] :as ast}]
   (if (boxed? tag body)
-    (update-in ast [:body] -box)
+    (-> ast
+      (update-in [:body] -box)
+      (update-in [:o-tag] u/box))
     ast))
 
 (defmethod box :loop
   [{:keys [tag body] :as ast}]
   (if (boxed? tag body)
-    (update-in ast [:body] -box)
+    (-> ast
+      (update-in [:body] -box)
+      (update-in [:o-tag] u/box))
     ast))
 
 (defmethod box :fn-method
   [{:keys [tag] :as  ast}]
   (if (u/primitive? tag)
     ast
-    (-box (update-in ast [:body] -box))))
+    (-> ast
+      (update-in [:body] -box)
+      (update-in [:o-tag] u/box))))
 
 (defmethod box :if
-  [{:keys [test then else tag] :as ast}]
+  [{:keys [test then else tag o-tag] :as ast}]
   (let [test-tag (:tag test)
         test (if (and (u/primitive? test-tag)
                       (not= Boolean/TYPE test-tag))
                (assoc test :tag (u/box test-tag))
                test)
-        [then else] (if (or (boxed? tag then)
-                            (boxed? tag else))
-                      (mapv -box [then else])
-                      [then else])]
+        [then else o-tag] (if (or (boxed? tag then)
+                                  (boxed? tag else))
+                            (conj (mapv -box [then else]) (u/box o-tag))
+                            [then else o-tag])]
     (merge ast
-           {:test test
-            :then then
-            :else else})))
+           {:test  test
+            :o-tag o-tag
+            :then  then
+            :else  else})))
 
 (defmethod box :case
   [{:keys [tag default tests thens test-type] :as ast}]
@@ -145,7 +158,8 @@
               ast
               (-> ast
                 (assoc-in [:thens] (mapv (fn [t] (update-in t [:then] -box)) thens))
-                (update-in [:default] -box)))]
+                (update-in [:default] -box)
+                (update-in [:o-tag] u/box)))]
     (if (= :hash-equiv test-type)
       (-> ast
         (update-in [:test] -box)
@@ -157,10 +171,11 @@
   (-> ast
     (update-in [:body] -box)
     (update-in [:catches] #(mapv -box %))
-    (update-in [:finally] -box)))
+    (update-in [:finally] -box)
+    (update-in [:o-tag] u/box)))
 
 (defmethod box :invoke
-  [{:keys [fn args] :as ast}]
+  [{:keys [fn tag args] :as ast}]
   (assoc ast
     :args  (mapv -box args)
     :o-tag Object))
