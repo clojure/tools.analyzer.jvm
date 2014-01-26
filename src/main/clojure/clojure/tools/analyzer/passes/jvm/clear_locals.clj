@@ -14,28 +14,32 @@
 (defn -clear-locals
   [{:keys [op name local path? should-not-clear env] :as ast}]
   (let [{:keys [closes clears]} @*clears*]
-   (cond
-    (and (= :local op)
-         (#{:let :loop :letfn :arg} local)
-         (or (not (closes name))
-             (:once env))
-         (not (clears name))
-         (not should-not-clear))
-    (do
-      (swap! *clears* update-in [:branch-clears] conj name)
-      (swap! *clears* update-in [:clears] conj name)
-      (assoc ast :to-clear? true))
+    (cond
+     (and (= :local op)
+          (#{:let :loop :letfn :arg} local)
+          (or (not (closes name))
+              (:once env))
+          (not (clears name))
+          (not should-not-clear))
+     (do
+       (swap! *clears* update-in [:branch-clears] conj name)
+       (swap! *clears* update-in [:clears] conj name)
+       (assoc ast :to-clear? true))
 
-    (and (#{:invoke :static-call :instance-call} op)
-         (= :return (:context env))
-         (not (:in-try env)))
-    (assoc ast :to-clear? true)
+     (and (#{:invoke :static-call :instance-call} op)
+          (= :return (:context env))
+          (not (:in-try env)))
+     (assoc ast :to-clear? true)
 
-    :else
-    ast)))
+     :else
+     ast)))
 
 (defn clear-locals-around
-  [{:keys [path? branch?] :as ast}]
+  [{:keys [path? branch? closed-overs] :as ast}]
+  (when closed-overs
+    (let [closes (:closes-prev @*clears*)]
+      (swap! *clears* update-in [:closes-prev] pop)
+      (swap! *clears* assoc :closes (peek closes))))
   (let [ast (-clear-locals ast)]
     (when path?
       (let [{:keys [top-clears clears branch-clears]} @*clears*]
@@ -50,7 +54,8 @@
 (defn -propagate-closed-overs
   [{:keys [test? path? closed-overs] :as ast}]
   (when closed-overs
-    (swap! *clears* assoc-in [:closes] closed-overs))
+    (swap! *clears* update-in [:closes-prev] conj (:closes @*clears*))
+    (swap! *clears* assoc :closes closed-overs))
   (when test?
     (swap! *clears* update-in [:clears] into (:branch-clears @*clears*))
     (swap! *clears* assoc :top-clears (:branch-clears @*clears*))
@@ -65,5 +70,6 @@
   (binding [*clears* (atom {:branch-clears #{}
                             :top-clears    #{}
                             :clears        #{}
-                            :closes        #{}})]
+                            :closes        #{}
+                            :closes-prev   []})]
     (walk ast -propagate-closed-overs clear-locals-around :reversed)))
