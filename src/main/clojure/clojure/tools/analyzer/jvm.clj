@@ -366,7 +366,6 @@
     (prewalk (fn [ast]
                (-> ast
                  warn-earmuff
-                 annotate-branch
                  source-info
                  elide-meta
                  annotate-methods
@@ -385,6 +384,7 @@
                       validate)))
          (prewalk
           (comp ensure-tag
+             annotate-branch
              box
              (validate-loop-locals analyze)))))) ;; empty binding atom
 
