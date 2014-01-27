@@ -7,69 +7,79 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.clear-locals
-  (:require [clojure.tools.analyzer.ast :refer [walk]]))
+  (:require [clojure.tools.analyzer.ast :refer [update-children]]))
 
 (def ^:dynamic *clears*)
 
-(defn -clear-locals
-  [{:keys [op name local path? should-not-clear env] :as ast}]
-  (let [{:keys [closes clears]} @*clears*]
-    (cond
-     (and (= :local op)
-          (#{:let :loop :letfn :arg} local)
-          (or (not (closes name))
-              (:once env))
-          (not (clears name))
-          (not should-not-clear))
-     (do
-       (swap! *clears* update-in [:branch-clears] conj name)
-       (swap! *clears* update-in [:clears] conj name)
-       (assoc ast :to-clear? true))
+(defmulti -clear-locals :op)
 
-     (and (#{:invoke :static-call :instance-call} op)
-          (= :return (:context env))
-          (not (:in-try env)))
-     (assoc ast :to-clear? true)
+(defmethod -clear-locals :default
+  [{:keys [closed-overs] :as ast}]
+  (if closed-overs
+    (let [[ast clears] (binding [*clears* (atom (update-in @*clears* [:closed-overs]
+                                                           merge closed-overs))]
+                         [(update-children ast -clear-locals (comp vec rseq)) @*clears*])]
+      (swap! *clears* update-in [:locals] into (:locals clears))
+      ast)
+    (update-children ast -clear-locals (comp vec rseq))))
 
-     :else
-     ast)))
+(defmethod -clear-locals :do
+  [{:keys [statements ret] :as ast}]
+  (let [ret        (-clear-locals ret)
+        statements (vec (rseq (mapv -clear-locals (rseq statements))))]
+    (assoc ast
+      :ret        ret
+      :statements statements)))
 
-(defn clear-locals-around
-  [{:keys [path? branch? closed-overs] :as ast}]
-  (when closed-overs
-    (let [closes (:closes-prev @*clears*)]
-      (swap! *clears* update-in [:closes-prev] pop)
-      (swap! *clears* assoc :closes (peek closes))))
-  (let [ast (-clear-locals ast)]
-    (when path?
-      (let [{:keys [top-clears clears branch-clears]} @*clears*]
-        (when branch?
-          (swap! *clears* assoc :branch-clears top-clears)
-          (swap! *clears* assoc :top-clears #{}))
-        (doseq [c (:branch-clears @*clears*)]
-          (when (clears c)
-            (swap! *clears* update-in [:clears] disj c)))))
-    ast))
+(defmethod -clear-locals :if
+  [{:keys [test then else] :as ast}]
+  (let [[then then-clears] (binding [*clears* (atom @*clears*)]
+                             [(-clear-locals then) @*clears*])
+        [else else-clears] (binding [*clears* (atom @*clears*)]
+                             [(-clear-locals else) @*clears*])
+        locals             (into (:locals then-clears)
+                                 (:locals else-clears))]
+    (swap! *clears* update-in [:locals] into locals)
+    (let [test (-clear-locals test)]
+      (assoc ast
+        :test test
+        :then then
+        :else else))))
 
-(defn -propagate-closed-overs
-  [{:keys [test? path? closed-overs] :as ast}]
-  (when closed-overs
-    (swap! *clears* update-in [:closes-prev] conj (:closes @*clears*))
-    (swap! *clears* assoc :closes closed-overs))
-  (when test?
-    (swap! *clears* update-in [:clears] into (:branch-clears @*clears*))
-    (swap! *clears* assoc :top-clears (:branch-clears @*clears*))
-    (swap! *clears* assoc :branch-clears #{}))
-  ast)
+(defmethod -clear-locals :case
+  [{:keys [test default thens] :as ast}]
+  (let [[thens thens-locals]
+        (reduce (fn [[thens locals] then]
+                  (let [[t l] (binding [*clears* (atom @*clears*)]
+                                [(-clear-locals then) (:locals @*clears*)])]
+                    [(conj thens t) (into locals l)]))
+                [[] #{}] thens)
+        [default {:keys [locals]}] (binding [*clears* (atom @*clears*)]
+                                     [(-clear-locals default) @*clears*])]
+    (swap! *clears* update-in [:locals] into (into thens-locals locals))
+    (assoc ast
+      :test    test
+      :thens   thens
+      :default default)))
+
+(defmethod -clear-locals :local
+  [{:keys [name local should-not-clear env] :as ast}]
+  (let [{:keys [closed-overs locals]} @*clears*]
+    (swap! *clears* update-in [:locals] conj name)
+    (if (and (#{:let :loop :letfn :arg} local)
+             (or (not (closed-overs name))
+                 (:once env)) ;; or return pos of loop
+             (not (locals name))
+             (not should-not-clear))
+      (assoc ast :to-clear? true)
+      ast)))
+
+;; TODO: handle loop, closed-overs
 
 (defn clear-locals
-  "Walks the AST and injects :to-clear? to local nodes in a position suitable for
-   their clearing (this means that they are in the last reachable position for the
-   branch they are in)"
   [ast]
-  (binding [*clears* (atom {:branch-clears #{}
-                            :top-clears    #{}
-                            :clears        #{}
-                            :closes        #{}
-                            :closes-prev   []})]
-    (walk ast -propagate-closed-overs clear-locals-around :reversed)))
+  (binding [*clears* (atom {:loop-id      0
+                            :loop-context :return
+                            :closed-overs  {}
+                            :locals        #{}})]
+    (-clear-locals ast)))
