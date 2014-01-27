@@ -61,21 +61,21 @@
 
 (defmethod -infer-tag :recur
   [ast]
-  (assoc ast :loop-tag true))
+  (assoc ast :ignore-tag true))
 
 (defmethod -infer-tag :do
   [{:keys [ret] :as ast}]
-  (merge ast (select-keys ret [:return-tag :arglists :loop-tag :tag])
+  (merge ast (select-keys ret [:return-tag :arglists :ignore-tag :tag])
          {:o-tag (:tag ret)}))
 
 (defmethod -infer-tag :let
   [{:keys [body] :as ast}]
-  (merge ast (select-keys body [:return-tag :arglists :loop-tag :tag])
+  (merge ast (select-keys body [:return-tag :arglists :ignore-tag :tag])
          {:o-tag (:tag body)}))
 
 (defmethod -infer-tag :letfn
   [{:keys [body] :as ast}]
-  (merge ast (select-keys body [:return-tag :arglists :loop-tag :tag])
+  (merge ast (select-keys body [:return-tag :arglists :ignore-tag :tag])
          {:o-tag (:tag body)}))
 
 (defmethod -infer-tag :loop
@@ -89,18 +89,18 @@
         else-tag (:tag else)]
     (cond
      (and then-tag
-          (or (:loop-tag else)
+          (or (:ignore-tag else)
               (= then-tag else-tag)))
      (merge ast
             {:tag then-tag :o-tag then-tag}
             (when-let [return-tag (:return-tag then)]
-              (when (= return-tag (:return-tag else)) ;;FIX: could fail when (:loop-tag else)
+              (when (= return-tag (:return-tag else)) ;;FIX: could fail when (:ignore-tag else)
                 {:return-tag return-tag}))
-            (when-let [arglists (:arglists then)] ;;FIX: could fail when (:loop-tag else)
+            (when-let [arglists (:arglists then)] ;;FIX: could fail when (:ignore-tag else)
               (when (= arglists (:arglists else)) ;;FIX: should check meta
                 {:arglists arglists})))
 
-     (and else-tag (:loop-tag then))
+     (and else-tag (:ignore-tag then))
      (merge ast
             {:tag else-tag :o-tag else-tag}
             (when-let [return-tag (:return-tag else)]
@@ -108,16 +108,20 @@
             (when-let [arglists (:arglists else)]
               {:arglists arglists}))
 
-     (and (:loop-tag then) (:loop-tag else))
-     (assoc ast :loop-tag true)
+     (and (:ignore-tag then) (:ignore-tag else))
+     (assoc ast :ignore-tag true)
 
      :else
      ast)))
 
+(defmethod -infer-tag :throw
+  [ast]
+  (assoc ast :ignore-tag true))
+
 (defmethod -infer-tag :case
   [{:keys [thens default] :as ast}]
   (let [thens (conj (mapv :then thens) default)
-        exprs (seq (remove :loop-tag thens))
+        exprs (seq (remove :ignore-tag thens))
         tag (:tag (first exprs))]
     (cond
      (and tag
@@ -131,8 +135,8 @@
               (when (every? #(= (:arglists %) arglists) exprs) ;;FIX: should check meta
                 {:arglists arglists})))
 
-     (every? :loop-tag thens)
-     (assoc ast :loop-tag true)
+     (every? :ignore-tag thens)
+     (assoc ast :ignore-tag true)
 
      :else
      ast)))
