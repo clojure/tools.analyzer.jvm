@@ -14,11 +14,20 @@
 (defmulti -clear-locals :op)
 
 (defmethod -clear-locals :default
-  [{:keys [closed-overs] :as ast}]
+  [{:keys [closed-overs op] :as ast}]
   (if closed-overs
     (let [[ast clears] (binding [*clears* (atom (update-in @*clears* [:closed-overs]
                                                            merge closed-overs))]
-                         [(update-children ast -clear-locals (comp vec rseq)) @*clears*])]
+                         [(update-children ast -clear-locals (comp vec rseq)) @*clears*])
+          locals (:locals @*clears*)
+          ast (if (#{:reify :fn} op)
+                (assoc ast :closed-overs (zipmap (keys closed-overs)
+                                                 (mapv (fn [{:keys [name] :as ast}]
+                                                         (if (locals name)
+                                                           ast
+                                                           (assoc ast :to-clear? true)))
+                                                       (vals closed-overs))))
+                ast)]
       (swap! *clears* update-in [:locals] into (:locals clears))
       ast)
     (update-children ast -clear-locals (comp vec rseq))))
@@ -74,7 +83,7 @@
       (assoc ast :to-clear? true)
       ast)))
 
-;; TODO: handle loop, closed-overs
+;; TODO: handle loop
 
 (defn clear-locals
   [ast]
