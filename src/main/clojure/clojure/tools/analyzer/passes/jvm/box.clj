@@ -31,19 +31,25 @@
        (u/primitive? (:tag expr))))
 
 (defmethod box :instance-call
-  [{:keys [args class validated?] :as ast}]
+  [{:keys [args class validated? tag] :as ast}]
   (let [ast (if-let-box class
               (assoc (update-in ast [:instance :tag] u/box) :class class)
               ast)]
     (if validated?
       ast
-      (assoc ast :args (mapv -box args)))))
+      (assoc ast :args (mapv -box args)
+             :o-tag Object :tag (if (not (#{Void Void/TYPE} tag))
+                                  tag
+                                  Object)))))
 
 (defmethod box :static-call
-  [{:keys [args validated?] :as ast}]
+  [{:keys [args validated? tag] :as ast}]
   (if validated?
     ast
-    (assoc ast :args (mapv -box args))))
+    (assoc ast :args (mapv -box args)
+           :o-tag Object :tag (if (not (#{Void Void/TYPE} tag))
+                                tag
+                                Object))))
 
 (defmethod box :new
   [{:keys [args validated?] :as ast}]
