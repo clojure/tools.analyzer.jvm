@@ -37,10 +37,8 @@
     (assoc ast :o-tag t :tag t)))
 
 (defmethod -annotate-literal-tag :seq
-  [{:keys [val tag form] :as ast}]
-  (let [v (or val form)
-        t (if (= () v) ISeq (class v))]
-    (assoc ast :o-tag t :tag t)))
+  [ast]
+  (assoc ast :o-tag ISeq :tag ISeq))
 
 ;; char and numbers are unboxed by default
 
