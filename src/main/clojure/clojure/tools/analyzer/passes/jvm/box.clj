@@ -134,12 +134,14 @@
     ast))
 
 (defmethod box :fn-method
-  [{:keys [tag] :as  ast}]
-  (if (u/primitive? tag)
-    ast
-    (-> ast
-      (update-in [:body] -box)
-      (update-in [:o-tag] u/box))))
+  [{:keys [params tag] :as  ast}]
+  (let [ast (if (u/primitive? tag)
+              ast
+              (-> ast
+                (update-in [:body] -box)
+                (update-in [:o-tag] u/box)))]
+    (assoc ast :params (mapv (fn [{:keys [o-tag] :as p}]
+                               (assoc p :o-tag (u/prim-or-obj o-tag))) params))))
 
 (defmethod box :if
   [{:keys [test then else tag o-tag] :as ast}]
