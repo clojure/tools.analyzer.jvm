@@ -123,7 +123,7 @@
     (is (= [] (mapv :tag (:args i-ast))))
     (is (= String (:class i-ast))))
 
-  (is (= true (-> (ast (import String)) (prewalk validate) :ret :validated?))))
+  (is (= true (-> (ast (import java.lang.String)) (prewalk validate) :ret :validated?))))
 
 ;; we need all or most those passes to perform those tests
 (deftest all-passes-test

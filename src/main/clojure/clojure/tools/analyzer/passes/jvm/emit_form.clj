@@ -45,7 +45,7 @@
 
 (defmethod -emit-form :import
   [{:keys [class]} hygienic?]
-  `(clojure.core/import* ~(.getName ^Class class)))
+  `(clojure.core/import* ~class))
 
 (defmethod -emit-form :the-var
   [{:keys [^clojure.lang.Var var]} hygienic?]
