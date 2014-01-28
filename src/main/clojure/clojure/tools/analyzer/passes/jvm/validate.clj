@@ -146,28 +146,18 @@
 (defmethod -validate :import
   [{:keys [class validated? env form] :as ast}]
   (if-not validated?
-    (if-let [the-class (u/maybe-class class)]
-      (let [{:keys [ns namespaces]} env
-            class-name (.getName the-class)
-            class-sym (-> class-name (subs (inc (.lastIndexOf class-name "."))) symbol)
-            sym-val (get-in @namespaces [ns :mappings class-sym])]
-        (if (and sym-val (not= (.getName ^Class sym-val) class-name)) ;; allow deftype redef
-          (throw (ex-info (str class-sym " already refers to: " sym-val
-                               " in namespace: " ns)
-                          (merge {:class     class
-                                  :class-sym class-sym
-                                  :sym-val   sym-val
-                                  :form      form}
-                                 (source-info env))))
-          (do
-            (swap! namespaces assoc-in
-                   [ns :mappings class-sym] the-class)
-            (assoc ast :class the-class
-                   :validated? true))))
-      (throw (ex-info (str "Class not found: " class)
-                      (merge {:class class
-                              :form  form}
-                             (source-info env)))))
+    (let [{:keys [ns namespaces]} env
+          class-sym (-> class (subs (inc (.lastIndexOf class "."))) symbol)
+          sym-val (get-in @namespaces [ns :mappings class-sym])]
+      (if (and sym-val (not= (.getName ^Class sym-val) class)) ;; allow deftype redef
+        (throw (ex-info (str class-sym " already refers to: " sym-val
+                             " in namespace: " ns)
+                        (merge {:class     class
+                                :class-sym class-sym
+                                :sym-val   sym-val
+                                :form      form}
+                               (source-info env))))
+        (assoc ast :validated? true)))
     ast))
 
 (defmethod -validate :def
