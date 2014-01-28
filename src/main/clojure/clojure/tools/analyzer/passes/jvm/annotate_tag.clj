@@ -95,22 +95,14 @@
                   (and (= :arg local) variadic? ArraySeq)
                   o-tag
                   Object)]
-    (if (= local :loop)
-      (let [tag (or (:tag (meta form))
-                    (:tag (meta (:form init)))
-                    (and (primitive? (:tag init)) (:tag init))
-                    Object)]
-        (swap! atom assoc :tag (maybe-class tag))
-        (assoc ast :tag tag :o-tag tag
-               :init (assoc init :tag tag)))
-      (if-let [tag (maybe-class (or (:tag (meta form)) tag))]
-        (let [ast (assoc ast :tag tag :o-tag tag)]
-          (swap! atom assoc :tag tag)
-          (if init
-            (assoc-in ast [:init :tag] tag)
-            ast))
-        (do (swap! atom assoc :tag o-tag)
-            (assoc ast :tag o-tag :o-tag o-tag))))))
+    (if-let [tag (maybe-class (or (:tag (meta form)) tag))]
+      (let [ast (assoc ast :tag tag :o-tag tag)]
+        (swap! atom assoc :tag tag)
+        (if init
+          (assoc-in ast [:init :tag] tag)
+          ast))
+      (do (swap! atom assoc :tag o-tag)
+          (assoc ast :tag o-tag :o-tag o-tag)))))
 
 (defmethod annotate-binding-tag :local
   [{:keys [name form tag atom case-test] :as ast}]

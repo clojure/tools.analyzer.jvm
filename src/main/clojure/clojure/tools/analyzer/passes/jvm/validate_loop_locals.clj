@@ -13,11 +13,13 @@
 (def ^:dynamic ^:private validating? false)
 (def ^:dynamic ^:private mismatch?)
 
-(defn find-mismatch [{:keys [op exprs] :as ast} tags loop-id]
+(defn find-mismatch [{:keys [op exprs] :as ast} bindings loop-id]
   (when (and (= op :recur) (= loop-id (:loop-id ast))
-             (some true? (mapv (fn [e t]
-                              (and (primitive? t)
-                                   (not= e t))) (mapv :tag exprs) tags)))
+             (some true? (mapv (fn [e {:keys [tag init form]}]
+                              (and (or (primitive? tag)
+                                       (not (or (:tag (meta form))
+                                              (:tag (meta (:form init))))))
+                                   (not= (:tag e) tag))) exprs bindings)))
     (swap! mismatch? conj (mapv :tag exprs)))
   ast)
 
@@ -64,9 +66,8 @@
   (if validating?
     ast
     (binding [mismatch? (atom #{})]
-      (let [bindings (key ast)
-            bind-tags (mapv :tag bindings)]
-        (prewalk body (fn [ast] (find-mismatch ast bind-tags loop-id)))
+      (let [bindings (key ast)]
+        (prewalk body (fn [ast] (find-mismatch ast bindings loop-id)))
         (if-let [mismatches (seq @mismatch?)]
           (let [bindings (apply mapv
                                 (fn [{:keys [form tag]} & mismatches]
