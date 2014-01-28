@@ -267,3 +267,45 @@
   (when (some primitive? tags)
     (let [sig (apply str (mapv #(.toUpperCase (subs (.getSimpleName ^Class %) 0 1)) tags))]
       (maybe-class (str "clojure.lang.IFn$" sig)))))
+
+(defn tag-match? [arg-tags meth]
+  (every? identity (map convertible? arg-tags (:parameter-types meth))))
+
+(defn try-best-match [tags methods]
+  (let [o-tags (mapv #(or (maybe-class %) Object) tags)]
+    (if-let [methods (or (seq (filter
+                               #(= o-tags (mapv maybe-class  (:parameter-types %))) methods))
+                         (seq (filter #(tag-match? tags %) methods)))]
+      (reduce (fn [[prev & _ :as p] next]
+                (let [prev-params (mapv maybe-class (:parameter-types prev))
+                      next-params (mapv maybe-class (:parameter-types next))
+                      prev-ret    (maybe-class (:return-type prev))
+                      next-ret    (maybe-class (:return-type next))
+                      prev-decl   (maybe-class (:declaring-class prev))
+                      next-decl   (maybe-class (:declaring-class next))]
+                  (cond
+                  (not prev)
+                  [next]
+                  (= prev-params next-params)
+                  (cond
+                   (= prev-ret next-ret)
+                   (cond
+                    (.isAssignableFrom prev-decl next-decl)
+                    [next]
+                    (.isAssignableFrom next-decl prev-decl)
+                    p
+                    :else
+                    (conj p next))
+                   (.isAssignableFrom prev-ret next-ret)
+                   [next]
+                   (.isAssignableFrom next-ret prev-ret)
+                   p
+                   :else
+                   (conj p next))
+                  (every? true? (mapv (fn [n p] (or (subsumes? n p)
+                                           (= n p)))
+                              next-params prev-params))
+                  [next]
+                  :else
+                  (conj p next)))) [] methods)
+      methods)))

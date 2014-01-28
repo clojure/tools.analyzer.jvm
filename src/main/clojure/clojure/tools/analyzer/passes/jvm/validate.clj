@@ -11,7 +11,7 @@
             [clojure.tools.analyzer.ast :refer [prewalk]]
             [clojure.tools.analyzer.passes.cleanup :refer [cleanup]]
             [clojure.tools.analyzer.utils :refer [arglist-for-arity source-info]]
-            [clojure.tools.analyzer.jvm.utils :as u])
+            [clojure.tools.analyzer.jvm.utils :as u :refer [tag-match? try-best-match]])
   (:import (clojure.lang IFn ExceptionInfo)))
 
 (defmulti -validate :op)
@@ -64,48 +64,6 @@
                             :form   form}
                            (source-info env)))))
   ast)
-
-(defn tag-match? [arg-tags meth]
-  (every? identity (map u/convertible? arg-tags (:parameter-types meth))))
-
-(defn try-best-match [tags methods]
-  (let [o-tags (mapv #(or (u/maybe-class %) Object) tags)]
-    (if-let [methods (or (seq (filter
-                               #(= o-tags (mapv u/maybe-class  (:parameter-types %))) methods))
-                         (seq (filter #(tag-match? tags %) methods)))]
-      (reduce (fn [[prev & _ :as p] next]
-                (let [prev-params (mapv u/maybe-class (:parameter-types prev))
-                      next-params (mapv u/maybe-class (:parameter-types next))
-                      prev-ret    (u/maybe-class (:return-type prev))
-                      next-ret    (u/maybe-class (:return-type next))
-                      prev-decl   (u/maybe-class (:declaring-class prev))
-                      next-decl   (u/maybe-class (:declaring-class next))]
-                  (cond
-                  (not prev)
-                  [next]
-                  (= prev-params next-params)
-                  (cond
-                   (= prev-ret next-ret)
-                   (cond
-                    (.isAssignableFrom prev-decl next-decl)
-                    [next]
-                    (.isAssignableFrom next-decl prev-decl)
-                    p
-                    :else
-                    (conj p next))
-                   (.isAssignableFrom prev-ret next-ret)
-                   [next]
-                   (.isAssignableFrom next-ret prev-ret)
-                   p
-                   :else
-                   (conj p next))
-                  (every? true? (mapv (fn [n p] (or (u/subsumes? n p)
-                                           (= n p)))
-                              next-params prev-params))
-                  [next]
-                  :else
-                  (conj p next)))) [] methods)
-      methods)))
 
 (defmethod -validate :new
   [{:keys [validated? env] :as ast}]
