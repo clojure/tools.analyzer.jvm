@@ -247,7 +247,7 @@
                          IObj)
         name (gensym "reify__")
         class-name (symbol (str (namespace-munge *ns*) "$" name))
-        menv (assoc env :this class-name :name class-name)
+        menv (assoc env :this class-name)
         methods (mapv #(assoc (analyze-method-impls % menv) :interfaces interfaces)
                       methods)]
 
@@ -280,8 +280,7 @@
         menv (assoc env
                :context :expr
                :locals (zipmap fields fields-expr)
-               :this class-name
-               :name class-name)
+               :this class-name)
         methods* (mapv #(assoc (analyze-method-impls % menv) :interfaces interfaces)
                       methods)]
 
