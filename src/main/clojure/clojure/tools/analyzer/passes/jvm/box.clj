@@ -140,8 +140,10 @@
               (-> ast
                 (update-in [:body] -box)
                 (update-in [:o-tag] u/box)))]
-    (assoc ast :params (mapv (fn [{:keys [o-tag] :as p}]
-                               (assoc p :o-tag (u/prim-or-obj o-tag))) params))))
+    (assoc ast
+      :params (mapv (fn [{:keys [o-tag] :as p}]
+                      (assoc p :o-tag (u/prim-or-obj o-tag))) params)
+      :tag (u/prim-or-obj tag))))
 
 (defmethod box :if
   [{:keys [test then else tag o-tag] :as ast}]
