@@ -10,7 +10,7 @@
   (:require [clojure.tools.analyzer.jvm.utils :refer [unbox maybe-class]]
             [clojure.tools.analyzer.ast :refer [prewalk]]
             [clojure.tools.analyzer.utils :refer [update!]])
-  (:import (clojure.lang ISeq Var ArraySeq AFunction)))
+  (:import (clojure.lang ISeq Var AFunction)))
 
 (defmulti -annotate-literal-tag :op)
 
@@ -92,7 +92,7 @@
                                  ast)
         o-tag (or (:tag init)
                   (and (= :fn local) AFunction)
-                  (and (= :arg local) variadic? ArraySeq)
+                  (and (= :arg local) variadic? ISeq)
                   o-tag
                   Object)]
     (if-let [tag (maybe-class (or (:tag (meta form)) tag))]
