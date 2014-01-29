@@ -143,7 +143,8 @@
     (assoc ast
       :params (mapv (fn [{:keys [o-tag] :as p}]
                       (assoc p :o-tag (u/prim-or-obj o-tag))) params)
-      :tag (u/prim-or-obj tag))))
+      :tag   (u/prim-or-obj tag)
+      :o-tag (u/prim-or-obj tag))))
 
 (defmethod box :if
   [{:keys [test then else tag o-tag] :as ast}]
