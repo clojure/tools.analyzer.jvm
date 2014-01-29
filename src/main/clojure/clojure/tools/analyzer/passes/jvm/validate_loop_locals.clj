@@ -74,7 +74,9 @@
                                   (if (every? #{tag} mismatches)
                                     form
                                     (let [tags (conj mismatches tag)]
-                                      (with-meta form {:tag (or (wider-tag tags) Object)}))))
+                                      (with-meta form {:tag (or (and (some primitive? tags)
+                                                                     (wider-tag tags))
+                                                                Object)}))))
                                 bindings mismatches)
                 binds (zipmap bindings (mapv (comp maybe-class :tag meta) bindings))
                 analyze* (fn [ast]
