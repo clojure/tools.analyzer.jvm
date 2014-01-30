@@ -29,7 +29,7 @@
                                                            (assoc ast :to-clear? true)))
                                                        (vals closed-overs))))
                 ast)]
-      (swap! *clears* update-in [:locals] into (:locals clears))
+      (swap! *clears* #(update-in % [:locals] into (:locals clears)))
       ast)
     (update-children ast -clear-locals (comp vec rseq))))
 
@@ -49,7 +49,7 @@
                              [(-clear-locals else) @*clears*])
         locals             (into (:locals then-clears)
                                  (:locals else-clears))]
-    (swap! *clears* update-in [:locals] into locals)
+    (swap! *clears* #(update-in % [:locals] into locals))
     (let [test (-clear-locals test)]
       (assoc ast
         :test test
@@ -66,7 +66,7 @@
                 [[] #{}] thens)
         [default {:keys [locals]}] (binding [*clears* (atom @*clears*)]
                                      [(-clear-locals default) @*clears*])]
-    (swap! *clears* update-in [:locals] into (into thens-locals locals))
+    (swap! *clears* #(update-in % [:locals] into (into thens-locals locals)))
     (assoc ast
       :test    test
       :thens   thens
@@ -75,7 +75,7 @@
 (defmethod -clear-locals :local
   [{:keys [name local should-not-clear env] :as ast}]
   (let [{:keys [closed-overs locals]} @*clears*]
-    (swap! *clears* update-in [:locals] conj name)
+    (swap! *clears* #(update-in % [:locals] conj name))
     (if (and (#{:let :loop :letfn :arg} local)
              (or (not (closed-overs name))
                  (:once env)) ;; or return pos of loop

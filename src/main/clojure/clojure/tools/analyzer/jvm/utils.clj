@@ -79,11 +79,10 @@
           ret
           (maybe-class-from-string sname))))))
 
-(defn primitive? [o]
-  (let [c (maybe-class o)]
-    (and
-     (not (or (nil? c) (= c Void/TYPE)))
-     (.isPrimitive c))))
+(def primitive?
+  #{Double/TYPE Character/TYPE Byte/TYPE
+    Boolean/TYPE Short/TYPE Float/TYPE
+    Long/TYPE Integer/TYPE})
 
 (def convertible-primitives?
   {Integer/TYPE   #{Integer Long/TYPE Long Short/TYPE Byte/TYPE}
