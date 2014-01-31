@@ -13,7 +13,7 @@
              :as ana
              :refer [analyze analyze-in-env wrapping-meta analyze-fn-method]
              :rename {analyze -analyze}]
-            [clojure.tools.analyzer.utils :refer [ctx resolve-var -source-info]]
+            [clojure.tools.analyzer.utils :refer [ctx resolve-var -source-info resolve-ns]]
             [clojure.tools.analyzer.ast :refer [walk prewalk postwalk cycling]]
             [clojure.tools.analyzer.jvm.utils :refer :all :exclude [box]]
             [clojure.tools.analyzer.passes.source-info :refer [source-info]]
@@ -68,20 +68,19 @@
    (symbol? form)
    (let [target (maybe-class (namespace form))
          field (symbol (name form))]
-     (if (and (namespace form) target
-              (not (-> env :namespaces deref (get (symbol (namespace form))))))
-       (with-meta (list '. target field)
-         (merge (meta form)
-                {:field true})) ;; should use this
+     (if (and target (not (resolve-ns (symbol (namespace form)) env)))
+       (with-meta (list '. target (symbol (str "-" field)))
+         (meta form))
        form))
 
    (seq? form)
    (let [[op & expr] form]
      (if (symbol? op)
-       (let [opname (name op)]
+       (let [opname (name op)
+             opns   (namespace op)]
          (cond
 
-          (= (first opname) \.) ; (.foo bar ..)
+          (.startsWith opname ".") ; (.foo bar ..)
           (let [[target & args] expr
                 target (if-let [target (and (not (get (:locals env) target))
                                             (maybe-class target))]
@@ -93,17 +92,16 @@
                                          (first args) args)) ;; a method call or a field access
               (meta form)))
 
-          (and (namespace op)
-               (maybe-class (namespace op))
-               (not (-> env :namespaces deref (get (symbol (namespace op)))))) ; (class/field ..)
-          (let [target (maybe-class (namespace op))
+          (and (maybe-class opns)
+               (not (resolve-ns (symbol opns) env))) ; (class/field ..)
+          (let [target (maybe-class opns)
                 op (symbol opname)]
             (with-meta (list '. target (if (zero? (count expr))
                                          op
                                          (list* op expr)))
               (meta form)))
 
-          (= (last opname) \.) ;; (class. ..)
+          (.endsWith opname ".") ;; (class. ..)
           (with-meta (list* 'new (symbol (subs opname 0 (dec (count opname)))) expr)
             (meta form))
 
