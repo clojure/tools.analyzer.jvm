@@ -371,14 +371,14 @@
 
     ((fn analyze [ast]
        (-> ast
-         (postwalk
-          (comp #_trim
-             classify-invoke
-             (cycling constant-lift
-                      annotate-tag
-                      infer-tag
-                      analyze-host-expr
-                      validate)))
+         (postwalk (fn [ast]
+                     (-> ast
+                       annotate-tag
+                       infer-tag
+                       analyze-host-expr
+                       validate
+                       classify-invoke
+                       constant-lift)))
          (prewalk
           (comp ensure-tag
              annotate-branch

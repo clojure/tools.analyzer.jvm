@@ -3,12 +3,19 @@
             [clojure.tools.analyzer :refer [-analyze]]
             [clojure.tools.analyzer.utils :refer [constant? classify]]))
 
-(defn constant-lift
-  [{:keys [op var env form] :as ast}]
-  (if (= :var op)
-    (if (constant? var)
-      (let [val @var]
-        (assoc (-analyze :const val env (classify val))
-          :form form))
-      ast)
+(defn constant-lift*
+  [ast]
+
+  (if (= :var (:op ast))
+    (let [{:keys [var env form]} ast]
+     (if (constant? var)
+       (let [val @var]
+         (assoc (-analyze :const val env (classify val))
+           :form form))
+       ast))
     (orig/constant-lift ast)))
+
+(defn constant-lift
+  [ast]
+  (merge (constant-lift* ast)
+         (select-keys ast [:tag :o-tag :return-tag :arglists])))
