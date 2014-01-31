@@ -33,7 +33,7 @@
             [clojure.tools.analyzer.passes.jvm.classify-invoke :refer [classify-invoke]]
             [clojure.tools.analyzer.passes.jvm.validate :refer [validate]]
             [clojure.tools.analyzer.passes.jvm.infer-tag :refer [infer-tag ensure-tag]]
-            [clojure.tools.analyzer.passes.jvm.annotate-tag :refer [annotate-literal-tag annotate-binding-tag]]
+            [clojure.tools.analyzer.passes.jvm.annotate-tag :refer [annotate-tag]]
             [clojure.tools.analyzer.passes.jvm.validate-loop-locals :refer [validate-loop-locals]]
             [clojure.tools.analyzer.passes.jvm.analyze-host-expr :refer [analyze-host-expr]])
   (:import clojure.lang.IObj))
@@ -375,8 +375,7 @@
           (comp #_trim
              classify-invoke
              (cycling constant-lift
-                      annotate-literal-tag
-                      annotate-binding-tag
+                      annotate-tag
                       infer-tag
                       analyze-host-expr
                       validate)))

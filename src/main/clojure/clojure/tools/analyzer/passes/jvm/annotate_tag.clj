@@ -12,106 +12,92 @@
             [clojure.tools.analyzer.utils :refer [update!]])
   (:import (clojure.lang ISeq Var AFunction)))
 
-(defmulti -annotate-literal-tag :op)
+(defmulti -annotate-tag :op)
 
-(defmethod -annotate-literal-tag :default
-  [{:keys [op val tag] :as ast}]
-  (if (= :const op)
-    (let [t (class val)]
+(defmethod -annotate-tag :default
+  [ast]
+  (if (= :const (:op ast))
+    (let [t (class (:val ast))]
       (assoc ast :o-tag t :tag t))
     ast))
 
-(defmethod -annotate-literal-tag :map
-  [{:keys [val form tag] :as ast}]
+(defmethod -annotate-tag :map
+  [{:keys [val form] :as ast}]
   (let [t (class (or val form))]
     (assoc ast :o-tag t :tag t)))
 
-(defmethod -annotate-literal-tag :set
-  [{:keys [val form tag] :as ast}]
+(defmethod -annotate-tag :set
+  [{:keys [val form] :as ast}]
   (let [t (class (or val form))]
     (assoc ast :o-tag t :tag t)))
 
-(defmethod -annotate-literal-tag :vector
-  [{:keys [val form tag] :as ast}]
+(defmethod -annotate-tag :vector
+  [{:keys [val form] :as ast}]
   (let [t (class (or val form))]
     (assoc ast :o-tag t :tag t)))
 
-(defmethod -annotate-literal-tag :seq
+(defmethod -annotate-tag :seq
   [ast]
   (assoc ast :o-tag ISeq :tag ISeq))
 
 ;; char and numbers are unboxed by default
-
-(defmethod -annotate-literal-tag :number
-  [{:keys [val] :as ast}]
-  (let [t (unbox (class val))]
+(defmethod -annotate-tag :number
+  [ast]
+  (let [t (unbox (class (:val ast)))]
     (assoc ast :o-tag t :tag t)))
 
-(defmethod -annotate-literal-tag :char
+(defmethod -annotate-tag :char
   [ast]
   (assoc ast :o-tag Character/TYPE :tag Character/TYPE))
 
-(defmethod -annotate-literal-tag :the-var
+(defmethod -annotate-tag :the-var
   [ast]
   (assoc ast :o-tag Var :tag Var))
 
-(defmethod -annotate-literal-tag :const
-  [{:keys [op type] :as ast}]
-  ((get-method -annotate-literal-tag type) ast))
+(defmethod -annotate-tag :const
+  [ast]
+  ((get-method -annotate-tag (:type ast)) ast))
 
-(defmethod -annotate-literal-tag :quote
-  [{:keys [expr] :as ast}]
-  (let [{:keys [tag]} (-annotate-literal-tag expr)]
+(defmethod -annotate-tag :quote
+  [ast]
+  (let [tag (-> ast :expr -annotate-tag :tag)]
     (assoc ast :tag tag :o-tag tag)))
 
-;; postwalk
-(defn annotate-literal-tag
-  "If the AST node type is a constant object, attach a :tag field to the
-   node representing the form type."
-  [{:keys [form val tag atom] :as ast}]
-  (if-let [tag (or tag
-                   (:tag (meta val))
-                   (let [form-tag (:tag (meta form))]
-                     (when (or (not atom)
-                             (not (:case-test @atom)))
-                       form-tag)))]
-    (assoc (-annotate-literal-tag ast) :tag (maybe-class tag))
-    (-annotate-literal-tag ast)))
-
-(defmulti annotate-binding-tag
-  "Assocs the correct tag to local bindings, needs to be run after
-   annotate-literal-tag and add-binding-atom, in conjuction with infer-tag"
-  :op)
-
-(defmethod annotate-binding-tag :default [ast] ast)
-
-(defmethod annotate-binding-tag :binding
-  [{:keys [tag o-tag init local name atom variadic?] :as ast}]
-  (let [{:keys [form] :as ast} (if (:case-test @atom)
-                                 (update-in ast [:form] vary-meta dissoc :tag)
-                                 ast)
-        o-tag (or (:tag init)
+(defmethod -annotate-tag :binding
+  [{:keys [form tag atom o-tag init local name variadic?] :as ast}]
+  (let [o-tag (or (:tag init) ;; should defer to infe-tag?
                   (and (= :fn local) AFunction)
                   (and (= :arg local) variadic? ISeq)
                   o-tag
                   Object)]
     (if-let [tag (maybe-class (or (:tag (meta form)) tag))]
       (let [ast (assoc ast :tag tag :o-tag tag)]
-        (swap! atom assoc :tag tag)
         (if init
           (assoc-in ast [:init :tag] tag)
           ast))
-      (do (swap! atom assoc :tag o-tag)
-          (assoc ast :tag o-tag :o-tag o-tag)))))
+      (assoc ast :tag o-tag :o-tag o-tag))))
 
-(defmethod annotate-binding-tag :local
+(defmethod -annotate-tag :local
   [{:keys [name form tag atom case-test] :as ast}]
-  (let [{:keys [form] :as ast} (if (:case-test @atom)
-                                 (update-in ast [:form] vary-meta dissoc :tag)
-                                 ast)
-        o-tag (@atom :tag)
-        ast (assoc ast :o-tag o-tag :tag o-tag)]
-    (if-let [tag (or (maybe-class (:tag (meta form))) ;;explicit tag first
-                     tag)]
-      (assoc ast :tag tag)
-      ast)))
+  (let [o-tag (@atom :tag)]
+    (assoc ast :o-tag o-tag :tag o-tag)))
+
+(defn annotate-tag
+  "If the AST node type is a constant object or contains :tag metadata,
+   attach the appropriate :tag and :o-tag to the node."
+  [{:keys [op tag o-tag atom] :as ast}]
+  (let [binding? (= op :binding)
+        ast (if (and binding? (:case-test @atom))
+              (update-in ast [:form] vary-meta dissoc :tag)
+              ast)
+        ast
+        (if-let [tag (or tag
+                         (-> ast :val meta :tag)
+                         (-> ast :form meta :tag))]
+          (if (and tag o-tag)
+            ast
+            (assoc (-annotate-tag ast) :tag (maybe-class tag)))
+          (-annotate-tag ast))]
+    (when binding?
+      (swap! atom assoc :tag (:tag ast)))
+    ast))

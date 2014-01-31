@@ -8,8 +8,7 @@
             [clojure.tools.analyzer.passes.jvm.emit-form
              :refer [emit-form emit-hygienic-form]]
             [clojure.tools.analyzer.passes.jvm.validate :refer [validate]]
-            [clojure.tools.analyzer.passes.jvm.annotate-tag
-             :refer [annotate-literal-tag annotate-binding-tag]]
+            [clojure.tools.analyzer.passes.jvm.annotate-tag :refer [annotate-tag]]
             [clojure.tools.analyzer.passes.jvm.clear-locals :refer [clear-locals]]
             [clojure.tools.analyzer.passes.jvm.infer-tag :refer [infer-tag]]
             [clojure.tools.analyzer.passes.jvm.annotate-branch :refer [annotate-branch]]
@@ -66,28 +65,25 @@
   (let [c-ast (-> (ast (case 1 1 1)) add-binding-atom (prewalk fix-case-test))]
     (is (= true (-> c-ast :body :ret :test :atom deref :case-test)))))
 
-(deftest annotate-literal-tag-test
-  (is (= PersistentVector (-> {:op :const :form [] :val []} annotate-literal-tag :tag)))
-  (is (= PersistentVector (-> (ast []) annotate-literal-tag :tag)))
-  (is (= PersistentVector (-> (ast '[]) annotate-literal-tag :tag)))
-  (is (= PersistentArrayMap(-> (ast {}) annotate-literal-tag :tag)))
-  (is (= PersistentHashSet (-> (ast #{}) annotate-literal-tag :tag)))
-  (is (= ISeq (-> (ast '()) annotate-literal-tag :tag)))
+(deftest annotate-tag-test
+  (is (= PersistentVector (-> {:op :const :form [] :val []} annotate-tag :tag)))
+  (is (= PersistentVector (-> (ast []) annotate-tag :tag)))
+  (is (= PersistentVector (-> (ast '[]) annotate-tag :tag)))
+  (is (= PersistentArrayMap(-> (ast {}) annotate-tag :tag)))
+  (is (= PersistentHashSet (-> (ast #{}) annotate-tag :tag)))
+  (is (= ISeq (-> (ast '()) annotate-tag :tag)))
   (is (= Class (-> {:op :const :type :class :form Object :val Object}
-                 annotate-literal-tag :tag)))
-  (is (= String (-> (ast "foo") annotate-literal-tag :tag)))
-  (is (= Keyword (-> (ast :foo) annotate-literal-tag :tag)))
-  (is (= Character/TYPE (-> (ast \f) annotate-literal-tag :tag)))
-  (is (= Long/TYPE (-> (ast 1) annotate-literal-tag :tag)))
-  (is (= Pattern (-> (ast #"foo") annotate-literal-tag :tag)))
-  (is (= Var (-> (ast #'+)  annotate-literal-tag :tag)))
-  (is (= Boolean (-> (ast true) annotate-literal-tag :tag))))
-
-(deftest annotate-binding-tag-test
+                 annotate-tag :tag)))
+  (is (= String (-> (ast "foo") annotate-tag :tag)))
+  (is (= Keyword (-> (ast :foo) annotate-tag :tag)))
+  (is (= Character/TYPE (-> (ast \f) annotate-tag :tag)))
+  (is (= Long/TYPE (-> (ast 1) annotate-tag :tag)))
+  (is (= Pattern (-> (ast #"foo") annotate-tag :tag)))
+  (is (= Var (-> (ast #'+)  annotate-tag :tag)))
+  (is (= Boolean (-> (ast true) annotate-tag :tag)))
   (let [b-ast (-> (ast (let [a 1] a)) add-binding-atom
-                (postwalk annotate-literal-tag)
-                (postwalk annotate-binding-tag))]
-   (is (= Long/TYPE (-> b-ast :body :ret :tag)))))
+                 (postwalk annotate-tag))]
+    (is (= Long/TYPE (-> b-ast :body :ret :tag)))))
 
 (deftest classify-invoke-test
   (is (= :keyword-invoke (-> (ast (:foo {})) classify-invoke :op)))
@@ -109,15 +105,15 @@
   (is (= Exception (-> (ast (try (catch Exception e)))
                      (prewalk validate) :catches first :class)))
   (is (-> (ast (set! *warn-on-reflection* true)) validate))
-  (is (= true (-> (ast (String. "foo")) (postwalk annotate-literal-tag) validate
+  (is (= true (-> (ast (String. "foo")) (postwalk annotate-tag) validate
               :validated?)))
 
-  (let [s-ast (-> (ast (Integer/parseInt "7")) (prewalk annotate-literal-tag) analyze-host-expr validate)]
+  (let [s-ast (-> (ast (Integer/parseInt "7")) (prewalk annotate-tag) analyze-host-expr validate)]
     (is (:validated? s-ast))
     (is (= Integer/TYPE (:tag s-ast)))
     (is (= [String] (mapv :tag (:args s-ast)))))
 
-  (let [i-ast (-> (ast (.hashCode "7")) (prewalk annotate-literal-tag) analyze-host-expr validate)]
+  (let [i-ast (-> (ast (.hashCode "7")) (prewalk annotate-tag) analyze-host-expr validate)]
     (is (:validated? i-ast))
     (is (= Integer/TYPE (:tag i-ast)))
     (is (= [] (mapv :tag (:args i-ast))))
