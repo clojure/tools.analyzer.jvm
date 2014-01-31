@@ -91,13 +91,12 @@
               (update-in ast [:form] vary-meta dissoc :tag)
               ast)
         ast
-        (if-let [tag (or tag
-                         (-> ast :val meta :tag)
-                         (-> ast :form meta :tag))]
-          (if (and tag o-tag)
-            ast
-            (assoc (-annotate-tag ast) :tag (maybe-class tag)))
-          (-annotate-tag ast))]
+        (if (and o-tag tag)
+          ast
+          (if-let [tag (or (-> ast :val meta :tag)
+                           (-> ast :form meta :tag))]
+            (assoc (-annotate-tag ast) :tag (maybe-class tag))
+            (-annotate-tag ast)))]
     (when binding?
       (swap! atom assoc :tag (:tag ast)))
     ast))
