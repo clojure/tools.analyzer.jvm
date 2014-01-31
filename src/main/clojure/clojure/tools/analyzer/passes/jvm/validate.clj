@@ -10,7 +10,7 @@
   (:require [clojure.tools.analyzer :refer [-analyze]]
             [clojure.tools.analyzer.ast :refer [prewalk]]
             [clojure.tools.analyzer.passes.cleanup :refer [cleanup]]
-            [clojure.tools.analyzer.utils :refer [arglist-for-arity source-info]]
+            [clojure.tools.analyzer.utils :refer [arglist-for-arity source-info resolve-var]]
             [clojure.tools.analyzer.jvm.utils :as u :refer [tag-match? try-best-match]])
   (:import (clojure.lang IFn ExceptionInfo)))
 
@@ -18,20 +18,18 @@
 
 (defmethod -validate :maybe-class
   [{:keys [class form env] :as ast}]
-  (let [{:keys [ns namespaces]} env]
-    (if-let [the-class (or (u/maybe-class class)
-                           (u/maybe-class (-> @namespaces (get ns) :mappings (get class))))]
-      (assoc (-analyze :const the-class env :class)
-        :tag   Class
-        :o-tag Class
-        :form  form)
-      (if (.contains (str class) ".") ;; try and be smart for the exception
-        (throw (ex-info (str "Class not found: " class)
-                        (merge {:class class}
-                               (source-info env))))
-        (throw (ex-info (str "Could not resolve var: " class)
-                        (merge {:var class}
-                               (source-info env))))))))
+  (if-let [the-class (u/maybe-class (or class (resolve-var class env)))]
+    (assoc (-analyze :const the-class env :class)
+      :tag   Class
+      :o-tag Class
+      :form  form)
+    (if (.contains (str class) ".") ;; try and be smart for the exception
+      (throw (ex-info (str "Class not found: " class)
+                      (merge {:class class}
+                             (source-info env))))
+      (throw (ex-info (str "Could not resolve var: " class)
+                      (merge {:var class}
+                             (source-info env)))))))
 
 (defmethod -validate :maybe-host-form
   [{:keys [class form env]}]
@@ -50,8 +48,8 @@
                            (source-info env))))))
 
 (defmethod -validate :catch
-  [{:keys [validated?] :as ast}]
-  (if-not validated?
+  [ast]
+  (if-not (:validated? ast)
     (assoc (validate-class ast) :validated? true)
     ast))
 
@@ -66,8 +64,8 @@
   ast)
 
 (defmethod -validate :new
-  [{:keys [validated? env] :as ast}]
-  (if validated?
+  [ast]
+  (if (:validated? ast)
     ast
     (let [{:keys [args ^Class class] :as ast} (validate-class ast)
           c-name (symbol (.getName class))
@@ -87,7 +85,7 @@
           (throw (ex-info (str "no ctor found for ctor of class: " class " and give signature")
                           (merge {:class class
                                   :args  (mapv (fn [a] (prewalk a cleanup)) args)}
-                                 (source-info env)))))))))
+                                 (source-info (:env ast))))))))))
 
 (defn validate-call [{:keys [class method args tag env op] :as ast}]
   (let [argc (count args)
@@ -98,7 +96,7 @@
       (let [[m & rest :as matching] (try-best-match tags matching-methods)]
         (if m
           (if (empty? rest)
-            (let [ret-tag  (u/maybe-class (:return-type m))
+            (let [ret-tag  (:return-type m)
                   arg-tags (mapv u/maybe-class (:parameter-types m))
                   args (mapv (fn [arg tag] (assoc arg :tag tag)) args arg-tags)
                   class (u/maybe-class (:declaring-class m))]
@@ -109,8 +107,8 @@
                 :o-tag      ret-tag
                 :tag        (or tag ret-tag)
                 :args       args))
-            (if (apply = (mapv (comp u/maybe-class :return-type) matching))
-              (let [ret-tag (u/maybe-class (:return-type m))]
+            (if (apply = (mapv :return-type matching))
+              (let [ret-tag (:return-type m)]
                 (assoc ast
                   :o-tag   Object
                   :tag     (or tag ret-tag)))
@@ -131,27 +129,26 @@
                                (source-info env))))))))
 
 (defmethod -validate :static-call
-  [{:keys [validated?] :as ast}]
-  (if validated?
+  [ast]
+  (if (:validated? ast)
     ast
-    (validate-call  ast)))
+    (validate-call ast)))
 
 (defmethod -validate :instance-call
   [{:keys [class validated? instance] :as ast}]
-  (let [class (or class (u/maybe-class (:tag instance)))]
+  (let [class (or class (:tag instance))]
     (if (and class (not validated?))
-      (validate-call (assoc ast :class class))
+      (validate-call (assoc ast :class (u/maybe-class class)))
       ast)))
 
 (defmethod -validate :import
   [{:keys [class validated? env form] :as ast}]
   (if-not validated?
-    (let [{:keys [ns namespaces]} env
-          class-sym (-> class (subs (inc (.lastIndexOf class "."))) symbol)
-          sym-val (get-in @namespaces [ns :mappings class-sym])]
-      (if (and sym-val (not= (.getName ^Class sym-val) class)) ;; allow deftype redef
+    (let [class-sym (-> class (subs (inc (.lastIndexOf class "."))) symbol)
+          sym-val (resolve-var class-sym env)]
+      (if (and (class? sym-val) (not= (.getName ^Class sym-val) class)) ;; allow deftype redef
         (throw (ex-info (str class-sym " already refers to: " sym-val
-                             " in namespace: " ns)
+                             " in namespace: " (:ns env))
                         (merge {:class     class
                                 :class-sym class-sym
                                 :sym-val   sym-val
@@ -161,15 +158,16 @@
     ast))
 
 (defmethod -validate :def
-  [{:keys [var init form env] :as ast}]
-  #_(when-let [tag (:tag init)]
-      (alter-meta! var assoc :tag tag))
-  (when-let [arglists (:arglists init)]
-    #_(alter-meta! var assoc :arg-lists arglists))
+  [ast]
+  #_(let [init (:init ast)]
+      (when-let [tag (:tag init)]
+        (alter-meta! var assoc :tag tag))
+      (when-let [arglists (:arglists init)]
+        (alter-meta! var assoc :arg-lists arglists)))
   ast)
 
 (defmethod -validate :invoke
-  [{:keys [args tag env fn form] :as ast}]
+  [{:keys [args env fn form] :as ast}]
   (let [argc (count args)]
     (when (and (= :const (:op fn))
                (not (instance? IFn (:form fn))))
@@ -216,18 +214,20 @@
   "Validate tags, classes, method calls.
    Throws exceptions when invalid forms are encountered, replaces
    class symbols with class objects."
-  [{:keys [tag o-tag return-tag form env] :as ast}]
+  [{:keys [tag form env] :as ast}]
   (when-let [t (:tag (meta form))]
     (when-not (u/maybe-class t)
       (throw (ex-info (str "Class not found: " t)
                       (merge {:class    t
                               :ast      (prewalk ast cleanup)}
                              (source-info env))))))
-  (let [ast (merge ast
+  (let [ast (merge (-validate ast)
                    (when tag
-                     (validate-tag :tag ast))
-                   (when o-tag
-                     (validate-tag :o-tag ast))
-                   (when return-tag
-                     (validate-tag :return-tag ast)))]
-    (-validate ast)))
+                     {:tag tag}))]
+    (merge ast
+           (when (:tag ast)
+             (validate-tag :tag ast))
+           (when (:o-tag ast)
+             (validate-tag :o-tag ast))
+           (when (:return-tag ast)
+             (validate-tag :return-tag ast)))))

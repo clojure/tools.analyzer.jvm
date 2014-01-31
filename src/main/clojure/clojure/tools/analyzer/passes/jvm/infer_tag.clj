@@ -22,10 +22,11 @@
     ast))
 
 (defmethod -infer-tag :local
-  [{:keys [atom] :as ast}]
-  (merge @atom
-         ast
-         {:o-tag (:tag @atom)}))
+  [ast]
+  (let [atom @(:atom ast)]
+    (merge atom
+           ast
+           {:o-tag (:tag atom)})))
 
 (defmethod -infer-tag :var
   [{:keys [var form] :as ast}]
@@ -33,11 +34,11 @@
         arglists (if (= 'quote (first arglists))
                    (second arglists)
                    arglists)
-        form-tag (u/maybe-class (:tag (meta form)))]
+        form-tag (:tag (meta form))]
     ;;if (not dynamic)
     (merge ast
            {:o-tag Object}
-           (when-let [tag (or (u/maybe-class tag) form-tag)]
+           (when-let [tag (or form-tag tag)]
              (if (fn? @var)
                {:tag clojure.lang.AFunction :return-tag tag}
                {:tag tag}))
@@ -45,13 +46,13 @@
              {:arglists arglists}))))
 
 (defmethod -infer-tag :def
-  [{:keys [init var] :as ast}]
+  [ast]
   (merge (assoc ast :tag clojure.lang.Var :o-tag clojure.lang.Var)
-         (select-keys init [:return-tag :arglists])))
+         (select-keys (:init ast) [:return-tag :arglists])))
 
 (defmethod -infer-tag :new
-  [{:keys [class] :as ast}]
-  (let [t (u/maybe-class class)]
+  [ast]
+  (let [t (:class ast)]
     (assoc ast :o-tag t :tag t)))
 
 (defmethod -infer-tag :with-meta
@@ -170,7 +171,7 @@
 (defmethod -infer-tag :fn
   [{:keys [local methods] :as ast}]
   (merge ast
-         {:arglists (seq (map :arglist methods))
+         {:arglists (seq (mapv :arglist methods))
           :tag      clojure.lang.AFunction
           :o-tag    clojure.lang.AFunction}
          (when-let [tag (:tag (meta (:form local)))]
@@ -205,23 +206,23 @@
   (assoc ast :tag class-name :o-tag class-name))
 
 (defmethod -infer-tag :set!
-  [{:keys [target] :as ast}]
-  (let [t (:tag target)]
+  [ast]
+  (let [t (:tag (:target ast))]
     (assoc ast :tag t :o-tag t)))
 
 (defn infer-tag
   "Performs local type inference on the AST"
   [{:keys [tag form] :as ast}]
   (let [tag (or tag (:tag (meta form)))
-        {:keys [o-tag] :as ast} (-infer-tag ast)]
+        ast (-infer-tag ast)]
     (merge ast
            (when tag
-             {:tag (u/maybe-class tag)})
-           (when o-tag
-             {:o-tag (u/maybe-class o-tag)}))))
+             {:tag tag})
+           (when-let [o-tag (:o-tag ast)]
+             {:o-tag o-tag}))))
 
 (defn ensure-tag
   [{:keys [o-tag tag] :as ast}]
   (assoc ast
-    :tag (or tag Object)
+    :tag   (or tag Object)
     :o-tag (or o-tag Object)))

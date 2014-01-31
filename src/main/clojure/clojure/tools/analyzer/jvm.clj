@@ -374,8 +374,8 @@
          (postwalk (fn [ast]
                      (-> ast
                        annotate-tag
-                       infer-tag
                        analyze-host-expr
+                       infer-tag
                        validate
                        classify-invoke
                        constant-lift)))

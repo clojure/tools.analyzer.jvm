@@ -29,8 +29,9 @@
                                           (and return-type (not-any? #{:final :static} flags)))
                                         (members class))))
                         (conj interfaces Object)))]
-      (assoc ast :methods (mapv (fn [{:keys [name params] :as ast}]
-                                  (let [argc (count params)]
+      (assoc ast :methods (mapv (fn [ast]
+                                  (let [name (:name ast)
+                                        argc (count (:params ast))]
                                     (assoc ast :methods
                                            (filter #(and ((name-matches? name) (:name %))
                                                          (= argc (count (:parameter-types %))))
@@ -53,11 +54,8 @@
                               (and (= (u/maybe-class return-type) ret-tag)
                                    (= arg-tags (mapv u/maybe-class parameter-types)))) rest))
                    (assoc (dissoc ast :interfaces :methods)
-                     :bridges   (filter (fn [{:keys [return-type]}]
-                                          (.isAssignableFrom (u/maybe-class return-type)
-                                                             ret-tag))
-                                        (disj methods-set
-                                              (dissoc m :declaring-class :flags)))
+                     :bridges   (filter #(.isAssignableFrom (u/maybe-class (:return-type %)) ret-tag)
+                                        (disj methods-set (dissoc m :declaring-class :flags)))
                      :methods   methods
                      :interface i-tag
                      :tag       ret-tag

@@ -21,10 +21,11 @@
        ~then
        ~else)))
 
-(defn -box [{:keys [tag] :as ast}]
-  (if (u/primitive? tag)
-    (assoc ast :tag (u/box tag))
-    ast))
+(defn -box [ast]
+  (let [tag (:tag ast)]
+    (if (u/primitive? tag)
+      (assoc ast :tag (u/box tag))
+      ast)))
 
 (defn boxed? [tag expr]
   (and (not (u/primitive? tag))
@@ -70,44 +71,44 @@
     ast))
 
 (defmethod box :vector
-  [{:keys [items] :as ast}]
-  (assoc ast :items (mapv -box items)))
+  [ast]
+  (assoc ast :items (mapv -box (:items ast))))
 
 (defmethod box :set
-  [{:keys [items] :as ast}]
-  (assoc ast :items (mapv -box items)))
+  [ast]
+  (assoc ast :items (mapv -box (:items ast))))
 
 (defmethod box :map
-  [{:keys [keys vals] :as ast}]
-  (let [keys (mapv -box keys)
-        vals (mapv -box vals)]
+  [ast]
+  (let [keys (mapv -box (:keys ast))
+        vals (mapv -box (:vals ast))]
     (assoc ast
       :keys keys
       :vals vals)))
 
 (defmethod box :do
-  [{:keys [tag ret] :as ast}]
-  (if (boxed? tag ret)
+  [ast]
+  (if (boxed? (:tag ast) (:ret ast))
     (-> ast
       (update-in [:ret] -box)
       (update-in [:o-tag] u/box))
     ast))
 
 (defmethod box :quote
-  [{:keys [tag expr] :as ast}]
-  (if (boxed? tag expr)
+  [ast]
+  (if (boxed? (:tag ast) (:ret ast))
     (-> ast
       (update-in [:expr] -box)
       (update-in [:o-tag] u/box))
     ast))
 
 (defmethod box :keyword-invoke
-  [{:keys [args] :as ast}]
-  (assoc ast :args (mapv -box args)))
+  [ast]
+  (assoc ast :args (mapv -box (:args ast))))
 
 (defmethod box :protocol-invoke
-  [{:keys [args] :as ast}]
-  (assoc ast :args (mapv -box args)))
+  [ast]
+  (assoc ast :args (mapv -box (:args ast))))
 
 (defmethod box :let
   [{:keys [tag body] :as ast}]
@@ -118,16 +119,16 @@
     ast))
 
 (defmethod box :letfn
-  [{:keys [tag body] :as ast}]
-  (if (boxed? tag body)
+  [ast]
+  (if (boxed? (:tag ast) (:body ast))
     (-> ast
       (update-in [:body] -box)
       (update-in [:o-tag] u/box))
     ast))
 
 (defmethod box :loop
-  [{:keys [tag body] :as ast}]
-  (if (boxed? tag body)
+  [ast]
+  (if (boxed? (:tag ast) (:body ast))
     (-> ast
       (update-in [:body] -box)
       (update-in [:o-tag] u/box))
@@ -186,9 +187,9 @@
     (update-in [:o-tag] u/box)))
 
 (defmethod box :invoke
-  [{:keys [fn tag args] :as ast}]
+  [ast]
   (assoc ast
-    :args  (mapv -box args)
+    :args  (mapv -box (:args ast))
     :o-tag Object))
 
 (defmethod box :default [ast] ast)

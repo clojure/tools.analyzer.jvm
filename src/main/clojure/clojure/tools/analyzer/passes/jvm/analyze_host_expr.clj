@@ -17,22 +17,22 @@
      :assignable? (not (:final flags))
      :class       class
      :field       name
-     :o-tag       (maybe-class type)
-     :tag         (maybe-class type)}))
+     :o-tag       type
+     :tag         type}))
 
 (defn maybe-static-method [[_ class sym]]
   (when-let [{:keys [name return-type]} (static-method class sym)]
     {:op      :static-call
-     :tag     (maybe-class return-type)
-     :o-tag   (maybe-class return-type)
+     :tag     return-type
+     :o-tag   return-type
      :class   class
      :method  name}))
 
 (defn maybe-instance-method [target-expr class sym]
   (when-let [{:keys [return-type]} (instance-method class sym)]
     {:op       :instance-call
-     :tag      (maybe-class return-type)
-     :o-tag    (maybe-class return-type)
+     :tag      return-type
+     :o-tag    return-type
      :instance target-expr
      :class    class
      :method   sym
@@ -45,8 +45,8 @@
      :class       class
      :instance    target-expr
      :field       name
-     :tag         (maybe-class type)
-     :o-tag       (maybe-class type)
+     :tag         type
+     :o-tag       type
      :children    [:instance]}))
 
 (defn analyze-host-call
@@ -93,7 +93,7 @@
 
 (defn -analyze-host-expr
   [target-type m-or-f target-expr class env]
-  (let [target-class (maybe-class (-> target-expr :tag))
+  (let [target-class (-> target-expr :tag)
         [field method] (if class
                          [(maybe-static-field (list '. class m-or-f))
                           (maybe-static-method (list '. class m-or-f))]
@@ -143,11 +143,11 @@
    or :host-interop nodes.
 
    A :host-interop node represents either an instance-field or a no-arg instance-method."
-  [{:keys [op form tag env] :as ast}]
+  [{:keys [op target form tag env] :as ast}]
   (if (#{:host-interop :host-call :host-field} op)
-    (let [target (:target ast)
-          class? (and (= :const (:op target))
-                      (maybe-class (:form target)))
+    (let [class? (and (= :const (:op target))
+                      (= :class (:type target))
+                      (:form target))
           target-type (if class? :static :instance)]
       (merge {:form form
               :env  env}
@@ -159,8 +159,7 @@
 
                :host-field
                (analyze-host-field target-type (:field ast)
-                                   target (or class?
-                                              (maybe-class (:tag target))) env)
+                                   target (or class? (:tag target)) env)
 
                (-analyze-host-expr target-type (:m-or-f ast)
                                    target class? env))

@@ -24,8 +24,8 @@
     (assoc-in [:else :path?] true)))
 
 (defmethod annotate-branch :local
-  [{:keys [local] :as ast}]
-  (if (= :letfn local)
+  [ast]
+  (if (= :letfn (:local ast))
     (assoc ast :should-not-clear true)
     ast))
 
@@ -38,7 +38,7 @@
   (assoc ast :path? true))
 
 (defmethod annotate-branch :case
-  [{:keys [thens] :as ast}]
+  [ast]
   (-> ast
     (assoc :branch? true)
     (assoc-in [:test :test?] true)
