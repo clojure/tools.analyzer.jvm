@@ -20,14 +20,17 @@
                                                            merge closed-overs))]
                          [(update-children ast -clear-locals (comp vec rseq)) @*clears*])
           locals (:locals @*clears*)
+          [ks vs] (reduce-kv (fn [[keys vals] [k v]]
+                               [(conj keys k) (conj vals v)])
+                             [[] []] closed-overs)
           ast (if (and (= :fn op)
                        (:once env))
-                (assoc ast :closed-overs (zipmap (keys closed-overs)
+                (assoc ast :closed-overs (zipmap ks
                                                  (mapv (fn [{:keys [name] :as ast}]
                                                          (if (locals name)
                                                            ast
                                                            (assoc ast :to-clear? true)))
-                                                       (vals closed-overs))))
+                                                       vs)))
                 ast)]
       (swap! *clears* #(update-in % [:locals] into (:locals clears)))
       ast)
