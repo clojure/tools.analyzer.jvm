@@ -20,7 +20,7 @@
                                                            merge closed-overs))]
                          [(update-children ast -clear-locals (comp vec rseq)) @*clears*])
           locals (:locals @*clears*)
-          [ks vs] (reduce-kv (fn [[keys vals] [k v]]
+          [ks vs] (reduce-kv (fn [[keys vals] k v]
                                [(conj keys k) (conj vals v)])
                              [[] []] closed-overs)
           ast (if (and (= :fn op)
