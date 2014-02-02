@@ -142,7 +142,7 @@
       ast)))
 
 (defmethod -validate :import
-  [{:keys [class validated? env form] :as ast}]
+  [{:keys [^String class validated? env form] :as ast}]
   (if-not validated?
     (let [class-sym (-> class (subs (inc (.lastIndexOf class "."))) symbol)
           sym-val (resolve-var class-sym env)]
