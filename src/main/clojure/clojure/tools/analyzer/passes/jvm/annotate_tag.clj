@@ -85,8 +85,7 @@
   "If the AST node type is a constant object or contains :tag metadata,
    attach the appropriate :tag and :o-tag to the node."
   [{:keys [op tag o-tag atom] :as ast}]
-  (let [binding? (= op :binding)
-        ast (if (and binding? (:case-test @atom))
+  (let [ast (if (and atom (:case-test @atom))
               (update-in ast [:form] vary-meta dissoc :tag)
               ast)
         ast
@@ -96,6 +95,6 @@
                            (-> ast :form meta :tag))]
             (assoc (-annotate-tag ast) :tag tag)
             (-annotate-tag ast)))]
-    (when binding?
+    (when (= op :binding)
       (swap! atom assoc :tag (:tag ast)))
     ast))
