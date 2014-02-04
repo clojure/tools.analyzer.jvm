@@ -84,24 +84,36 @@
   (merge ast (select-keys body [:return-tag :arglists :tag])
          {:o-tag (:tag body)}))
 
+(defn =-arglists? [a1 a2]
+  (let [tag (fn [x] (-> x meta :tag u/maybe-class))]
+    (and (= a1 a2)
+         (every? true? (doto (mapv (fn [a1 a2]
+                             (and (= (tag a1) (tag a2))
+                                  (= (mapv tag a1)
+                                     (mapv tag a2))))
+                           a1 a2))))))
+
 (defmethod -infer-tag :if
   [{:keys [then else] :as ast}]
   (let [then-tag (:tag then)
-        else-tag (:tag else)]
+        else-tag (:tag else)
+        ignore-then? (:ignore-tag then)
+        ignore-else? (:ignore-tag else)]
     (cond
      (and then-tag
-          (or (:ignore-tag else)
-              (= then-tag else-tag)))
+          (or ignore-else? (= then-tag else-tag)))
      (merge ast
             {:tag then-tag :o-tag then-tag}
             (when-let [return-tag (:return-tag then)]
-              (when (= return-tag (:return-tag else)) ;;FIX: could fail when (:ignore-tag else)
+              (when (or ignore-else?
+                        (= return-tag (:return-tag else)))
                 {:return-tag return-tag}))
-            (when-let [arglists (:arglists then)] ;;FIX: could fail when (:ignore-tag else)
-              (when (= arglists (:arglists else)) ;;FIX: should check meta
+            (when-let [arglists (:arglists then)]
+              (when (or ignore-else?
+                        (=-arglists? arglists (:arglists else)))
                 {:arglists arglists})))
 
-     (and else-tag (:ignore-tag then))
+     (and else-tag ignore-then?)
      (merge ast
             {:tag else-tag :o-tag else-tag}
             (when-let [return-tag (:return-tag else)]
@@ -133,7 +145,7 @@
               (when (every? #(= (:return-tag %) return-tag) exprs)
                 {:return-tag return-tag}))
             (when-let [arglists (:arglists (first exprs))]
-              (when (every? #(= (:arglists %) arglists) exprs) ;;FIX: should check meta
+              (when (every? #(=-arglists? (:arglists %) arglists) exprs)
                 {:arglists arglists})))
 
      (every? :ignore-tag thens)
