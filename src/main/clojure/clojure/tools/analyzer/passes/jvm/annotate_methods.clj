@@ -40,7 +40,7 @@
     :method
     (let [{:keys [name class tag form params fixed-arity env]} ast]
        (if interfaces
-         (let [tags (mapv :tag params)
+         (let [tags (mapv (comp u/maybe-class :tag meta :form) params)
                methods-set (set (mapv (fn [x] (dissoc x :declaring-class :flags)) methods))]
            (let [[m & rest :as matches] (try-best-match tags methods)]
              (if m

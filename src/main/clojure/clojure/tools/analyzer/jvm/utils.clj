@@ -273,7 +273,7 @@
 (defn try-best-match [tags methods]
   (let [o-tags (mapv #(or (maybe-class %) Object) tags)]
     (if-let [methods (or (seq (filter
-                               #(= o-tags (mapv maybe-class  (:parameter-types %))) methods))
+                               #(= o-tags (mapv maybe-class (:parameter-types %))) methods))
                          (seq (filter #(tag-match? tags %) methods)))]
       (reduce (fn [[prev & _ :as p] next]
                 (let [prev-params (mapv maybe-class (:parameter-types prev))
