@@ -379,11 +379,11 @@
                        validate
                        classify-invoke
                        constant-lift)))
-         (prewalk
-          (comp ensure-tag
-             annotate-branch
-             box
-             (validate-loop-locals analyze)))))) ;; empty binding atom
+         (prewalk (validate-loop-locals analyze))))) ;; empty binding atom
+
+    (prewalk (comp ensure-tag
+                annotate-branch
+                box))
 
     ((collect {:what       #{:constants
                              :callsites}
