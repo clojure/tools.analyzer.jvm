@@ -28,7 +28,7 @@
       ast)))
 
 (defn boxed? [tag expr]
-  (and (not (u/primitive? tag))
+  (and (or (nil? tag) (not (u/primitive? tag)))
        (u/primitive? (:tag expr))))
 
 (defmethod box :instance-call
@@ -155,7 +155,8 @@
                (assoc test :tag (u/box test-tag))
                test)
         [then else o-tag] (if (or (boxed? tag then)
-                                  (boxed? tag else))
+                                  (boxed? tag else)
+                                  (not o-tag))
                             (conj (mapv -box [then else]) (u/box o-tag))
                             [then else o-tag])]
     (merge ast
