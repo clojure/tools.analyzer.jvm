@@ -69,16 +69,15 @@
       (let [bindings (key ast)]
         (prewalk body (fn [ast] (find-mismatch ast bindings loop-id)))
         (if-let [mismatches (seq @mismatch?)]
-          (let [bindings (apply mapv
-                                (fn [{:keys [form tag]} & mismatches]
-                                  (if (every? #{tag} mismatches)
-                                    form
-                                    (let [tags (conj mismatches tag)]
-                                      (with-meta form {:tag (or (and (some primitive? tags)
-                                                                     (wider-tag tags))
-                                                                Object)}))))
-                                bindings mismatches)
-                binds (zipmap bindings (mapv (comp maybe-class :tag meta) bindings))
+          (let [bindings-form (apply mapv
+                                     (fn [{:keys [form name tag]} & mismatches]
+                                       (when-not (every? #{tag} mismatches)
+                                         (let [tags (conj mismatches tag)]
+                                           (with-meta form {:tag (or (and (some primitive? tags)
+                                                                          (wider-tag tags))
+                                                                     Object)}))))
+                                     bindings mismatches)
+                binds (zipmap (mapv :name bindings) (mapv (comp maybe-class :tag meta) bindings-form))
                 analyze* (fn [ast]
                            (analyze (postwalk ast
                                               (fn [ast]
@@ -88,9 +87,12 @@
             (binding [validating? true]
               (analyze* (dissoc (postwalk (assoc ast key
                                                  (mapv (fn [{:keys [atom] :as bind} f]
-                                                         (swap! atom assoc :dirty? true)
-                                                         (assoc (dissoc bind :tag) :form f))
-                                                       (key ast) bindings))
+                                                         (if f
+                                                           (do
+                                                             (swap! atom assoc :dirty? true)
+                                                             (assoc (dissoc bind :tag) :form f))
+                                                           bind))
+                                                       (key ast) bindings-form))
                                           (comp -cleanup-dirty-nodes
                                              (fn [ast] (assoc-in ast [:env :loop-locals-casts] binds))))
                                 :dirty?))))
@@ -115,9 +117,10 @@
           locals (:loop-locals env)]
       (assoc ast
         :exprs (mapv (fn [{:keys [env] :as e} n]
-                       (if-let [[form c] (find casts n)]
-                         (assoc e :tag c :form form)
-                         e)) exprs locals)))
+                       (let [[form c] (find casts n)]
+                         (if c
+                           (assoc e :tag c :form form)
+                           e))) exprs locals)))
     ast))
 
 (defmethod -validate-loop-locals :default
