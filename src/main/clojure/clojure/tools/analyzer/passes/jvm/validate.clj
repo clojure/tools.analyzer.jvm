@@ -132,7 +132,7 @@
   [ast]
   (if (:validated? ast)
     ast
-    (validate-call ast)))
+    (validate-call (assoc ast :class (u/maybe-class (:class ast))))))
 
 (defmethod -validate :instance-call
   [{:keys [class validated? instance] :as ast}]
