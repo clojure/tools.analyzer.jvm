@@ -23,7 +23,7 @@
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>tools.analyzer</artifactId>
-      <version>0.1.0-beta1</version>
+      <version>0.1.0-SNAPSHOt</version>
     </dependency>
     <dependency>
       <groupId>org.clojure</groupId>
