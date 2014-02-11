@@ -134,6 +134,12 @@
     ast
     (validate-call (assoc ast :class (u/maybe-class (:class ast))))))
 
+(defmethod -validate :static-field
+  [ast]
+  (if (:validated? ast)
+    ast
+    (assoc ast :class (u/maybe-class (:class ast)))))
+
 (defmethod -validate :instance-call
   [{:keys [class validated? instance] :as ast}]
   (let [class (or class (:tag instance))]
