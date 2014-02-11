@@ -200,18 +200,21 @@
             (= member-name** name)
             (= member-name*** name))))))
 
-(def members
+(def members*
   (lru (fn ([class]
              (remove (fn [{:keys [flags]}]
                        (not-any? #{:public :protected} flags))
               (-> (maybe-class class)
                 box
                 (type-reflect :ancestors true)
-                :members)))
-         ([class member]
-            (when-let [members (filter #((name-matches? member) (:name %))
-                                       (members class))]
-              members)))))
+                :members))))))
+
+(defn members
+  ([class] (members* class))
+  ([class member]
+     (when-let [members (filter #((name-matches? member) (:name %))
+                                (members* class))]
+       members)))
 
 (defn static-members [class f]
   (when-let [members (members class f)]
@@ -223,39 +226,33 @@
     (when-let [i-members (remove (comp :static :flags) members)]
       i-members)))
 
-(def static-methods
-  (lru (fn [class method argc]
-         (filter #(= argc (count (:parameter-types %)))
-                 (filter :return-type (static-members class method))))))
+(defn static-methods [class method argc]
+  (filter #(= argc (count (:parameter-types %)))
+          (filter :return-type (static-members class method))))
 
-(def instance-methods
-  (lru (fn [class method argc]
-         (filter #(= argc (count (:parameter-types %)))
-                 (filter :return-type (instance-members class method))))))
+(defn instance-methods [class method argc]
+  (filter #(= argc (count (:parameter-types %)))
+          (filter :return-type (instance-members class method))))
 
-(def static-field
-  (lru (fn [class f]
-         (when-let [statics (static-members class f)]
-           (when-let [[member] (filter (every-pred (comp nil? seq :parameter-types)
-                                                   (comp nil? :return-type))
-                                       statics)]
-             member)))))
+(defn static-field [class f]
+  (when-let [statics (static-members class f)]
+    (when-let [[member] (filter (every-pred (comp nil? seq :parameter-types)
+                                            (comp nil? :return-type))
+                                statics)]
+      member)))
 
-(def instance-field
-  (lru (fn [class f]
-         (when-let [i-members (instance-members class f)]
-           (when-let [[member] (filter (every-pred (comp nil? seq :parameter-types)
-                                                   (comp nil? :return-type))
-                                       i-members)]
-             member)))))
+(defn instance-field [class f]
+  (when-let [i-members (instance-members class f)]
+    (when-let [[member] (filter (every-pred (comp nil? seq :parameter-types)
+                                            (comp nil? :return-type))
+                                i-members)]
+      member)))
 
-(def static-method
-  (lru (fn [class method]
-         (first (static-methods class method 0)))))
+(defn static-method [class method]
+  (first (static-methods class method 0)))
 
-(def instance-method
-  (lru (fn [class method]
-         (first (instance-methods class method 0)))))
+(defn instance-method [class method]
+  (first (instance-methods class method 0)))
 
 (defn prim-or-obj [tag]
   (if (and tag (primitive? tag))

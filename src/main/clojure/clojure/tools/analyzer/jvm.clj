@@ -35,7 +35,8 @@
             [clojure.tools.analyzer.passes.jvm.infer-tag :refer [infer-tag ensure-tag]]
             [clojure.tools.analyzer.passes.jvm.annotate-tag :refer [annotate-tag]]
             [clojure.tools.analyzer.passes.jvm.validate-loop-locals :refer [validate-loop-locals]]
-            [clojure.tools.analyzer.passes.jvm.analyze-host-expr :refer [analyze-host-expr]])
+            [clojure.tools.analyzer.passes.jvm.analyze-host-expr :refer [analyze-host-expr]]
+            [clojure.core.memoize :refer [memo-clear!]])
   (:import clojure.lang.IObj))
 
 (def specials
@@ -234,6 +235,11 @@
       :children (into [:this] (:children method)))))
 
 (defn -deftype [name class-name args interfaces & [methods]]
+
+  (doseq [arg [class-name (str class-name) name (str name)]
+          f   [maybe-class members*]]
+    (memo-clear! f [arg]))
+
   (let [interfaces (mapv #(symbol (.getName ^Class %)) interfaces)]
     (eval (list 'let []
                 (list* 'deftype* name class-name args :implements interfaces methods)
