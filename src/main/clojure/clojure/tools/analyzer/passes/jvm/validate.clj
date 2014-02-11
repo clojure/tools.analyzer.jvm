@@ -82,7 +82,7 @@
                 :args       args
                 :validated? true))
             ast)
-          (throw (ex-info (str "no ctor found for ctor of class: " class " and give signature")
+          (throw (ex-info (str "no ctor found for ctor of class: " class " and given signature")
                           (merge {:class class
                                   :args  (mapv (fn [a] (prewalk a cleanup)) args)}
                                  (source-info (:env ast))))))))))
