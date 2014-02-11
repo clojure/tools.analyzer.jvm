@@ -70,7 +70,7 @@
         (prewalk body (fn [ast] (find-mismatch ast bindings loop-id)))
         (if-let [mismatches (seq @mismatch?)]
           (let [bindings-form (apply mapv
-                                     (fn [{:keys [form name tag]} & mismatches]
+                                     (fn [{:keys [form tag]} & mismatches]
                                        (when-not (every? #{tag} mismatches)
                                          (let [tags (conj mismatches tag)]
                                            (with-meta form {:tag (or (and (some primitive? tags)
@@ -116,11 +116,10 @@
     (let [casts (:loop-locals-casts env)
           locals (:loop-locals env)]
       (assoc ast
-        :exprs (mapv (fn [{:keys [env] :as e} n]
-                       (let [[form c] (find casts n)]
-                         (if c
-                           (assoc e :tag c :form form)
-                           e))) exprs locals)))
+        :exprs (mapv (fn [{:keys [env form] :as e} n]
+                       (if-let [c (casts n)]
+                         (assoc e :tag c)
+                         e)) exprs locals)))
     ast))
 
 (defmethod -validate-loop-locals :default
