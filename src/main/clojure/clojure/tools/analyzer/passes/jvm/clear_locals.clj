@@ -95,8 +95,9 @@
 
 (defn clear-locals
   [ast]
-  (binding [*clears* (atom {:loop-id      0
-                            :loop-context :return
-                            :closed-overs  {}
-                            :locals        #{}})]
+  (binding [*clears* (atom {:loop-id           0
+                            :loop-context      :return
+                            :closed-overs      {}
+                            :loop-closed-overs {}
+                            :locals            #{}})]
     (-clear-locals ast)))
