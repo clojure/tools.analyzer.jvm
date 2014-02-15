@@ -4,6 +4,7 @@
             [clojure.test :refer [deftest is]]
             [clojure.set :as set]
             [clojure.tools.analyzer.passes.add-binding-atom :refer [add-binding-atom]]
+            [clojure.tools.analyzer.passes.collect :refer [collect-closed-overs]]
             [clojure.tools.analyzer.jvm.core-test :refer [ast ast1 e f f1]]
             [clojure.tools.analyzer.passes.jvm.emit-form
              :refer [emit-form emit-hygienic-form]]
@@ -13,6 +14,7 @@
             [clojure.tools.analyzer.passes.jvm.infer-tag :refer [infer-tag]]
             [clojure.tools.analyzer.passes.jvm.annotate-branch :refer [annotate-branch]]
             [clojure.tools.analyzer.passes.jvm.annotate-methods :refer [annotate-methods]]
+            [clojure.tools.analyzer.passes.jvm.annotate-loops :refer [annotate-loops]]
             [clojure.tools.analyzer.passes.jvm.fix-case-test :refer [fix-case-test]]
             [clojure.tools.analyzer.passes.jvm.analyze-host-expr :refer [analyze-host-expr]]
             [clojure.tools.analyzer.passes.jvm.classify-invoke :refer [classify-invoke]])
@@ -59,7 +61,17 @@
     (is (= true (-> f-expr :ret :then :statements first :to-clear? nil?)))
     (is (= true (-> f-expr :ret :then :ret :to-clear?)))
     (is (= true (-> f-expr :ret :else :then :to-clear?)))
-    (is (= true (-> f-expr :ret :else :else :to-clear?)))))
+    (is (= true (-> f-expr :ret :else :else :to-clear?))))
+  (let [f-expr (-> (ast (fn [x] (loop [a x] (if 1 x (do x (recur x))))))
+                 (prewalk (comp annotate-branch annotate-loops))
+                 (collect-closed-overs {:what  #{:closed-overs}
+                                        :where #{:fn :loop}
+                                        :top-level? false})
+                 clear-locals :methods first :body :ret)]
+    (is (= true (-> f-expr :bindings first :init :to-clear? nil?)))
+    (is (= true (-> f-expr :body :ret :then :to-clear?)))
+    (is (= true (-> f-expr :body :ret :else :statements first :to-clear? nil?)))
+    (is (= true (-> f-expr :body :ret :else :ret :exprs first :to-clear? nil?)))))
 
 (deftest fix-case-test-test
   (let [c-ast (-> (ast (case 1 1 1)) add-binding-atom (prewalk fix-case-test))]
