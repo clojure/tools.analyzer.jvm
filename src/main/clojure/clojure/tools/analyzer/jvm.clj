@@ -388,10 +388,10 @@
                        constant-lift)))
          (prewalk (validate-loop-locals analyze))))) ;; empty binding atom
 
-    (prewalk (comp ensure-tag
-                annotate-branch
-                annotate-loops
-                box))
+    (prewalk (-> box
+               annotate-loops
+               annotate-branch
+               ensure-tag))
 
     ((collect {:what       #{:constants
                              :callsites}
