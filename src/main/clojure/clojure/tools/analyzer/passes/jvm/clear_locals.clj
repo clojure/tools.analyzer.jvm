@@ -82,16 +82,14 @@
   (let [{:keys [closed-overs locals loop-closed-overs]} @*clears*]
     (swap! *clears* #(update-in % [:locals] conj name))
     (if (and (#{:let :loop :letfn :arg} local)
-             (or (and (not (closed-overs name))
-                      (or (not (loop-closed-overs name))
-                          (not (= :many times))))
+             (or (not (loop-closed-overs name))
+                 (not= :many times))
+             (or (not (closed-overs name))
                  (:once env))
              (not (locals name))
              (not should-not-clear))
       (assoc ast :to-clear? true)
       ast)))
-
-;; TODO: handle loop
 
 (defn clear-locals
   [ast]
