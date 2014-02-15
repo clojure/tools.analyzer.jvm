@@ -28,6 +28,7 @@
             [clojure.tools.analyzer.passes.jvm.constant-lifter :refer [constant-lift]]
             [clojure.tools.analyzer.passes.jvm.annotate-branch :refer [annotate-branch]]
             [clojure.tools.analyzer.passes.jvm.annotate-methods :refer [annotate-methods]]
+            [clojure.tools.analyzer.passes.jvm.annotate-class-id :refer [annotate-class-id]]
             [clojure.tools.analyzer.passes.jvm.fix-case-test :refer [fix-case-test]]
             [clojure.tools.analyzer.passes.jvm.clear-locals :refer [clear-locals]]
             [clojure.tools.analyzer.passes.jvm.classify-invoke :refer [classify-invoke]]
@@ -373,7 +374,8 @@
                  source-info
                  elide-meta
                  annotate-methods
-                 fix-case-test)))
+                 fix-case-test
+                 annotate-class-id)))
 
     ((fn analyze [ast]
        (-> ast
