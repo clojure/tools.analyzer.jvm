@@ -27,6 +27,7 @@
             [clojure.tools.analyzer.passes.jvm.box :refer [box]]
             [clojure.tools.analyzer.passes.jvm.constant-lifter :refer [constant-lift]]
             [clojure.tools.analyzer.passes.jvm.annotate-branch :refer [annotate-branch]]
+            [clojure.tools.analyzer.passes.jvm.annotate-loops :refer [annotate-loops]]
             [clojure.tools.analyzer.passes.jvm.annotate-methods :refer [annotate-methods]]
             [clojure.tools.analyzer.passes.jvm.fix-case-test :refer [fix-case-test]]
             [clojure.tools.analyzer.passes.jvm.clear-locals :refer [clear-locals]]
@@ -389,6 +390,7 @@
 
     (prewalk (comp ensure-tag
                 annotate-branch
+                annotate-loops
                 box))
 
     ((collect {:what       #{:constants
