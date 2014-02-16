@@ -12,6 +12,7 @@
 
 (def ^:dynamic ^:private validating? false)
 (def ^:dynamic ^:private mismatch?)
+(def ^:dynamic ^:private *loop-locals* [])
 
 (defn find-mismatch [{:keys [op exprs] :as ast} bindings loop-id]
   (when (and (= op :recur) (= loop-id (:loop-id ast))
@@ -77,14 +78,16 @@
                                                                           (wider-tag tags))
                                                                      Object)}))))
                                      bindings mismatches)
-                binds (zipmap (mapv :name bindings) (mapv (comp maybe-class :tag meta) bindings-form))
+                loop-locals (mapv :name bindings)
+                binds (zipmap loop-locals (mapv (comp maybe-class :tag meta) bindings-form))
                 analyze* (fn [ast]
                            (analyze (postwalk ast
                                               (fn [ast]
                                                 (when-let [atom (:atom ast)]
                                                   (swap! atom dissoc :dirty?))
                                                 ast))))]
-            (binding [validating? true]
+            (binding [validating?   true
+                      *loop-locals* loop-locals]
               (analyze* (dissoc (postwalk (assoc ast key
                                                  (mapv (fn [{:keys [atom] :as bind} f]
                                                          (if f
@@ -113,13 +116,12 @@
 (defmethod -validate-loop-locals :recur
   [_ {:keys [exprs env] :as ast}]
   (if validating?
-    (let [casts (:loop-locals-casts env)
-          locals (:loop-locals env)]
+    (let [casts (:loop-locals-casts env)]
       (assoc ast
         :exprs (mapv (fn [{:keys [env form] :as e} n]
                        (if-let [c (casts n)]
                          (assoc e :tag c)
-                         e)) exprs locals)))
+                         e)) exprs *loop-locals*)))
     ast))
 
 (defmethod -validate-loop-locals :default
