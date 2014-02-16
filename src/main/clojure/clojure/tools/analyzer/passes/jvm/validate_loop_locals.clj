@@ -27,8 +27,8 @@
 (defmulti -cleanup-dirty-nodes :op)
 
 (defmethod -cleanup-dirty-nodes :local
-  [{:keys [form atom env] :as ast}]
-  (if-let [cast ((:loop-locals-casts env) form)]
+  [{:keys [form name atom env] :as ast}]
+  (if-let [cast ((:loop-locals-casts env) name)]
     (assoc ast
       :dirty? true
       :o-tag cast
