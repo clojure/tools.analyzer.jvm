@@ -218,8 +218,7 @@
                             :method   name
                             :args     args}
                            (-source-info form env)))))
-  (let [[this & params] args
-        meth (cons params body)
+  (let [meth (cons (vec params) body)
         this-expr {:name  this
                    :env   env
                    :form  this
