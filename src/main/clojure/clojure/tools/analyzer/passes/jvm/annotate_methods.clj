@@ -38,6 +38,8 @@
                                                    all-methods)))) methods)))
 
     :method
+    ;; this should actually be in validate but it's here since it needs to be prewalked
+    ;; for infer-tag purposes
     (let [{:keys [name class tag form params fixed-arity env]} ast]
        (if interfaces
          (let [tags (mapv (comp u/maybe-class :tag meta :form) params)

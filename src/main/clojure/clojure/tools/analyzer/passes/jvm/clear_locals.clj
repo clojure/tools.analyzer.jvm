@@ -13,39 +13,39 @@
 
 (defmulti -clear-locals :op)
 
+(defn clear [ast]
+  (assoc ast :to-clear? true))
+
 (defmethod -clear-locals :default
-  [{:keys [closed-overs op once] :as ast}]
+  [{:keys [closed-overs op] :as ast}]
   (if closed-overs
-    (let [[ast clears] (binding [*clears* (atom (update-in @*clears* [(if (= :loop op)
-                                                                        :loop-closed-overs
-                                                                        :closed-overs)]
-                                                           merge closed-overs))]
-                         [(update-children ast -clear-locals rseqv) @*clears*])
-          locals (:locals @*clears*)
+    (let [key (if (= :loop op) :loop-closed-overs :closed-overs) ;; if we're in a loop those are not actually closed-overs
+          [ast body-locals] (binding [*clears* (atom (update-in @*clears* [key] merge closed-overs))] ;; clear locals in the body
+                              [(update-children ast -clear-locals rseqv) (:locals @*clears*)])        ;; and save encountered locals
           [ks vs] (reduce-kv (fn [[keys vals] k v]
                                [(conj keys k) (conj vals v)])
                              [[] []] closed-overs)
-          ast (if (and (= :fn op) once)
-                (assoc ast :closed-overs (zipmap ks
-                                                 (mapv (fn [{:keys [name] :as ast}]
-                                                         (if (locals name)
-                                                           ast
-                                                           (assoc ast :to-clear? true)))
-                                                       vs)))
-                ast)]
-      (swap! *clears* #(update-in % [:locals] into (:locals clears)))
-      ast)
+          locals (:locals @*clears*)] ;; backup outer locals
+      (swap! *clears* #(update-in % [:locals] into body-locals)) ;; merge the locals so that we know not to clear them "before"
+      (if (#{:fn :reify} op)
+        (let [closed-overs (zipmap ks (mapv (fn [ast] ;; clear outer closed-overs at the point of the closure creation
+                                              (if (locals (:name ast)) ;; it's used later in the body so we cannot clear it
+                                                ast
+                                                (clear ast)))
+                                            vs))]
+         (assoc ast :closed-overs closed-overs))
+        ast))
     (update-children ast -clear-locals rseqv)))
 
 (defmethod -clear-locals :if
   [{:keys [test then else] :as ast}]
-  (let [[then then-clears] (binding [*clears* (atom @*clears*)]
-                             [(-clear-locals then) @*clears*])
-        [else else-clears] (binding [*clears* (atom @*clears*)]
-                             [(-clear-locals else) @*clears*])
-        locals             (into (:locals then-clears)
-                                 (:locals else-clears))]
-    (swap! *clears* #(update-in % [:locals] into locals))
+  (let [[then then-clears] (binding [*clears* (atom @*clears*)] ;; push a new locals frame for every path so that
+                             [(-clear-locals then) @*clears*])  ;; we can clear the same local in different branches
+        [else else-clears] (binding [*clears* (atom @*clears*)] ;; this is safe to do since the different paths will
+                             [(-clear-locals else) @*clears*])  ;; never interfere
+        locals             (into (:locals then-clears)    ;; merge all the locals encountered in the branch paths
+                                 (:locals else-clears))]  ;; so that if we encounter them "before" in the body we know
+    (swap! *clears* #(update-in % [:locals] into locals)) ;; that we cannot clear them since they are needed later
     (let [test (-clear-locals test)]
       (assoc ast
         :test test
@@ -71,15 +71,15 @@
 (defmethod -clear-locals :local
   [{:keys [name local should-not-clear env times] :as ast}]
   (let [{:keys [closed-overs locals loop-closed-overs]} @*clears*]
-    (swap! *clears* #(update-in % [:locals] conj name))
-    (if (and (#{:let :loop :letfn :arg} local)
-             (or (not (loop-closed-overs name))
-                 (not= :many times))
-             (or (not (closed-overs name))
-                 (:once env))
-             (not (locals name))
-             (not should-not-clear))
-      (assoc ast :to-clear? true)
+    (swap! *clears* #(update-in % [:locals] conj name)) ;; register that the local has been used and potentially cleared
+    (if (and (#{:let :loop :arg} local) ;; what about :catch :fn?
+             (or (not (loop-closed-overs name)) ;; if we're in a loop and the local is defined outside the loop
+                 (not= :many times))             ;; it's only safe to clear it if we're in the loop exit path
+             (or (not (closed-overs name)) ;; if it's a closed-over var, we can only clear it if we explicitely
+                 (:once env))            ;; declared the function to be run :once
+             (not (locals name)) ;; if the local is in `locals` it means that it's used later in the body and can't be cleared here
+             (not should-not-clear)) ;; letfn bindings/case test
+      (clear ast)
       ast)))
 
 (defn clear-locals
