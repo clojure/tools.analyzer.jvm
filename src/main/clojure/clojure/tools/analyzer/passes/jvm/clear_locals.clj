@@ -7,26 +7,25 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.clear-locals
-  (:require [clojure.tools.analyzer.ast :refer [update-children]]))
+  (:require [clojure.tools.analyzer.ast :refer [update-children rseqv]]))
 
 (def ^:dynamic *clears*)
 
 (defmulti -clear-locals :op)
 
 (defmethod -clear-locals :default
-  [{:keys [closed-overs op env] :as ast}]
+  [{:keys [closed-overs op once] :as ast}]
   (if closed-overs
     (let [[ast clears] (binding [*clears* (atom (update-in @*clears* [(if (= :loop op)
                                                                         :loop-closed-overs
                                                                         :closed-overs)]
                                                            merge closed-overs))]
-                         [(update-children ast -clear-locals (comp vec rseq)) @*clears*])
+                         [(update-children ast -clear-locals rseqv) @*clears*])
           locals (:locals @*clears*)
           [ks vs] (reduce-kv (fn [[keys vals] k v]
                                [(conj keys k) (conj vals v)])
                              [[] []] closed-overs)
-          ast (if (and (= :fn op)
-                       (:once env))
+          ast (if (and (= :fn op) once)
                 (assoc ast :closed-overs (zipmap ks
                                                  (mapv (fn [{:keys [name] :as ast}]
                                                          (if (locals name)
@@ -36,15 +35,7 @@
                 ast)]
       (swap! *clears* #(update-in % [:locals] into (:locals clears)))
       ast)
-    (update-children ast -clear-locals (comp vec rseq))))
-
-(defmethod -clear-locals :do
-  [{:keys [statements ret] :as ast}]
-  (let [ret        (-clear-locals ret)
-        statements (vec (rseq (mapv -clear-locals (rseq statements))))]
-    (assoc ast
-      :ret        ret
-      :statements statements)))
+    (update-children ast -clear-locals rseqv)))
 
 (defmethod -clear-locals :if
   [{:keys [test then else] :as ast}]
@@ -93,9 +84,7 @@
 
 (defn clear-locals
   [ast]
-  (binding [*clears* (atom {:loop-id           0
-                            :loop-context      :return
-                            :closed-overs      {}
+  (binding [*clears* (atom {:closed-overs      {}
                             :loop-closed-overs {}
                             :locals            #{}})]
     (-clear-locals ast)))
