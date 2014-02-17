@@ -9,17 +9,49 @@
 (ns clojure.tools.analyzer.passes.jvm.annotate-loops
   (:require [clojure.tools.analyzer.ast :refer [update-children]]))
 
+;; TODO: optimize
 (defmulti annotate-loops :op)
+(defmulti has-recur? :op)
 
 (defn many [ast]
   (assoc ast :times :many))
 
+(defmethod has-recur? :do
+  [ast]
+  (has-recur? (:ret ast)))
+
+(defmethod has-recur? :let
+  [ast]
+  (has-recur? (:body ast)))
+
+(defmethod has-recur? :letfn
+  [ast]
+  (has-recur? (:body ast)))
+
+(defmethod has-recur? :if
+  [ast]
+  (or (has-recur? (:then ast))
+      (has-recur? (:else ast))))
+
+(defmethod has-recur? :case
+  [ast]
+  (or (has-recur? (:default ast))
+      (some has-recur? (:thens ast))))
+
+(defmethod has-recur? :recur
+  [_]
+  true)
+
+(defmethod has-recur? :default
+  [_]
+  false)
+
 (defmethod annotate-loops :do
   [{:keys [statements ret times] :as ast}]
-  (if (or (= :recur (:op ret))
-          (= times :many))
+  (if (or (= times :many)
+          (has-recur? ret))
     (assoc ast
-      :ret        (assoc ret :times :many)
+      :ret        (many ret)
       :statements (mapv many statements))
     ast))
 
@@ -31,4 +63,29 @@
   [ast]
   (if (= (:times ast) :many)
     (update-children ast many)
+    ast))
+
+(defmethod annotate-loops :if
+  [{:keys [then else] :as ast}]
+  (if (= (:times ast) :many)
+    (let [then (if (has-recur? then)
+                 (many then)
+                 then)
+          else (if (has-recur? else)
+                 (many else)
+                 else)]
+      (assoc ast :then then :else else))
+    ast))
+
+(defmethod annotate-loops :case
+  [{:keys [default thens] :as ast}]
+  (if (= (:times ast) :many)
+    (let [default (if (has-recur? default)
+                    (many default)
+                    default)
+
+          thens (mapv #(if (has-recur? %)
+                         (many %)
+                         %) thens)]
+      (assoc ast :thens thens :default default))
     ast))
