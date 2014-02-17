@@ -66,7 +66,7 @@
     ast))
 
 (defmethod annotate-loops :if
-  [{:keys [then else] :as ast}]
+  [{:keys [test then else] :as ast}]
   (if (= (:times ast) :many)
     (let [then (if (has-recur? then)
                  (many then)
@@ -74,11 +74,11 @@
           else (if (has-recur? else)
                  (many else)
                  else)]
-      (assoc ast :then then :else else))
+      (assoc ast :then then :else else :test (many test)))
     ast))
 
 (defmethod annotate-loops :case
-  [{:keys [default thens] :as ast}]
+  [{:keys [test default thens] :as ast}]
   (if (= (:times ast) :many)
     (let [default (if (has-recur? default)
                     (many default)
@@ -87,5 +87,5 @@
           thens (mapv #(if (has-recur? %)
                          (many %)
                          %) thens)]
-      (assoc ast :thens thens :default default))
+      (assoc ast :thens thens :default default :test (many test)))
     ast))
