@@ -17,7 +17,6 @@
             [clojure.tools.analyzer.ast :refer [walk prewalk postwalk cycling]]
             [clojure.tools.analyzer.jvm.utils :refer :all :exclude [box]]
             [clojure.tools.analyzer.passes.source-info :refer [source-info]]
-            [clojure.tools.analyzer.passes.trim :refer [trim]]
             [clojure.tools.analyzer.passes.cleanup :refer [cleanup]]
             [clojure.tools.analyzer.passes.elide-meta :refer [elide-meta]]
             [clojure.tools.analyzer.passes.warn-earmuff :refer [warn-earmuff]]
@@ -71,8 +70,8 @@
    (symbol? form)
    (let [target (maybe-class (namespace form))
          field (symbol (name form))]
-     (if (and target (not (resolve-ns (symbol (namespace form)) env)))
-       (with-meta (list '. target (symbol (str "-" field)))
+     (if (and target (not (resolve-ns (symbol (namespace form)) env))) ;; Class/field
+       (with-meta (list '. target (symbol (str "-" field)))          ;; transform to (. Class -field)
          (meta form))
        form))
 
@@ -92,7 +91,7 @@
                          target)
                 args (list* (symbol (subs opname 1)) args)]
             (with-meta (list '. target (if (= 1 (count args)) ;; we don't know if (.foo bar) is
-                                         (first args) args)) ;; a method call or a field access
+                                         (first args) args))  ;; a method call or a field access
               (meta form)))
 
           (and (maybe-class opns)
@@ -124,7 +123,7 @@
         (let [v (resolve-var op env)
               m (meta v)
               local? (-> env :locals (get op))
-              macro? (and (not local?) (:macro m))
+              macro? (and (not local?) (:macro m)) ;; locals shadow macros
               inline-arities-f (:inline-arities m)
               inline? (and (not local?)
                            (or (not inline-arities-f)
@@ -204,37 +203,38 @@
    :class class})
 
 (defn analyze-method-impls
-  [[name [this & params :as args] & body :as form] env]
+  [[method [this & params :as args] & body :as form] env]
   (when-let [error-msg (cond
-                        (not (symbol? name))
-                        (str "Method name must be a symbol, had: " (class name))
+                        (not (symbol? method))
+                        (str "Method method must be a symbol, had: " (class method))
                         (not (vector? args))
                         (str "Parameter listing should be a vector, had: " (class args))
                         (not (first args))
-                        (str"Must supply at least one argument for 'this' in: " name))]
+                        (str"Must supply at least one argument for 'this' in: " method))]
     (throw (ex-info error-msg
                     (merge {:form     form
                             :in       (:this env)
-                            :method   name
+                            :method   method
                             :args     args}
                            (-source-info form env)))))
-  (let [meth (cons (vec params) body)
-        this-expr {:name  this
-                   :env   env
-                   :form  this
-                   :op    :binding
-                   :o-tag (:this env)
-                   :tag   (:this env)
-                   :local :this}
-        env (assoc-in (dissoc env :this) [:locals this] this-expr)
-        method (analyze-fn-method meth env)]
-    (assoc (dissoc method :variadic?)
+  (let [meth        (cons (vec params) body) ;; this is an implicit arg
+        this-expr   {:method  this
+                     :env   env
+                     :form  this
+                     :op    :binding
+                     :o-tag (:this env)
+                     :tag   (:this env)
+                     :local :this}
+        env         (assoc-in (dissoc env :this) [:locals this] this-expr)
+        method-expr (analyze-fn-method meth env)]
+    (assoc (dissoc method-expr :variadic?)
       :op       :method
       :form     form
       :this     this-expr
-      :name     (symbol (clojure.core/name name))
-      :children (into [:this] (:children method)))))
+      :method   (symbol (name method))
+      :children (into [:this] (:children method-expr)))))
 
+;; HACK
 (defn -deftype [name class-name args interfaces & [methods]]
 
   (doseq [arg [class-name (str class-name) name (str name)]
@@ -284,8 +284,8 @@
                           fields)
         menv (assoc env
                :context :expr
-               :locals (zipmap fields fields-expr)
-               :this class-name)
+               :locals  (zipmap fields fields-expr)
+               :this    class-name)
         methods* (mapv #(assoc (analyze-method-impls % menv) :interfaces interfaces)
                       methods)]
 
@@ -303,7 +303,7 @@
 
 (defmethod parse 'case*
   [[_ expr shift mask default case-map switch-type test-type & [skip-check?] :as form] env]
-  (let [[low high] ((juxt first last) (keys case-map))
+  (let [[low high] ((juxt first last) (keys case-map)) ;;case-map is a sorted-map
         test-expr (-analyze expr (ctx env :expr))
         [tests thens] (reduce (fn [[te th] [min-hash [test then]]]
                                 (let [test-expr (ana/-analyze :const test env)
@@ -316,7 +316,7 @@
                                              :hash     min-hash
                                              :then     then-expr
                                              :children [:then]})]))
-                              [[] []] case-map) ;; transform back in a sorted-map + hash-map when emitting
+                              [[] []] case-map)
         default-expr (-analyze default env)]
     {:op          :case
      :form        form
@@ -337,8 +337,12 @@
 
 (defmethod parse 'catch
   [[_ etype ename & body :as form] env]
-  (let [etype (if (= etype :default) Throwable etype)]
+  (let [etype (if (= etype :default) Throwable etype)] ;; catch-all
     (ana/-parse `(catch ~etype ~ename ~@body) env)))
+
+(defmethod parse 'loop*
+  [form env]
+  (ana/-parse form env))
 
 (defn run-passes
   "Applies the following passes in the correct order to the AST:
@@ -347,12 +351,13 @@
    * cleanup
    * source-info
    * elide-meta
-   * constant-lifter
    * warn-earmuff
    * collect
-   * trim
    * jvm.box
+   * jvm.constant-lifter
    * jvm.annotate-branch
+   * jvm.annotate-loops
+   * jvm.annotate-class-id
    * jvm.annotate-methods
    * jvm.fix-case-test
    * jvm.clear-locals
@@ -386,14 +391,15 @@
                        infer-tag
                        validate
                        classify-invoke
-                       constant-lift)))
-         (prewalk (validate-loop-locals analyze))))) ;; empty binding atom
+                       constant-lift))) ;; needs to be run after validate so that
+                                        ;; :maybe-class is turned into a :const
+         (prewalk (validate-loop-locals analyze)))))
 
     (prewalk (fn [ast]
                (-> ast
                  box
-                 annotate-loops
-                 annotate-branch
+                 annotate-loops  ;; needed for clear-locals to safely clear locals in a loop
+                 annotate-branch ;; needed for clear-locals
                  ensure-tag)))
 
     ((collect {:what       #{:constants
@@ -401,10 +407,13 @@
                :where      #{:deftype :reify :fn}
                :top-level? false}))
 
+    ;; needs to be run in a separate pass to avoid collecting
+    ;; constants/callsites in :loop
     (collect-closed-overs {:what  #{:closed-overs}
                            :where #{:deftype :reify :fn :loop}
                            :top-level? false})
 
+    ;; needs to be run after collect-closed-overs
     clear-locals
 
     (prewalk cleanup)))

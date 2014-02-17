@@ -5,7 +5,6 @@
 
 (defn constant-lift*
   [ast]
-
   (if (= :var (:op ast))
     (let [{:keys [var env form]} ast]
      (if (constant? var)

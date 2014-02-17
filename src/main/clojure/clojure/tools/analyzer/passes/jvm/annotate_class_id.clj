@@ -9,6 +9,7 @@
 (ns clojure.tools.analyzer.passes.jvm.annotate-class-id)
 
 (defn annotate-class-id
+  "Adds a unique class id to :reify/:fn nodes"
   [ast]
   (if (#{:reify :fn} (:op ast))
     (assoc ast :class-id (gensym))

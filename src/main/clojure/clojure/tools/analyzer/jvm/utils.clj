@@ -13,7 +13,8 @@
   (:import (clojure.lang RT Symbol Var)
            (org.objectweb.asm Type)))
 
-(defn type-reflect [typeref & options]
+(defn ^:private type-reflect
+  [typeref & options]
   (apply reflect/type-reflect typeref
          :reflector (reflect/->JavaReflector (RT/baseLoader))
          options))
@@ -44,6 +45,7 @@
 (defmulti ^Class -maybe-class class)
 
 (def ^Class maybe-class
+  "Takes a Symbol, String or Class and tires to resolve to a matching Class"
   (lru (fn [x] (-maybe-class x))))
 
 (defn array-class [element-type]
@@ -80,11 +82,14 @@
           (maybe-class-from-string sname))))))
 
 (def primitive?
+  "Returns non-nil if the argument represents a primitive Class other than Void"
   #{Double/TYPE Character/TYPE Byte/TYPE
     Boolean/TYPE Short/TYPE Float/TYPE
     Long/TYPE Integer/TYPE})
 
-(def convertible-primitives?
+(def ^:private convertible-primitives
+  "If the argument is a primitive Class, returns a set of Classes
+   to which the primitive Class can be casted"
   {Integer/TYPE   #{Integer Long/TYPE Long Short/TYPE Byte/TYPE}
    Float/TYPE     #{Float Double/TYPE}
    Double/TYPE    #{Double Float/TYPE}
@@ -95,7 +100,10 @@
    Boolean/TYPE   #{Boolean}
    Void/TYPE      #{Void}})
 
-(defn ^Class box [c]
+(defn ^Class box
+  "If the argument is a primitive Class, returns its boxed equivalent,
+   otherwise returns the argument"
+  [c]
   ({Integer/TYPE   Integer
     Float/TYPE     Float
     Double/TYPE    Double
@@ -107,7 +115,10 @@
     Void/TYPE      Void}
    c c))
 
-(defn ^Class unbox [c]
+(defn ^Class unbox
+  "If the argument is a Class with a primitive equivalent, returns that,
+   otherwise returns the argument"
+  [c]
   ({Integer   Integer/TYPE,
     Long      Long/TYPE,
     Float     Float/TYPE,
@@ -119,11 +130,15 @@
     Void      Void/TYPE}
    c c))
 
-(defn numeric? [c]
+(defn numeric?
+  "Returns true if the given class is numeric"
+  [c]
   (when c
     (.isAssignableFrom Number (box c))))
 
-(defn subsumes? [c1 c2]
+(defn subsumes?
+  "Returns true if c2 is subsumed by c1"
+  [c1 c2]
   (let [c1 (maybe-class c1)
         c2 (maybe-class c2)]
     (and (not= c1 c2)
@@ -131,18 +146,22 @@
                   (primitive? c2))
              (.isAssignableFrom c2 c1)))))
 
-(defn convertible? [from to]
-  (let [c1 (maybe-class from)
-        c2 (maybe-class to)]
+(defn convertible?
+  "Returns true if it's possible to convert from c1 to c2"
+  [c1 c2]
+  (let [c1 (maybe-class c1)
+        c2 (maybe-class c2)]
     (if (nil? c1)
       (not (primitive? c2))
       (or
        (= c1 c2)
        (.isAssignableFrom c2 c1)
        (and (primitive? c2)
-            ((convertible-primitives? c2) c1))))))
+            ((convertible-primitives c2) c1))))))
 
 (def wider-than
+  "If the argument is a numeric primitive Class, returns a set of primitive Classes
+   that are narrower than the given one"
   {Long/TYPE    #{Integer/TYPE Short/TYPE Byte/TYPE}
    Integer/TYPE #{Short/TYPE Byte/TYPE}
    Float/TYPE   #{Integer/TYPE Short/TYPE Byte/TYPE Long/TYPE}
@@ -150,12 +169,16 @@
    Short/TYPE   #{Byte/TYPE}
    Byte/TYPE    #{}})
 
-(defn wider-primitive [from to]
+(defn wider-primitive
+  "Given two numeric primitive Classes, returns the wider one"
+  [from to]
   (if ((wider-than from) to)
     from
     to))
 
-(defn wider-tag* [from to]
+(defn wider-tag*
+  "Given two Classes returns the wider one"
+  [from to]
   (if (not= from to)
     (if (primitive? from)
       (if (primitive? to)
@@ -163,19 +186,21 @@
         (or (and (numeric? from)
                  (numeric? to)
                  to)
-            ((convertible-primitives? from) to)))
+            ((convertible-primitives from) to)))
       (if (primitive? to)
         (or (and (numeric? from)
                  (numeric? to)
                  from)
-            ((convertible-primitives? to) from))
+            ((convertible-primitives to) from))
         (if (convertible? from to)
           to
           (when (convertible? to from)
             from))))
     from))
 
-(defn wider-tag [tags]
+(defn wider-tag
+  "Given a collection of Classes returns the wider one"
+  [tags]
   (let [tags* (filter identity tags)
         wider (loop [wider (first tags*) tags* (rest tags*)]
                 (if (seq tags*)
@@ -186,7 +211,8 @@
               (not (primitive? wider)))
       wider)))
 
-(defn name-matches? [member]
+(defn name-matches?
+  [member]
   (let [member-name (str member)
         i (.lastIndexOf member-name ".")
         member-name* (when (pos? i)
@@ -254,7 +280,9 @@
 (defn instance-method [class method]
   (first (instance-methods class method 0)))
 
-(defn prim-or-obj [tag]
+(defn prim-or-obj
+  "If the given Class is a primitive, returns that Class, otherwise returns Object"
+  [tag]
   (if (and tag (primitive? tag))
     tag
     java.lang.Object))
@@ -267,7 +295,10 @@
 (defn tag-match? [arg-tags meth]
   (every? identity (map convertible? arg-tags (:parameter-types meth))))
 
-(defn try-best-match [tags methods]
+(defn try-best-match
+  "Given a vector of arg tags and a collection of methods, tries to return the
+   subset of methods that match best the given tags"
+  [tags methods]
   (let [o-tags (mapv #(or (maybe-class %) Object) tags)]
     (if-let [methods (or (seq (filter
                                #(= o-tags (mapv maybe-class (:parameter-types %))) methods))
