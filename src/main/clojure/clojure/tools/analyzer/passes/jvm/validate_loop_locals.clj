@@ -10,7 +10,7 @@
   (:require [clojure.tools.analyzer.ast :refer [prewalk postwalk children update-children]]
             [clojure.tools.analyzer.jvm.utils :refer [wider-tag maybe-class primitive?]]))
 
-(def ^:dynamic ^:private validating? false)
+(def ^:dynamic ^:private validating nil)
 (def ^:dynamic ^:private mismatch?)
 (def ^:dynamic ^:private *loop-locals* [])
 
@@ -64,7 +64,7 @@
 
 (defn -validate-loop-locals*
   [analyze {:keys [body env loop-id] :as ast} key]
-  (if validating?
+  (if validating
     ast
     (binding [mismatch? (atom #{})]
       (let [bindings (key ast)]
@@ -86,7 +86,7 @@
                                                 (when-let [atom (:atom ast)]
                                                   (swap! atom dissoc :dirty?))
                                                 ast))))]
-            (binding [validating?   true
+            (binding [validating    loop-id
                       *loop-locals* loop-locals]
               (analyze* (dissoc (postwalk (assoc ast key
                                                  (mapv (fn [{:keys [atom] :as bind} f]
@@ -114,8 +114,8 @@
   (-validate-loop-locals* analyze ast :params))
 
 (defmethod -validate-loop-locals :recur
-  [_ {:keys [exprs env] :as ast}]
-  (if validating?
+  [_ {:keys [exprs env loop-id] :as ast}]
+  (if (= validating loop-id)
     (let [casts (:loop-locals-casts env)]
       (assoc ast
         :exprs (mapv (fn [{:keys [env form] :as e} n]
