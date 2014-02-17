@@ -218,7 +218,7 @@
                             :args     args}
                            (-source-info form env)))))
   (let [meth        (cons (vec params) body) ;; this is an implicit arg
-        this-expr   {:method  this
+        this-expr   {:name  this
                      :env   env
                      :form  this
                      :op    :binding
@@ -231,7 +231,7 @@
       :op       :method
       :form     form
       :this     this-expr
-      :method   (symbol (name method))
+      :name     (symbol (name method))
       :children (into [:this] (:children method-expr)))))
 
 ;; HACK
@@ -339,10 +339,6 @@
   [[_ etype ename & body :as form] env]
   (let [etype (if (= etype :default) Throwable etype)] ;; catch-all
     (ana/-parse `(catch ~etype ~ename ~@body) env)))
-
-(defmethod parse 'loop*
-  [form env]
-  (ana/-parse form env))
 
 (defn run-passes
   "Applies the following passes in the correct order to the AST:
