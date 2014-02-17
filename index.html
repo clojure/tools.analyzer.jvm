@@ -75,6 +75,48 @@ namespace.
       <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm/specials">specials</a>
       
     </div>
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#clojure.tools.analyzer.jvm.utils" style="margin-top: 3px;">clojure.tools.analyzer.jvm.utils</a>
+    <div style="margin-left: 1em;" class="toc-entry">
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/box">box</a>
+      
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/convertible?">convertible?</a>
+      
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/maybe-class">maybe-class</a>
+      
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/numeric?">numeric?</a>
+      
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/prim-or-obj">prim-or-obj</a>
+      
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/primitive?">primitive?</a>
+      
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/subsumes?">subsumes?</a>
+      
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/try-best-match">try-best-match</a>
+      
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/unbox">unbox</a>
+      
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/wider-primitive">wider-primitive</a>
+      
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/wider-tag">wider-tag</a>
+      
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/wider-tag*">wider-tag*</a>
+      
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/wider-than">wider-than</a>
+      
+    </div>
   </div>
 </div>
 </div>
@@ -112,7 +154,7 @@ tools.analyzer/analyzer on form.
 Calls `run-passes` on the AST.</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/b9a95c659ed15d4e0ed036e364d48551be1015c4/src/main/clojure/clojure/tools/analyzer/jvm.clj#L412" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/41e47a3af10fdc596a783628e1ef32b8171dfd29/src/main/clojure/clojure/tools/analyzer/jvm.clj#L421" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -124,7 +166,7 @@ Calls `run-passes` on the AST.</pre>
 The Var gets interned in the env namespace.</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/b9a95c659ed15d4e0ed036e364d48551be1015c4/src/main/clojure/clojure/tools/analyzer/jvm.clj#L149" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/41e47a3af10fdc596a783628e1ef32b8171dfd29/src/main/clojure/clojure/tools/analyzer/jvm.clj#L148" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -135,7 +177,7 @@ The Var gets interned in the env namespace.</pre>
     <pre id="var-docstr">Returns an empty env map</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/b9a95c659ed15d4e0ed036e364d48551be1015c4/src/main/clojure/clojure/tools/analyzer/jvm.clj#L57" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/41e47a3af10fdc596a783628e1ef32b8171dfd29/src/main/clojure/clojure/tools/analyzer/jvm.clj#L56" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -147,7 +189,7 @@ The Var gets interned in the env namespace.</pre>
 returns its expansion, else returns form.</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/b9a95c659ed15d4e0ed036e364d48551be1015c4/src/main/clojure/clojure/tools/analyzer/jvm.clj#L116" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/41e47a3af10fdc596a783628e1ef32b8171dfd29/src/main/clojure/clojure/tools/analyzer/jvm.clj#L115" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -157,7 +199,7 @@ returns its expansion, else returns form.</pre>
     <pre id="var-docstr">Extension to tools.analyzer/-parse for JVM special forms</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/b9a95c659ed15d4e0ed036e364d48551be1015c4/src/main/clojure/clojure/tools/analyzer/jvm.clj#L49" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/41e47a3af10fdc596a783628e1ef32b8171dfd29/src/main/clojure/clojure/tools/analyzer/jvm.clj#L48" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -171,12 +213,13 @@ returns its expansion, else returns form.</pre>
 * cleanup
 * source-info
 * elide-meta
-* constant-lifter
 * warn-earmuff
 * collect
-* trim
 * jvm.box
+* jvm.constant-lifter
 * jvm.annotate-branch
+* jvm.annotate-loops
+* jvm.annotate-class-id
 * jvm.annotate-methods
 * jvm.fix-case-test
 * jvm.clear-locals
@@ -188,7 +231,7 @@ returns its expansion, else returns form.</pre>
 * jvm.analyze-host-expr</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/b9a95c659ed15d4e0ed036e364d48551be1015c4/src/main/clojure/clojure/tools/analyzer/jvm.clj#L343" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/41e47a3af10fdc596a783628e1ef32b8171dfd29/src/main/clojure/clojure/tools/analyzer/jvm.clj#L347" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -198,7 +241,164 @@ returns its expansion, else returns form.</pre>
     <pre id="var-docstr">Set of the special forms for clojure in the JVM</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/b9a95c659ed15d4e0ed036e364d48551be1015c4/src/main/clojure/clojure/tools/analyzer/jvm.clj#L44" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/41e47a3af10fdc596a783628e1ef32b8171dfd29/src/main/clojure/clojure/tools/analyzer/jvm.clj#L43" id="var-source">Source</a>
+  </div>
+</div>
+<br />
+<h2 id="clojure.tools.analyzer.jvm.utils">clojure.tools.analyzer.jvm.utils</h2>
+<pre id="namespace-docstr"></pre>
+
+
+<br />
+
+
+<div id="var-section">
+  <p></p>
+  <h2>Public Variables and Functions</h2>
+  <div id="var-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.jvm.utils/box">box</h2>
+    <span id="var-type">function</span><br />
+    <pre id="var-usage">Usage: (box c)
+</pre>
+    <pre id="var-docstr">If the argument is a primitive Class, returns its boxed equivalent,
+otherwise returns the argument</pre>
+    
+    
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/41e47a3af10fdc596a783628e1ef32b8171dfd29/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L103" id="var-source">Source</a>
+  </div><div id="var-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.jvm.utils/convertible?">convertible?</h2>
+    <span id="var-type">function</span><br />
+    <pre id="var-usage">Usage: (convertible? c1 c2)
+</pre>
+    <pre id="var-docstr">Returns true if it's possible to convert from c1 to c2</pre>
+    
+    
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/41e47a3af10fdc596a783628e1ef32b8171dfd29/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L149" id="var-source">Source</a>
+  </div><div id="var-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.jvm.utils/maybe-class">maybe-class</h2>
+    <span id="var-type">var</span><br />
+    <pre id="var-usage"></pre>
+    <pre id="var-docstr">Takes a Symbol, String or Class and tires to resolve to a matching Class</pre>
+    
+    
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/41e47a3af10fdc596a783628e1ef32b8171dfd29/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L47" id="var-source">Source</a>
+  </div><div id="var-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.jvm.utils/numeric?">numeric?</h2>
+    <span id="var-type">function</span><br />
+    <pre id="var-usage">Usage: (numeric? c)
+</pre>
+    <pre id="var-docstr">Returns true if the given class is numeric</pre>
+    
+    
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/41e47a3af10fdc596a783628e1ef32b8171dfd29/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L133" id="var-source">Source</a>
+  </div><div id="var-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.jvm.utils/prim-or-obj">prim-or-obj</h2>
+    <span id="var-type">function</span><br />
+    <pre id="var-usage">Usage: (prim-or-obj tag)
+</pre>
+    <pre id="var-docstr">If the given Class is a primitive, returns that Class, otherwise returns Object</pre>
+    
+    
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/41e47a3af10fdc596a783628e1ef32b8171dfd29/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L283" id="var-source">Source</a>
+  </div><div id="var-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.jvm.utils/primitive?">primitive?</h2>
+    <span id="var-type">var</span><br />
+    <pre id="var-usage"></pre>
+    <pre id="var-docstr">Returns non-nil if the argument represents a primitive Class other than Void</pre>
+    
+    
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/41e47a3af10fdc596a783628e1ef32b8171dfd29/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L84" id="var-source">Source</a>
+  </div><div id="var-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.jvm.utils/subsumes?">subsumes?</h2>
+    <span id="var-type">function</span><br />
+    <pre id="var-usage">Usage: (subsumes? c1 c2)
+</pre>
+    <pre id="var-docstr">Returns true if c2 is subsumed by c1</pre>
+    
+    
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/41e47a3af10fdc596a783628e1ef32b8171dfd29/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L139" id="var-source">Source</a>
+  </div><div id="var-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.jvm.utils/try-best-match">try-best-match</h2>
+    <span id="var-type">function</span><br />
+    <pre id="var-usage">Usage: (try-best-match tags methods)
+</pre>
+    <pre id="var-docstr">Given a vector of arg tags and a collection of methods, tries to return the
+subset of methods that match best the given tags</pre>
+    
+    
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/41e47a3af10fdc596a783628e1ef32b8171dfd29/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L298" id="var-source">Source</a>
+  </div><div id="var-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.jvm.utils/unbox">unbox</h2>
+    <span id="var-type">function</span><br />
+    <pre id="var-usage">Usage: (unbox c)
+</pre>
+    <pre id="var-docstr">If the argument is a Class with a primitive equivalent, returns that,
+otherwise returns the argument</pre>
+    
+    
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/41e47a3af10fdc596a783628e1ef32b8171dfd29/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L118" id="var-source">Source</a>
+  </div><div id="var-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.jvm.utils/wider-primitive">wider-primitive</h2>
+    <span id="var-type">function</span><br />
+    <pre id="var-usage">Usage: (wider-primitive from to)
+</pre>
+    <pre id="var-docstr">Given two numeric primitive Classes, returns the wider one</pre>
+    
+    
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/41e47a3af10fdc596a783628e1ef32b8171dfd29/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L172" id="var-source">Source</a>
+  </div><div id="var-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.jvm.utils/wider-tag">wider-tag</h2>
+    <span id="var-type">function</span><br />
+    <pre id="var-usage">Usage: (wider-tag tags)
+</pre>
+    <pre id="var-docstr">Given a collection of Classes returns the wider one</pre>
+    
+    
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/41e47a3af10fdc596a783628e1ef32b8171dfd29/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L201" id="var-source">Source</a>
+  </div><div id="var-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.jvm.utils/wider-tag*">wider-tag*</h2>
+    <span id="var-type">function</span><br />
+    <pre id="var-usage">Usage: (wider-tag* from to)
+</pre>
+    <pre id="var-docstr">Given two Classes returns the wider one</pre>
+    
+    
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/41e47a3af10fdc596a783628e1ef32b8171dfd29/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L179" id="var-source">Source</a>
+  </div><div id="var-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.jvm.utils/wider-than">wider-than</h2>
+    <span id="var-type">var</span><br />
+    <pre id="var-usage"></pre>
+    <pre id="var-docstr">If the argument is a numeric primitive Class, returns a set of primitive Classes
+that are narrower than the given one</pre>
+    
+    
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/41e47a3af10fdc596a783628e1ef32b8171dfd29/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L162" id="var-source">Source</a>
   </div>
 </div>
 
