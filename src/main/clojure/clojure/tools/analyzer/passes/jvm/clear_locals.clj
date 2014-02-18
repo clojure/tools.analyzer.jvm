@@ -16,7 +16,7 @@
 (defn maybe-clear-local
   [{:keys [name local should-not-clear env times] :as ast}]
   (let [{:keys [closed-overs locals loop-closed-overs]} @*clears*]
-    (if (and (#{:let :loop :arg} local) ;; what about :catch :fn?
+    (if (and (#{:let :loop :catch :arg} local)
              (or (not (loop-closed-overs name)) ;; if we're in a loop and the local is defined outside the loop
                  (not= :many times))             ;; it's only safe to clear it if we're in the loop exit path
              (or (not (closed-overs name)) ;; if it's a closed-over var, we can only clear it if we explicitely
