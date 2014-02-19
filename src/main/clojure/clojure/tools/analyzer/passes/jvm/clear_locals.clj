@@ -14,15 +14,18 @@
 (defmulti -clear-locals :op)
 
 (defn maybe-clear-local
-  [{:keys [name local should-not-clear env times] :as ast}]
+  [{:keys [name local should-not-clear op env times] :as ast}]
   (let [{:keys [closed-overs locals loop-closed-overs]} @*clears*]
-    (if (and (#{:let :loop :catch :arg} local)
-             (or (not (loop-closed-overs name)) ;; if we're in a loop and the local is defined outside the loop
-                 (not= :many times))             ;; it's only safe to clear it if we're in the loop exit path
-             (or (not (closed-overs name)) ;; if it's a closed-over var, we can only clear it if we explicitely
-                 (:once env))            ;; declared the function to be run :once
-             (not (locals name)) ;; if the local is in `locals` it means that it's used later in the body and can't be cleared here
-             (not should-not-clear)) ;; letfn bindings/case test
+    (if (or (and (#{:let :loop :catch :arg} local)
+                 (or (not (loop-closed-overs name)) ;; if we're in a loop and the local is defined outside the loop
+                     (not= :many times))             ;; it's only safe to clear it if we're in the loop exit path
+                 (or (not (closed-overs name)) ;; if it's a closed-over var, we can only clear it if we explicitely
+                     (:once env))            ;; declared the function to be run :once
+                 (not (locals name)) ;; if the local is in `locals` it means that it's used later in the body and can't be cleared here
+                 (not should-not-clear)) ;; letfn bindings/case test
+            (and (#{:invoke :static-call :instance-call} op)
+                 (= :return (:context env))
+                 (not (:in-try env))))
       (assoc ast :to-clear? true)
       ast)))
 

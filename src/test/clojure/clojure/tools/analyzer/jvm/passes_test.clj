@@ -110,7 +110,7 @@
     (is (= [] (-> r-ast :expr :methods first :params)))
     (is (= '_ (-> r-ast :expr :methods first :this :name)))))
 
-;; TODO: test primitives, tag matching, throwing validation, method validationbel
+;; TODO: test primitives, tag matching, throwing validation, method validation
 (deftest validate-test
   (is (= String (-> (ast String) validate :val)))
   (is (= 'String (-> (ast String) validate :form)))
