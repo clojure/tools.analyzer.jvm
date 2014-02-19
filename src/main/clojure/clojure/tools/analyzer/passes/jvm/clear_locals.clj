@@ -23,7 +23,7 @@
                      (:once env))            ;; declared the function to be run :once
                  (not (locals name)) ;; if the local is in `locals` it means that it's used later in the body and can't be cleared here
                  (not should-not-clear)) ;; letfn bindings/case test
-            (and (#{:invoke :static-call :instance-call} op)
+            (and (#{:invoke :protocol-invoke :prim-invoke :static-call :instance-call} op)
                  (= :return (:context env))
                  (not (:in-try env))))
       (assoc ast :to-clear? true)
