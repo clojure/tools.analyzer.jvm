@@ -28,10 +28,11 @@
 
 (defn maybe-clear-this
   [{:keys [env] :as ast}]
-  (if (and (= :return (:context env))
-           (not (:in-try env)))
-    (assoc ast :to-clear? true)
-    ast))
+  (-> (if (and (= :return (:context env))
+              (not (:in-try env)))
+       (assoc ast :to-clear? true)
+       ast)
+    (update-children -clear-locals rseqv)))
 
 (defmethod -clear-locals :invoke
   [ast]
