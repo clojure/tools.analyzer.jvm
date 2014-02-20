@@ -107,6 +107,10 @@
     (swap! *clears* #(update-in % [:locals] conj (:name ast))) ;; register that the local has been used and potentially cleared
     ast))
 
+(defmethod -clear-locals :binding
+  [ast]
+  (maybe-clear-local ast))
+
 (defn clear-locals
   [ast]
   (binding [*clears* (atom {:closed-overs      {}
