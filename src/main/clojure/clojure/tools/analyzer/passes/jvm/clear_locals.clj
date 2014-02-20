@@ -31,7 +31,7 @@
   (if (and (= :return (:context env))
            (not (:in-try env)))
     (assoc ast :to-clear? true)
-    env))
+    ast))
 
 (defmethod -clear-locals :invoke
   [ast]
