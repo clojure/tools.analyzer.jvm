@@ -87,7 +87,7 @@
                                   :args  (mapv (fn [a] (prewalk a cleanup)) args)}
                                  (source-info (:env ast))))))))))
 
-(defn validate-call [{:keys [class method args tag env op] :as ast}]
+(defn validate-call [{:keys [class instance method args tag env op] :as ast}]
   (let [argc (count args)
         instance? (= :instance-call op)
         f (if instance? u/instance-methods u/static-methods)
@@ -100,13 +100,15 @@
                   arg-tags (mapv u/maybe-class (:parameter-types m))
                   args (mapv (fn [arg tag] (assoc arg :tag tag)) args arg-tags)
                   class (u/maybe-class (:declaring-class m))]
-              (assoc ast
-                :method     (:name m)
-                :validated? true
-                :class      class
-                :o-tag      ret-tag
-                :tag        (or tag ret-tag)
-                :args       args))
+              (merge ast
+                     {:method     (:name m)
+                      :validated? true
+                      :class      class
+                      :o-tag      ret-tag
+                      :tag        (or tag ret-tag)
+                      :args       args}
+                     (if instance?
+                       {:instance (assoc instance :tag class)})))
             (if (apply = (mapv :return-type matching))
               (let [ret-tag (:return-type m)]
                 (assoc ast
@@ -146,6 +148,11 @@
     (if (and class (not validated?))
       (validate-call (assoc ast :class (u/maybe-class class)))
       ast)))
+
+(defmethod -validate :instance-field
+  [{:keys [instance class] :as ast}]
+  (let [class (u/maybe-class class)]
+    (assoc ast :class class :instance (assoc instance :tag class))))
 
 (defmethod -validate :import
   [{:keys [^String class validated? env form] :as ast}]
