@@ -14,11 +14,14 @@
 (defmulti -clear-locals :op)
 
 (defn maybe-clear-local
-  [{:keys [name local should-not-clear env times] :as ast}]
-  (let [{:keys [closed-overs locals loop-closed-overs]} @*clears*]
+  [{:keys [name local should-not-clear env loops] :as ast}]
+  (let [{:keys [closed-overs locals loop-closed-overs]} @*clears*
+        loop-id (:loop-id env)]
     (if (and (#{:let :loop :catch :arg} local)
-             (or (not (loop-closed-overs name)) ;; if we're in a loop and the local is defined outside the loop
-                 (not= :many times))             ;; it's only safe to clear it if we're in the loop exit path
+             (or (not (get (loop-closed-overs loop-id) name)) ;; if we're in a loop and the local is defined outside the loop
+                 (not loops)                                  ;; it's only safe to clear it if we're in the loop exit path for this loop
+                 (and (not (loops loop-id))                   ;; and if the local isn't defined outside different loop than this and we're
+                      (not (some (fn [id] (get (loop-closed-overs id) name)) loops)))) ;; in a recur path for that loop
              (or (not (closed-overs name)) ;; if it's a closed-over var, we can only clear it if we explicitely
                  (:once env))            ;; declared the function to be run :once
              (not (locals name)) ;; if the local is in `locals` it means that it's used later in the body and can't be cleared here
@@ -55,10 +58,12 @@
   (maybe-clear-this ast))
 
 (defmethod -clear-locals :default
-  [{:keys [closed-overs op] :as ast}]
+  [{:keys [closed-overs op loop-id] :as ast}]
   (if closed-overs
-    (let [key (if (= :loop op) :loop-closed-overs :closed-overs) ;; if we're in a loop those are not actually closed-overs
-          [ast body-locals] (binding [*clears* (atom (update-in @*clears* [key] merge closed-overs))] ;; clear locals in the body
+    (let [key (if (= :loop op) :loop-closed-overs ) ;; if we're in a loop those are not actually closed-overs
+          [ast body-locals] (binding [*clears* (atom (if (= :loop op)
+                                                       (assoc-in @*clears* [:loop-closed-overs loop-id] closed-overs)
+                                                       (update-in @*clears* [:closed-overs] merge closed-overs)))] ;; clear locals in the body
                               [(update-children ast -clear-locals rseqv) (:locals @*clears*)])        ;; and save encountered locals
           [ks vs] (reduce-kv (fn [[keys vals] k v]
                                [(conj keys k) (conj vals v)])
