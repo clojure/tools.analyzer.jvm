@@ -114,7 +114,7 @@
 
 (defmethod -clear-locals :binding
   [ast]
-  (maybe-clear-local ast))
+  (maybe-clear-local (update-children ast -clear-locals rseqv)))
 
 (defn clear-locals
   [ast]
