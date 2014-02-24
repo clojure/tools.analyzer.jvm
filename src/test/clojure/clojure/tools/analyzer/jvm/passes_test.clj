@@ -72,22 +72,31 @@
     (is (= true (-> f-expr :body :ret :then :to-clear?)))
     (is (= true (-> f-expr :body :ret :else :statements first :to-clear? nil?)))
     (is (= true (-> f-expr :body :ret :else :ret :exprs first :to-clear? nil?))))
-  (let [f-expr (-> (ast (loop [] (do (let [a 1] (loop [] a)) (recur))))
+  (let [f-expr (-> (ast (loop [] (let [a 1] (loop [] a)) (recur)))
                  (prewalk (comp annotate-branch annotate-loops))
                  (collect-closed-overs {:what  #{:closed-overs}
                                         :where #{:loop}
                                         :top-level? false})
                  clear-locals
-                 :body :ret :statements first :body :ret :body :ret)]
+                 :body :statements first :body :ret :body :ret)]
     (is (= true (-> f-expr :to-clear?))))
-  (let [f-expr (-> (ast (loop [] (do (let [a 1] (loop [] (if 1 a (recur)))) (recur))))
+  (let [f-expr (-> (ast (loop [] (let [a 1] (loop [] (if 1 a (recur)))) (recur)))
                  (prewalk (comp annotate-branch annotate-loops))
                  (collect-closed-overs {:what  #{:closed-overs}
                                         :where #{:loop}
                                         :top-level? false})
                  clear-locals
-                 :body :ret :statements first :body :ret :body :ret :then)]
-    (is (= true (-> f-expr :to-clear?)))))
+                 :body :statements first :body :ret :body :ret :then)]
+    (is (= true (-> f-expr :to-clear?))))
+  (let [f-expr (-> (ast (let [a 1] (loop [] (let [b 2] (loop [] (if 1 [a b] (recur)))) (recur))))
+                 (prewalk (comp annotate-branch annotate-loops))
+                 (collect-closed-overs {:what  #{:closed-overs}
+                                        :where #{:loop}
+                                        :top-level? false})
+                 clear-locals
+                 :body :ret :body :statements first :body :ret :body :ret :then :items)]
+    (is (= true (-> f-expr first :to-clear? nil?)))
+    (is (= true (-> f-expr second :to-clear?)))))
 
 (deftest fix-case-test-test
   (let [c-ast (-> (ast (case 1 1 1)) add-binding-atom (prewalk fix-case-test))]
