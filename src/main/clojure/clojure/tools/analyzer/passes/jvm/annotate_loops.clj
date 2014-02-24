@@ -13,9 +13,6 @@
 (defmulti annotate-loops :op)
 (defmulti has-recur? :op)
 
-(defn many [ast]
-  (assoc ast :times :many))
-
 (defmethod has-recur? :do
   [ast]
   (has-recur? (:ret ast)))
@@ -46,46 +43,55 @@
   [_]
   false)
 
-(defmethod annotate-loops :do
-  [{:keys [statements ret times] :as ast}]
-  (if (or (= times :many)
-          (has-recur? ret))
-    (assoc ast
-      :ret        (many ret)
-      :statements (mapv many statements))
-    ast))
+(defn -loops [ast loop-id]
+  (update-in ast [:loops] (fnil conj #{}) loop-id))
 
-(defmethod annotate-loops :recur
-  [ast]
-  (update-children ast many))
+(defmethod annotate-loops :loop
+  [{:keys [body loops loop-id] :as ast}]
+  (let [ast (if loops
+              (update-children ast #(assoc % :loops loops))
+              ast)]
+    (if (has-recur? body)
+      (update-in ast [:body] -loops loop-id)
+      ast)))
 
 (defmethod annotate-loops :default
-  [ast]
-  (if (= (:times ast) :many)
-    (update-children ast many)
+  [{:keys [loops] :as ast}]
+  (if loops
+    (update-children ast #(assoc % :loops loops))
     ast))
 
 (defmethod annotate-loops :if
-  [{:keys [test then else] :as ast}]
-  (if (= (:times ast) :many)
-    (let [then (if (has-recur? then)
-                 (many then)
-                 then)
+  [{:keys [loops test then else env] :as ast}]
+  (if loops
+    (let [loop-id (:loop-id env)
+          loops-no-recur (disj loops loop-id)
+          then (if (has-recur? then)
+                 (assoc then :loops loops)
+                 (assoc then :loops loops-no-recur))
           else (if (has-recur? else)
-                 (many else)
-                 else)]
-      (assoc ast :then then :else else :test (many test)))
+                 (assoc else :loops loops)
+                 (assoc else :loops loops-no-recur))]
+      (assoc ast
+        :then then
+        :else else
+        :test (assoc test :loops loops)))
     ast))
 
 (defmethod annotate-loops :case
-  [{:keys [test default thens] :as ast}]
-  (if (= (:times ast) :many)
-    (let [default (if (has-recur? default)
-                    (many default)
-                    default)
+  [{:keys [loops test default thens env] :as ast}]
+  (if loops
+    (let [loop-id (:loop-id env)
+          loops-no-recur (disj loops loop-id)
+          default (if (has-recur? default)
+                    (assoc default :loops loops)
+                    (assoc default :loops loops-no-recur))
 
           thens (mapv #(if (has-recur? %)
-                         (many %)
-                         %) thens)]
-      (assoc ast :thens thens :default default :test (many test)))
+                         (assoc % :loops loops)
+                         (assoc % :loops loops-no-recur)) thens)]
+      (assoc ast
+        :thens   thens
+        :default default
+        :test    (assoc test :loops loops)))
     ast))
