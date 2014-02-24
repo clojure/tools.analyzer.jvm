@@ -71,7 +71,23 @@
     (is (= true (-> f-expr :bindings first :init :to-clear? nil?)))
     (is (= true (-> f-expr :body :ret :then :to-clear?)))
     (is (= true (-> f-expr :body :ret :else :statements first :to-clear? nil?)))
-    (is (= true (-> f-expr :body :ret :else :ret :exprs first :to-clear? nil?)))))
+    (is (= true (-> f-expr :body :ret :else :ret :exprs first :to-clear? nil?))))
+  (let [f-expr (-> (ast (loop [] (do (let [a 1] (loop [] a)) (recur))))
+                 (prewalk (comp annotate-branch annotate-loops))
+                 (collect-closed-overs {:what  #{:closed-overs}
+                                        :where #{:loop}
+                                        :top-level? false})
+                 clear-locals
+                 :body :ret :statements first :body :ret :body :ret)]
+    (is (= true (-> f-expr :to-clear?))))
+  (let [f-expr (-> (ast (loop [] (do (let [a 1] (loop [] (if 1 a (recur)))) (recur))))
+                 (prewalk (comp annotate-branch annotate-loops))
+                 (collect-closed-overs {:what  #{:closed-overs}
+                                        :where #{:loop}
+                                        :top-level? false})
+                 clear-locals
+                 :body :ret :statements first :body :ret :body :ret :then)]
+    (is (= true (-> f-expr :to-clear?)))))
 
 (deftest fix-case-test-test
   (let [c-ast (-> (ast (case 1 1 1)) add-binding-atom (prewalk fix-case-test))]
