@@ -423,8 +423,9 @@
 
    Calls `run-passes` on the AST."
   [form env]
-  (binding [ana/macroexpand-1 macroexpand-1
-            ana/create-var    create-var
-            ana/parse         parse
-            ana/var?          var?]
+  (with-bindings {clojure.lang.Compiler/LOADER (clojure.lang.RT/makeClassLoader)
+                  #'ana/macroexpand-1          macroexpand-1
+                  #'ana/create-var             create-var
+                  #'ana/parse                  parse
+                  #'ana/var?                   var?}
     (run-passes (-analyze form env))))
