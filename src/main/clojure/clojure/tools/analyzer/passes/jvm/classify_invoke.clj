@@ -44,6 +44,14 @@
          (throw (ex-info (str "Cannot invoke keyword with " argc " arguments")
                          (merge {:form form}
                                 (source-info env)))))
+
+       (and (= :const op)
+            (= :regex (:type the-fn)))
+       (if (= 1 argc)
+         (assoc ast :op :regex-invoke)
+         (throw (ex-info (str "Cannot invoke regex with " argc " arguments")
+                         (merge {:form form}
+                                (source-info env)))))
        (and (= 2 argc)
             var?
             (= #'clojure.core/instance? the-var)

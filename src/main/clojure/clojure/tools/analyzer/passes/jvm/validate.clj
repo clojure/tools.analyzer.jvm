@@ -10,7 +10,7 @@
   (:require [clojure.tools.analyzer :refer [-analyze]]
             [clojure.tools.analyzer.ast :refer [prewalk]]
             [clojure.tools.analyzer.passes.cleanup :refer [cleanup]]
-            [clojure.tools.analyzer.utils :refer [arglist-for-arity source-info resolve-var]]
+            [clojure.tools.analyzer.utils :refer [arglist-for-arity source-info resolve-var regex?]]
             [clojure.tools.analyzer.jvm.utils :as u :refer [tag-match? try-best-match]])
   (:import (clojure.lang IFn ExceptionInfo)))
 
@@ -183,7 +183,8 @@
   [{:keys [args env fn form] :as ast}]
   (let [argc (count args)]
     (when (and (= :const (:op fn))
-               (not (instance? IFn (:form fn))))
+               (and (not (instance? IFn (:form fn)))
+                    (not (regex? (:form fn)))))
       (throw (ex-info (str (class (:form fn)) " is not a function, but it's used as such")
                       (merge {:form form}
                              (source-info env)))))
