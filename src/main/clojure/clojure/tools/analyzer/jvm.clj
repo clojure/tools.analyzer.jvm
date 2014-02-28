@@ -13,30 +13,38 @@
              :as ana
              :refer [analyze analyze-in-env wrapping-meta analyze-fn-method]
              :rename {analyze -analyze}]
-            [clojure.tools.analyzer.utils :refer [ctx resolve-var -source-info resolve-ns]]
-            [clojure.tools.analyzer.ast :refer [walk prewalk postwalk cycling]]
+
+            [clojure.tools.analyzer
+             [utils :refer [ctx resolve-var -source-info resolve-ns]]
+             [ast :refer [walk prewalk postwalk cycling]]]
+
             [clojure.tools.analyzer.jvm.utils :refer :all :exclude [box]]
-            [clojure.tools.analyzer.passes.source-info :refer [source-info]]
-            [clojure.tools.analyzer.passes.cleanup :refer [cleanup]]
-            [clojure.tools.analyzer.passes.elide-meta :refer [elide-meta]]
-            [clojure.tools.analyzer.passes.warn-earmuff :refer [warn-earmuff]]
-            [clojure.tools.analyzer.passes.collect :refer [collect collect-closed-overs]]
-            [clojure.tools.analyzer.passes.add-binding-atom :refer [add-binding-atom]]
-            [clojure.tools.analyzer.passes.uniquify :refer [uniquify-locals]]
-            [clojure.tools.analyzer.passes.jvm.box :refer [box]]
-            [clojure.tools.analyzer.passes.jvm.constant-lifter :refer [constant-lift]]
-            [clojure.tools.analyzer.passes.jvm.annotate-branch :refer [annotate-branch]]
-            [clojure.tools.analyzer.passes.jvm.annotate-loops :refer [annotate-loops]]
-            [clojure.tools.analyzer.passes.jvm.annotate-methods :refer [annotate-methods]]
-            [clojure.tools.analyzer.passes.jvm.annotate-class-id :refer [annotate-class-id]]
-            [clojure.tools.analyzer.passes.jvm.fix-case-test :refer [fix-case-test]]
-            [clojure.tools.analyzer.passes.jvm.clear-locals :refer [clear-locals]]
-            [clojure.tools.analyzer.passes.jvm.classify-invoke :refer [classify-invoke]]
-            [clojure.tools.analyzer.passes.jvm.validate :refer [validate]]
-            [clojure.tools.analyzer.passes.jvm.infer-tag :refer [infer-tag ensure-tag]]
-            [clojure.tools.analyzer.passes.jvm.annotate-tag :refer [annotate-tag]]
-            [clojure.tools.analyzer.passes.jvm.validate-loop-locals :refer [validate-loop-locals]]
-            [clojure.tools.analyzer.passes.jvm.analyze-host-expr :refer [analyze-host-expr]]
+
+            [clojure.tools.analyzer.passes
+             [source-info :refer [source-info]]
+             [cleanup :refer [cleanup]]
+             [elide-meta :refer [elide-meta]]
+             [warn-earmuff :refer [warn-earmuff]]
+             [collect :refer [collect collect-closed-overs]]
+             [add-binding-atom :refer [add-binding-atom]]
+             [uniquify :refer [uniquify-locals]]]
+
+            [clojure.tools.analyzer.passes.jvm
+             [box :refer [box]]
+             [constant-lifter :refer [constant-lift]]
+             [annotate-branch :refer [annotate-branch]]
+             [annotate-loops :refer [annotate-loops]]
+             [annotate-methods :refer [annotate-methods]]
+             [annotate-class-id :refer [annotate-class-id]]
+             [fix-case-test :refer [fix-case-test]]
+             [clear-locals :refer [clear-locals]]
+             [classify-invoke :refer [classify-invoke]]
+             [validate :refer [validate]]
+             [infer-tag :refer [infer-tag ensure-tag]]
+             [annotate-tag :refer [annotate-tag]]
+             [validate-loop-locals :refer [validate-loop-locals]]
+             [analyze-host-expr :refer [analyze-host-expr]]]
+
             [clojure.core.memoize :refer [memo-clear!]])
   (:import clojure.lang.IObj))
 
