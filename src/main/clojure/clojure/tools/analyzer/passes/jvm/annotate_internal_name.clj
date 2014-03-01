@@ -31,7 +31,9 @@
                              (str n "$"))
                            (or (:name local) "fn")
                            (gensym "__"))]
-    (propagate-internal-name ast internal-name)))
+    (-> ast
+      (assoc :internal-name internal-name)
+      (propagate-internal-name internal-name))))
 
 (defmethod annotate-internal-name :binding
   [{:keys [name env] :as ast}]
