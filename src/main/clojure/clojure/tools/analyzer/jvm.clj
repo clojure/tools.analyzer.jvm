@@ -36,6 +36,7 @@
              [annotate-loops :refer [annotate-loops]]
              [annotate-methods :refer [annotate-methods]]
              [annotate-class-id :refer [annotate-class-id]]
+             [annotate-internal-name :refer [annotate-internal-name]]
              [fix-case-test :refer [fix-case-test]]
              [clear-locals :refer [clear-locals]]
              [classify-invoke :refer [classify-invoke]]
@@ -362,6 +363,7 @@
    * jvm.annotate-branch
    * jvm.annotate-loops
    * jvm.annotate-class-id
+   * jvm.annotate-internal-name
    * jvm.annotate-methods
    * jvm.fix-case-test
    * jvm.clear-locals
@@ -384,7 +386,8 @@
                  elide-meta
                  annotate-methods
                  fix-case-test
-                 annotate-class-id)))
+                 annotate-class-id
+                 annotate-internal-name)))
 
     ((fn analyze [ast]
        (-> ast
