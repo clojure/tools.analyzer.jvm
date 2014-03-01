@@ -13,9 +13,22 @@
 (def ^:dynamic *clears*)
 
 (defmulti -clear-locals :op)
+(defmulti should-not-clear :op)
+
+(defmethod should-not-clear :local
+  [ast]
+  (or (= :letfn (:local ast))
+      (:case-test ast)))
+
+(defmethod should-not-clear :binding
+  [ast]
+  (:case-test @(:atom ast)))
+
+(defmethod should-not-clear :default [ast]
+  false)
 
 (defn maybe-clear-local
-  [{:keys [name local should-not-clear env loops] :as ast}]
+  [{:keys [name local env loops] :as ast}]
   (let [{:keys [closed-overs locals loop-closed-overs]} @*clears*
         loop-id (:loop-id env)]
     (if (and (#{:let :loop :catch :arg} local)
@@ -26,7 +39,7 @@
              (or (not (closed-overs name)) ;; if it's a closed-over var, we can only clear it if we explicitely
                  (:once env))            ;; declared the function to be run :once
              (not (locals name)) ;; if the local is in `locals` it means that it's used later in the body and can't be cleared here
-             (not should-not-clear)) ;; letfn bindings/case test
+             (not (should-not-clear ast))) ;; letfn bindings/case test
       (assoc ast :to-clear? true)
       ast)))
 

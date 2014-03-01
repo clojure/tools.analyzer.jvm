@@ -23,13 +23,6 @@
     (assoc-in [:then :path?] true)
     (assoc-in [:else :path?] true)))
 
-;; should be in a different pass
-(defmethod annotate-branch :local
-  [ast]
-  (if (= :letfn (:local ast))
-    (assoc ast :should-not-clear true) ;; letfns are shared between circular dependent fns
-    ast))
-
 (defmethod annotate-branch :fn-method
   [ast]
   (assoc ast :path? true))
@@ -43,7 +36,6 @@
   (-> ast
     (assoc :branch? true)
     (assoc-in [:test :test?] true)
-    (assoc-in [:test :should-not-clear] true)
     (assoc-in [:default :path?] true)))
 
 (defmethod annotate-branch :case-then
