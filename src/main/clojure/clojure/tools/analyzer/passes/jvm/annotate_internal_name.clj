@@ -33,15 +33,15 @@
   [{:keys [env local] :as ast}]
   (let [internal-name (str (when-let [n (:internal-name env)]
                              (str n "$"))
-                           (or (:name local) "fn")
+                           (or (:form local) "fn")
                            (gensym "__"))]
     (-> ast
       (assoc :internal-name internal-name)
       (propagate-internal-name internal-name))))
 
 (defmethod annotate-internal-name :binding
-  [{:keys [name env] :as ast}]
+  [{:keys [form env] :as ast}]
   (let [internal-name (str (when-let [n (:internal-name env)]
                              (str n "$"))
-                           name)]
+                           form)]
    (propagate-internal-name ast internal-name)))
