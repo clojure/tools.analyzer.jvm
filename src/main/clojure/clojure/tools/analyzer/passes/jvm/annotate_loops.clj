@@ -9,7 +9,6 @@
 (ns clojure.tools.analyzer.passes.jvm.annotate-loops
   (:require [clojure.tools.analyzer.ast :refer [update-children]]))
 
-;; TODO: optimize
 (defmulti annotate-loops
   "Adds a :loops field to nodes that represent a code path that
    might be visited more than once because of a recur.
@@ -17,47 +16,60 @@
    The field is a set of loop-ids representing the loops that might
    recur into that path"
   :op)
-(defmulti has-recur? :op)
 
-(defmethod has-recur? :do
+(defmulti check-recur :op)
+
+(defn -check-recur [ast k]
+  (let [ast (update-in ast [k] check-recur)]
+    (if (:recurs (k ast))
+      (assoc ast :recurs true)
+      ast)))
+
+(defmethod check-recur :do
   [ast]
-  (has-recur? (:ret ast)))
+  (-check-recur ast :ret))
 
-(defmethod has-recur? :let
+(defmethod check-recur :let
   [ast]
-  (has-recur? (:body ast)))
+  (-check-recur ast :body))
 
-(defmethod has-recur? :letfn
+(defmethod check-recur :letfn
   [ast]
-  (has-recur? (:body ast)))
+  (-check-recur ast :body))
 
-(defmethod has-recur? :if
+(defmethod check-recur :if
   [ast]
-  (or (has-recur? (:then ast))
-      (has-recur? (:else ast))))
+  (-> ast
+    (-check-recur :then)
+    (-check-recur :else)))
 
-(defmethod has-recur? :case
+(defmethod check-recur :case
   [ast]
-  (or (has-recur? (:default ast))
-      (some has-recur? (:thens ast))))
+  (let [ast (-> ast
+              (-check-recur :default)
+              (update-in [:thens] -check-recur))]
+    (if (some :recurs (:thens ast))
+      (assoc ast :recurs true)
+      ast)))
 
-(defmethod has-recur? :recur
-  [_]
-  true)
+(defmethod check-recur :recur
+  [ast]
+  (assoc ast :recurs true))
 
-(defmethod has-recur? :default
-  [_]
-  false)
+(defmethod check-recur :default
+  [ast]
+  ast)
 
 (defn -loops [ast loop-id]
   (update-in ast [:loops] (fnil conj #{}) loop-id))
 
 (defmethod annotate-loops :loop
-  [{:keys [body loops loop-id] :as ast}]
+  [{:keys [loops loop-id] :as ast}]
   (let [ast (if loops
               (update-children ast #(assoc % :loops loops))
-              ast)]
-    (if (has-recur? body)
+              ast)
+        ast (update-in ast [:body] check-recur)]
+    (if (-> ast :body :recurs)
       (update-in ast [:body] -loops loop-id)
       ast)))
 
@@ -72,10 +84,10 @@
   (if loops
     (let [loop-id (:loop-id env)
           loops-no-recur (disj loops loop-id)
-          then (if (has-recur? then)
+          then (if (:recurs then)
                  (assoc then :loops loops)
                  (assoc then :loops loops-no-recur))
-          else (if (has-recur? else)
+          else (if (:recurs else)
                  (assoc else :loops loops)
                  (assoc else :loops loops-no-recur))]
       (assoc ast
@@ -89,11 +101,11 @@
   (if loops
     (let [loop-id (:loop-id env)
           loops-no-recur (disj loops loop-id)
-          default (if (has-recur? default)
+          default (if (:recurs default)
                     (assoc default :loops loops)
                     (assoc default :loops loops-no-recur))
 
-          thens (mapv #(if (has-recur? %)
+          thens (mapv #(if (:recurs %)
                          (assoc % :loops loops)
                          (assoc % :loops loops-no-recur)) thens)]
       (assoc ast
