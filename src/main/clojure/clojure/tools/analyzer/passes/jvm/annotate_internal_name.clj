@@ -9,7 +9,11 @@
 (ns clojure.tools.analyzer.passes.jvm.annotate-internal-name
   (:require [clojure.tools.analyzer.ast :refer [update-children]]))
 
-(defmulti annotate-internal-name :op)
+(defmulti annotate-internal-name
+  "Adds a :internal-name to :fn nodes containing a string that represents
+   the name of the class that will be generated for that fn, not including
+   the ns prefix"
+  :op)
 
 (defn propagate-internal-name
   [ast internal-name]

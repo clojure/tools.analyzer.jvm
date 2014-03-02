@@ -223,7 +223,16 @@
     (assoc ast :tag t :o-tag t)))
 
 (defn infer-tag
-  "Performs local type inference on the AST"
+  "Performs local type inference on the AST adds, when possible,
+   one or more of the following keys to the AST:
+   * :o-tag      represents the dynamic type of the node
+   * :tag        represents the static type of the node
+   * :return-tag implies that the node will return a function whose
+                 invocation will result in a object of this type
+   * :arglists   implies that the node will return a function with
+                 this arglists
+   * :ignore-tag true when the node is untyped, does not imply that
+                 all untyped node will have this"
   [{:keys [tag form] :as ast}]
   (let [tag (or tag (:tag (meta form)))
         ast (-infer-tag ast)]

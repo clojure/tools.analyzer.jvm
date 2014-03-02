@@ -10,7 +10,13 @@
   (:require [clojure.tools.analyzer.ast :refer [update-children]]))
 
 ;; TODO: optimize
-(defmulti annotate-loops :op)
+(defmulti annotate-loops
+  "Adds a :loops field to nodes that represent a code path that
+   might be visited more than once because of a recur.
+
+   The field is a set of loop-ids representing the loops that might
+   recur into that path"
+  :op)
 (defmulti has-recur? :op)
 
 (defmethod has-recur? :do

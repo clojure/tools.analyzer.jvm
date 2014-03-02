@@ -15,6 +15,9 @@
     (orig/constant-lift ast)))
 
 (defn constant-lift
+  "Like clojure.tools.analyzer.passes.constant-lifter/constant-lift but
+   transforms also :var nodes where the var has :const in the metadata
+   into :const nodes and preserves tag info"
   [ast]
   (merge (constant-lift* ast)
          (select-keys ast [:tag :o-tag :return-tag :arglists])))
