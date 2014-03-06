@@ -44,7 +44,8 @@
              [infer-tag :refer [infer-tag ensure-tag]]
              [annotate-tag :refer [annotate-tag]]
              [validate-loop-locals :refer [validate-loop-locals]]
-             [analyze-host-expr :refer [analyze-host-expr]]]
+             [analyze-host-expr :refer [analyze-host-expr]]
+             [warn-on-reflection :refer [warn-on-reflection]]]
 
             [clojure.core.memoize :refer [memo-clear!]])
   (:import clojure.lang.IObj))
@@ -405,6 +406,7 @@
     (prewalk (fn [ast]
                (-> ast
                  box
+                 warn-on-reflection
                  annotate-loops  ;; needed for clear-locals to safely clear locals in a loop
                  annotate-branch ;; needed for clear-locals
                  ensure-tag)))
