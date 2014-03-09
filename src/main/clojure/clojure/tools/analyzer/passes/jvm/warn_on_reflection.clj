@@ -26,7 +26,7 @@
   [ast]
   (when-not (:validated? ast)
     (warn (str "call to method " (:method ast) (when-let [class (:class ast)]
-                                                 (str "on " (.getName ^Class class)))
+                                                 (str " on " (.getName ^Class class)))
                " cannot be resolved") (:env ast)))
   ast)
 
