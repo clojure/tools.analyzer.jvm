@@ -136,7 +136,9 @@
 
 (defn clear-locals
   [ast]
-  (binding [*clears* (atom {:closed-overs      {}
-                            :loop-closed-overs {}
-                            :locals            #{}})]
-    (-clear-locals ast)))
+  (if (:disable-locals-clearing *compiler-options*)
+    ast
+    (binding [*clears* (atom {:closed-overs      {}
+                              :loop-closed-overs {}
+                              :locals            #{}})]
+      (-clear-locals ast))))
