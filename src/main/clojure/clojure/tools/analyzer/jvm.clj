@@ -45,7 +45,8 @@
              [annotate-tag :refer [annotate-tag]]
              [validate-loop-locals :refer [validate-loop-locals]]
              [analyze-host-expr :refer [analyze-host-expr]]
-             [warn-on-reflection :refer [warn-on-reflection]]]
+             [warn-on-reflection :refer [warn-on-reflection]]
+             [wrap-value-methods :refer [wrap-value-methods]]]
 
             [clojure.core.memoize :refer [memo-clear!]])
   (:import clojure.lang.IObj))
@@ -378,6 +379,8 @@
    * jvm.analyze-host-expr"
   [ast]
   (-> ast
+
+    (prewalk wrap-value-methods)
 
     uniquify-locals
     add-binding-atom
