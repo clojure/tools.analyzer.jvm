@@ -87,10 +87,11 @@
   (if loops
     (let [loop-id (:loop-id env)
           loops-no-recur (disj loops loop-id)
-          then (if (:recurs then)
+          statement? (= :statement (:context env))
+          then (if (or (:recurs then) statement?)
                  (assoc then :loops loops)
                  (assoc then :loops loops-no-recur))
-          else (if (:recurs else)
+          else (if (or (:recurs else) statement?)
                  (assoc else :loops loops)
                  (assoc else :loops loops-no-recur))]
       (assoc ast
@@ -104,11 +105,12 @@
   (if loops
     (let [loop-id (:loop-id env)
           loops-no-recur (disj loops loop-id)
-          default (if (:recurs default)
+          statement? (= :statement (:context env))
+          default (if (or (:recurs default) statement?)
                     (assoc default :loops loops)
                     (assoc default :loops loops-no-recur))
 
-          thens (mapv #(if (:recurs %)
+          thens (mapv #(if (or (:recurs %) statement?)
                          (assoc % :loops loops)
                          (assoc % :loops loops-no-recur)) thens)]
       (assoc ast
