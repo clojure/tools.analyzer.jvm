@@ -29,7 +29,7 @@
   [ast]
   (let [ast (-check-recur ast :ret)]
     (if (:recurs ast)
-      (assoc ast :statements (mapv (fn [s] (assoc ast :recurs true)) (:statements ast)))
+      (assoc ast :statements (mapv (fn [s] (assoc s :recurs true)) (:statements ast)))
       ast)))
 
 (defmethod check-recur :let
