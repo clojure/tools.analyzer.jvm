@@ -7,7 +7,8 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.annotate-internal-name
-  (:require [clojure.tools.analyzer.ast :refer [update-children]]))
+  (:require [clojure.tools.analyzer.ast :refer [update-children]]
+            [clojure.string :as s]))
 
 (defmulti annotate-internal-name
   "Adds a :internal-name to :fn nodes containing a string that represents
@@ -27,13 +28,13 @@
 
 (defmethod annotate-internal-name :def
   [{:keys [name] :as ast}]
-  (propagate-internal-name ast (str name)))
+  (propagate-internal-name ast (s/replace (str name) "." "_DOT_")))
 
 (defmethod annotate-internal-name :fn
   [{:keys [env local] :as ast}]
   (let [internal-name (str (when-let [n (:internal-name env)]
                              (str n "$"))
-                           (or (:form local) "fn")
+                           (s/replace (or (:form local) "fn") "." "_DOT_")
                            (gensym "__"))]
     (-> ast
       (assoc :internal-name internal-name)
