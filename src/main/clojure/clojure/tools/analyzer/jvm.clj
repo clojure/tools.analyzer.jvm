@@ -45,7 +45,8 @@
              [annotate-tag :refer [annotate-tag]]
              [validate-loop-locals :refer [validate-loop-locals]]
              [analyze-host-expr :refer [analyze-host-expr]]
-             [warn-on-reflection :refer [warn-on-reflection]]]
+             [warn-on-reflection :refer [warn-on-reflection]]
+             [emit-form :refer [emit-form]]]
 
             [clojure.core.memoize :refer [memo-clear!]])
   (:import clojure.lang.IObj))
@@ -457,3 +458,28 @@
                   #'ana/parse                  parse
                   #'ana/var?                   var?}
     (run-passes (-analyze form env))))
+
+(defn analyze+eval
+  "Like analyze but evals the form after the analysis.
+   Useful when analyzing whole files/namespaces."
+  [form env]
+  (let [mform (binding [ana/macroexpand-1 macroexpand-1]
+                (ana/macroexpand form env))]
+    (if (and (seq? mform) (= 'do (first mform)) (next mform))
+      ;; handle the Gilardi scenario
+      (let [[statements ret] (loop [statements [] [e & exprs] (rest mform)]
+                               (if exprs
+                                 (recur (conj statements e) exprs)
+                                 [statements e]))
+            statements-expr (mapv (fn [s] (analyze+eval s (->> env (ctx :statement) update-ns-map!))) statements)
+            ret-expr (analyze+eval ret (update-ns-map! env))]
+        ;; constructed :do node, doesn't include passes info like :tag
+        {:op         :do
+         :form       mform
+         :statements statements-expr
+         :ret        ret-expr
+         :children   [:statements :ret]})
+      (let [a (analyze mform (update-ns-map! env))
+            frm (emit-form a)]
+        (eval frm) ;; eval the emitted form rather than directly the form to avoid double macroexpansion
+        a))))
