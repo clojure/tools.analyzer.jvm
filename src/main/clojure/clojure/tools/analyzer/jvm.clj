@@ -63,19 +63,24 @@
   [form env]
   (ana/-parse form env))
 
+(defn build-ns-map []
+  (into {} (mapv #(vector (ns-name %)
+                          {:mappings (ns-map %)
+                           :aliases  (reduce-kv (fn [a k v] (assoc a k (ns-name v)))
+                                                {} (ns-aliases %))
+                           :ns       (ns-name %)})
+                 (all-ns))))
+
+(defn update-ns-map! [env]
+  (reset! (:namespaces env) (build-ns-map)))
+
 (defn empty-env
   "Returns an empty env map"
   []
   {:context    :expr
    :locals     {}
    :ns         (ns-name *ns*)
-   :namespaces (atom
-                (into {} (mapv #(vector (ns-name %)
-                                        {:mappings (ns-map %)
-                                         :aliases  (reduce-kv (fn [a k v] (assoc a k (ns-name v)))
-                                                              {} (ns-aliases %))
-                                         :ns       (ns-name %)})
-                               (all-ns))))})
+   :namespaces (atom (build-ns-map))})
 
 (defn desugar-host-expr [form env]
   (cond
@@ -145,10 +150,13 @@
           (cond
 
            macro?
-           (apply v form env (rest form)) ; (m &form &env & args)
+           (let [res (apply v form env (rest form))] ; (m &form &env & args)
+             (update-ns-map! env)
+             res)
 
            inline?
            (let [res (apply inline? args)]
+             (update-ns-map! env)
              (if (and t (instance? IObj res))
                (vary-meta res assoc :tag t)
                res))
