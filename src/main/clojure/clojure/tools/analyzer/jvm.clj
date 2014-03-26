@@ -151,7 +151,7 @@
           (cond
 
            macro?
-           (let [res (apply v form env (rest form))] ; (m &form &env & args)
+           (let [res (apply v form (:locals env) (rest form))] ; (m &form &env & args)
              (update-ns-map! env)
              res)
 
