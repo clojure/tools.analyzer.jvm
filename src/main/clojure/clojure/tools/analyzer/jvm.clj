@@ -73,7 +73,8 @@
                  (all-ns))))
 
 (defn update-ns-map! [env]
-  (reset! (:namespaces env) (build-ns-map)))
+  (reset! (:namespaces env) (build-ns-map))
+  env)
 
 (defn empty-env
   "Returns an empty env map"
@@ -471,7 +472,7 @@
                                (if exprs
                                  (recur (conj statements e) exprs)
                                  [statements e]))
-            statements-expr (mapv (fn [s] (analyze+eval s (->> env (ctx :statement) update-ns-map!))) statements)
+            statements-expr (mapv (fn [s] (analyze+eval s (-> env (ctx :statement) update-ns-map!))) statements)
             ret-expr (analyze+eval ret (update-ns-map! env))]
         ;; constructed :do node, doesn't include passes info like :tag
         {:op         :do
