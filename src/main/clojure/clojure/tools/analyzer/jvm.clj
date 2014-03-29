@@ -171,15 +171,14 @@
   "Creates a Var for sym and returns it.
    The Var gets interned in the env namespace."
   [sym {:keys [ns]}]
-  (let [v (or (find-var (symbol (str ns) (name sym)))
-              (intern ns (with-meta sym {})))]
-    (doto v
-      (reset-meta! (let [{:keys [inline inline-arities] :as m} (or (meta sym) {})]
-                     (merge m
-                            (when inline
-                              {:inline (eval inline)})
-                            (when inline-arities
-                              {:inline-arities (eval inline-arities)})))))))
+  (or (find-var (symbol (str ns) (name sym)))
+      (doto (intern ns (vary-meta sym merge
+                               (let [{:keys [inline inline-arities]} (meta sym)]
+                                 (merge {}
+                                        (when inline
+                                          {:inline (eval inline)})
+                                        (when inline-arities
+                                          {:inline-arities (eval inline-arities)}))))))))
 
 (defmethod parse 'var
   [[_ var :as form] env]
