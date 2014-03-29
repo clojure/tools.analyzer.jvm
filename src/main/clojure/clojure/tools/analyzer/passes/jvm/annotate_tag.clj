@@ -7,7 +7,7 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.annotate-tag
-  (:require [clojure.tools.analyzer.jvm.utils :refer [unbox]]
+  (:require [clojure.tools.analyzer.jvm.utils :refer [unbox maybe-class]]
             [clojure.tools.analyzer.ast :refer [prewalk]])
   (:import (clojure.lang ISeq Var AFunction)))
 
@@ -72,7 +72,7 @@
     (if-let [tag (or (:tag (meta form)) tag)]
       (let [ast (assoc ast :tag tag :o-tag tag)]
         (if init
-          (assoc-in ast [:init :tag] tag)
+          (assoc-in ast [:init :tag] (maybe-class tag))
           ast))
       (assoc ast :tag o-tag :o-tag o-tag))))
 
