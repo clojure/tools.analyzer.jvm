@@ -33,10 +33,7 @@
     (assoc ast
       :dirty? true
       :o-tag cast
-      :tag (or (:tag (meta form)) cast)
-      :form (if (:tag (meta form))
-              (vary-meta form assoc :tag (symbol (.getName ^Class cast)))
-              form))
+      :tag (or (:tag (meta form)) cast))
     (if (and (:dirty? @atom)
              (not (:tag (meta form))))
       (dissoc (assoc ast :dirty? true) :o-tag :tag)
