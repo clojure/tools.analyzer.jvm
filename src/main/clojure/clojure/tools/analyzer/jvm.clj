@@ -15,7 +15,7 @@
              :rename {analyze -analyze}]
 
             [clojure.tools.analyzer
-             [utils :refer [ctx resolve-var -source-info resolve-ns]]
+             [utils :refer [ctx resolve-var -source-info resolve-ns obj?]]
              [ast :refer [walk prewalk postwalk cycling]]]
 
             [clojure.tools.analyzer.jvm.utils :refer :all :exclude [box]]
@@ -154,13 +154,17 @@
            macro?
            (let [res (apply v form (:locals env) (rest form))] ; (m &form &env & args)
              (update-ns-map! env)
-             res)
+             (if (obj? res)
+               (vary-meta res merge (meta form))
+               res))
 
            inline?
            (let [res (apply inline? args)]
              (update-ns-map! env)
-             (if (and t (instance? IObj res))
-               (vary-meta res assoc :tag t)
+             (if (obj? res)
+               (vary-meta res merge
+                          (and t {:tag t})
+                          (meta form))
                res))
 
            :else
