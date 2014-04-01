@@ -482,7 +482,8 @@
          :form       mform
          :statements statements-expr
          :ret        ret-expr
-         :children   [:statements :ret]})
+         :children   [:statements :ret]
+         :env        env})
       (let [a (analyze mform (update-ns-map! env))
             frm (emit-form a)]
         (eval frm) ;; eval the emitted form rather than directly the form to avoid double macroexpansion
