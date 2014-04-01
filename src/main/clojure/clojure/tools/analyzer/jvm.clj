@@ -477,13 +477,14 @@
                                  [statements e]))
             statements-expr (mapv (fn [s] (analyze+eval s (-> env (ctx :statement) update-ns-map!))) statements)
             ret-expr (analyze+eval ret (update-ns-map! env))]
-        ;; constructed :do node, doesn't include passes info like :tag
-        {:op         :do
-         :form       mform
-         :statements statements-expr
-         :ret        ret-expr
-         :children   [:statements :ret]
-         :env        env})
+        (-> {:op         :do
+            :form       mform
+            :statements statements-expr
+            :ret        ret-expr
+            :children   [:statements :ret]
+            :env        env}
+          source-info
+          cleanup))
       (let [a (analyze mform (update-ns-map! env))
             frm (emit-form a)]
         (eval frm) ;; eval the emitted form rather than directly the form to avoid double macroexpansion
