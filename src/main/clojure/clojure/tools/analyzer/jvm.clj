@@ -325,7 +325,7 @@
      :env        env
      :form       form
      :name       name
-     :class-name class-name
+     :class-name class-name ;; internal, don't use as a Class
      :fields     fields-expr
      :methods    methods
      :interfaces interfaces
