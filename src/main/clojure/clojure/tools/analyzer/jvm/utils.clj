@@ -19,28 +19,32 @@
          :reflector (reflect/->JavaReflector (RT/baseLoader))
          options))
 
-(def ^:private specials
-  {"byte" Byte/TYPE
-   "boolean" Boolean/TYPE
-   "char" Character/TYPE
-   "int" Integer/TYPE
-   "long" Long/TYPE
-   "float" Float/TYPE
-   "double" Double/TYPE
-   "short" Short/TYPE
-   "void" Void/TYPE
-   "object" Object})
+(defn ^:private specials [c]
+  (case c
+    "byte" Byte/TYPE
+    "boolean" Boolean/TYPE
+    "char" Character/TYPE
+    "int" Integer/TYPE
+    "long" Long/TYPE
+    "float" Float/TYPE
+    "double" Double/TYPE
+    "short" Short/TYPE
+    "void" Void/TYPE
+    "object" Object
+    nil))
 
-(def ^:private special-arrays
-  {"bytes" (Class/forName "[B")
-   "booleans" (Class/forName "[Z")
-   "chars" (Class/forName "[C")
-   "ints" (Class/forName "[I")
-   "longs" (Class/forName "[J")
-   "floats" (Class/forName "[F")
-   "doubles" (Class/forName "[D")
-   "shorts" (Class/forName "[S")
-   "objects" (Class/forName "[Ljava.lang.Object;")})
+(defn ^:private special-arrays [c]
+  (case c
+    "bytes" (Class/forName "[B")
+    "booleans" (Class/forName "[Z")
+    "chars" (Class/forName "[C")
+    "ints" (Class/forName "[I")
+    "longs" (Class/forName "[J")
+    "floats" (Class/forName "[F")
+    "doubles" (Class/forName "[D")
+    "shorts" (Class/forName "[S")
+    "objects" (Class/forName "[Ljava.lang.Object;")
+    nil))
 
 (defmulti ^Class -maybe-class class)
 
@@ -81,30 +85,50 @@
           ret
           (maybe-class-from-string sname))))))
 
-(def primitive?
-  "Returns non-nil if the argument represents a primitive Class other than Void"
-  #{Double/TYPE Character/TYPE Byte/TYPE
-    Boolean/TYPE Short/TYPE Float/TYPE
-    Long/TYPE Integer/TYPE})
+(defmacro case-class [c & clauses]
+  (let [pairs (partition 2 clauses)
+        default (when (odd? (count clauses))
+                   [(last clauses)])]
+     `(case ~c
+       ~@(mapcat (fn [[test then]]
+                   [(eval test) then]) pairs)
+       ~@default)))
 
-(def ^:private convertible-primitives
+(defn primitive?
+  "Returns non-nil if the argument represents a primitive Class other than Void"
+  [c]
+  (case-class c
+    Double/TYPE    Double/TYPE
+    Character/TYPE Character/TYPE
+    Byte/TYPE      Byte/TYPE
+    Boolean/TYPE   Boolean/TYPE
+    Short/TYPE     Short/TYPE
+    Float/TYPE     Float/TYPE
+    Long/TYPE      Long/TYPE
+    Integer/TYPE   Integer/TYPE
+    nil))
+
+(defn ^:private convertible-primitives
   "If the argument is a primitive Class, returns a set of Classes
    to which the primitive Class can be casted"
-  {Integer/TYPE   #{Integer Long/TYPE Long Short/TYPE Byte/TYPE}
-   Float/TYPE     #{Float Double/TYPE}
-   Double/TYPE    #{Double Float/TYPE}
-   Long/TYPE      #{Long Integer/TYPE Short/TYPE Byte/TYPE}
-   Character/TYPE #{Character}
-   Short/TYPE     #{Short}
-   Byte/TYPE      #{Byte}
-   Boolean/TYPE   #{Boolean}
-   Void/TYPE      #{Void}})
+  [c]
+  (case-class c
+    Integer/TYPE   #{Integer Long/TYPE Long Short/TYPE Byte/TYPE}
+    Float/TYPE     #{Float Double/TYPE}
+    Double/TYPE    #{Double Float/TYPE}
+    Long/TYPE      #{Long Integer/TYPE Short/TYPE Byte/TYPE}
+    Character/TYPE #{Character}
+    Short/TYPE     #{Short}
+    Byte/TYPE      #{Byte}
+    Boolean/TYPE   #{Boolean}
+    (when (= c Void/TYPE) #{Void})))
 
 (defn ^Class box
   "If the argument is a primitive Class, returns its boxed equivalent,
    otherwise returns the argument"
   [c]
-  ({Integer/TYPE   Integer
+  (case-class c
+    Integer/TYPE   Integer
     Float/TYPE     Float
     Double/TYPE    Double
     Long/TYPE      Long
@@ -112,14 +136,16 @@
     Short/TYPE     Short
     Byte/TYPE      Byte
     Boolean/TYPE   Boolean
-    Void/TYPE      Void}
-   c c))
+    (if (= c Void/TYPE)
+      Void
+      c)))
 
 (defn ^Class unbox
   "If the argument is a Class with a primitive equivalent, returns that,
    otherwise returns the argument"
   [c]
-  ({Integer   Integer/TYPE,
+  (case-class c
+    Integer   Integer/TYPE,
     Long      Long/TYPE,
     Float     Float/TYPE,
     Short     Short/TYPE,
@@ -127,8 +153,8 @@
     Byte      Byte/TYPE,
     Character Character/TYPE,
     Double    Double/TYPE,
-    Void      Void/TYPE}
-   c c))
+    Void      Void/TYPE
+    c))
 
 (defn numeric?
   "Returns true if the given class is numeric"
@@ -159,15 +185,17 @@
        (and (primitive? c2)
             ((convertible-primitives c2) c1))))))
 
-(def wider-than
+(defn wider-than
   "If the argument is a numeric primitive Class, returns a set of primitive Classes
    that are narrower than the given one"
-  {Long/TYPE    #{Integer/TYPE Short/TYPE Byte/TYPE}
-   Integer/TYPE #{Short/TYPE Byte/TYPE}
-   Float/TYPE   #{Integer/TYPE Short/TYPE Byte/TYPE Long/TYPE}
-   Double/TYPE  #{Integer/TYPE Short/TYPE Byte/TYPE Long/TYPE Float/TYPE}
-   Short/TYPE   #{Byte/TYPE}
-   Byte/TYPE    #{}})
+  [c]
+  (case-class c
+    Long/TYPE    #{Integer/TYPE Short/TYPE Byte/TYPE}
+    Integer/TYPE #{Short/TYPE Byte/TYPE}
+    Float/TYPE   #{Integer/TYPE Short/TYPE Byte/TYPE Long/TYPE}
+    Double/TYPE  #{Integer/TYPE Short/TYPE Byte/TYPE Long/TYPE Float/TYPE}
+    Short/TYPE   #{Byte/TYPE}
+    Byte/TYPE    #{}))
 
 (defn wider-primitive
   "Given two numeric primitive Classes, returns the wider one"
