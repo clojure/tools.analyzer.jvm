@@ -91,7 +91,8 @@
         ast
         (if (and o-tag tag)
           ast
-          (if-let [tag (or (-> ast :val meta :tag)
+          (if-let [tag (or tag
+                           (-> ast :val meta :tag)
                            (-> ast :form meta :tag))]
             (assoc (-annotate-tag ast) :tag tag)
             (-annotate-tag ast)))]
