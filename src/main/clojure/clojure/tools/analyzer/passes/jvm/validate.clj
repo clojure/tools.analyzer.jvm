@@ -95,26 +95,29 @@
     (if-let [matching-methods (seq (f class method argc))]
       (let [[m & rest :as matching] (try-best-match tags matching-methods)]
         (if m
-          (if (empty? rest)
-            (let [ret-tag  (:return-type m)
-                  arg-tags (mapv u/maybe-class (:parameter-types m))
-                  args (mapv (fn [arg tag] (assoc arg :tag tag)) args arg-tags)
-                  class (u/maybe-class (:declaring-class m))]
-              (merge ast
-                     {:method     (:name m)
-                      :validated? true
-                      :class      class
-                      :o-tag      ret-tag
-                      :tag        (or tag ret-tag)
-                      :args       args}
-                     (if instance?
-                       {:instance (assoc instance :tag class)})))
-            (if (apply = (mapv :return-type matching))
-              (let [ret-tag (:return-type m)]
-                (assoc ast
-                  :o-tag   Object
-                  :tag     (or tag ret-tag)))
-              ast))
+          (let [all-ret-equals? (apply = (mapv :return-type matching))]
+            (if (or (empty? rest)
+                    (and all-ret-equals?) ;; if the method signature is the same just pick the first one
+                    (apply = (mapv #(mapv u/maybe-class (:parameter-types %)) matching)))
+             (let [ret-tag  (:return-type m)
+                   arg-tags (mapv u/maybe-class (:parameter-types m))
+                   args (mapv (fn [arg tag] (assoc arg :tag tag)) args arg-tags)
+                   class (u/maybe-class (:declaring-class m))]
+               (merge ast
+                      {:method     (:name m)
+                       :validated? true
+                       :class      class
+                       :o-tag      ret-tag
+                       :tag        (or tag ret-tag)
+                       :args       args}
+                      (if instance?
+                        {:instance (assoc instance :tag class)})))
+             (if all-ret-equals?
+               (let [ret-tag (:return-type m)]
+                 (assoc ast
+                   :o-tag   Object
+                   :tag     (or tag ret-tag)))
+               ast)))
           (if instance?
             (assoc (dissoc ast :class) :tag Object :o-tag Object)
             (throw (ex-info (str "No matching method: " method " for class: " class " and given signature")
