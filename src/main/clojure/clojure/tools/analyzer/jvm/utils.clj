@@ -254,14 +254,18 @@
             (= member-name** name)
             (= member-name*** name))))))
 
+(def object-members
+  (:members (type-reflect Object)))
+
 (def members*
   (lru (fn ([class]
-             (remove (fn [{:keys [flags]}]
-                       (not-any? #{:public :protected} flags))
-              (-> (maybe-class class)
-                box
-                (type-reflect :ancestors true)
-                :members))))))
+             (into (remove (fn [{:keys [flags]}]
+                             (not-any? #{:public :protected} flags))
+                           (-> (maybe-class class)
+                             box
+                             (type-reflect :ancestors true)
+                             :members))
+                    object-members)))))
 
 (defn members
   ([class] (members* class))
