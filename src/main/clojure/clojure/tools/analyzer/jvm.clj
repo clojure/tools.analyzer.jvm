@@ -87,10 +87,9 @@
 (defn desugar-host-expr [form env]
   (cond
    (symbol? form)
-   (let [target (maybe-class (namespace form))
-         field (symbol (name form))]
-     (if (and target (not (resolve-ns (symbol (namespace form)) env))) ;; Class/field
-       (with-meta (list '. target (symbol (str "-" field)))          ;; transform to (. Class -field)
+   (let [target (maybe-class (namespace form))]
+     (if (and target (not (resolve-ns (symbol (namespace form)) env)))       ;; Class/field
+       (with-meta (list '. target (symbol (str "-" (symbol (name form))))) ;; transform to (. Class -field)
          (meta form))
        form))
 
