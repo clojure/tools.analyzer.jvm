@@ -112,31 +112,35 @@
    Boolean/TYPE   #{Boolean}
    Void/TYPE      #{Void}})
 
-(def ^Class box
+(defn ^Class box
   "If the argument is a primitive Class, returns its boxed equivalent,
    otherwise returns the argument"
-  {Integer/TYPE   Integer
-   Float/TYPE     Float
-   Double/TYPE    Double
-   Long/TYPE      Long
-   Character/TYPE Character
-   Short/TYPE     Short
-   Byte/TYPE      Byte
-   Boolean/TYPE   Boolean
-   Void/TYPE      Void})
+  [c]
+  ({Integer/TYPE   Integer
+    Float/TYPE     Float
+    Double/TYPE    Double
+    Long/TYPE      Long
+    Character/TYPE Character
+    Short/TYPE     Short
+    Byte/TYPE      Byte
+    Boolean/TYPE   Boolean
+    Void/TYPE      Void}
+   c c))
 
-(def ^Class unbox
+(defn ^Class unbox
   "If the argument is a Class with a primitive equivalent, returns that,
    otherwise returns the argument"
-  {Integer   Integer/TYPE,
-   Long      Long/TYPE,
-   Float     Float/TYPE,
-   Short     Short/TYPE,
-   Boolean   Boolean/TYPE,
-   Byte      Byte/TYPE,
-   Character Character/TYPE,
-   Double    Double/TYPE,
-   Void      Void/TYPE})
+  [c]
+  ({Integer   Integer/TYPE,
+    Long      Long/TYPE,
+    Float     Float/TYPE,
+    Short     Short/TYPE,
+    Boolean   Boolean/TYPE,
+    Byte      Byte/TYPE,
+    Character Character/TYPE,
+    Double    Double/TYPE,
+    Void      Void/TYPE}
+   c c))
 
 (defn numeric?
   "Returns true if the given class is numeric"
