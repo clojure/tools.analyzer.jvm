@@ -94,67 +94,49 @@
                    [(eval test) then]) pairs)
        ~@default)))
 
-(defn primitive?
+(def primitive?
   "Returns non-nil if the argument represents a primitive Class other than Void"
-  [c]
-  (case-class c
-    Double/TYPE    Double/TYPE
-    Character/TYPE Character/TYPE
-    Byte/TYPE      Byte/TYPE
-    Boolean/TYPE   Boolean/TYPE
-    Short/TYPE     Short/TYPE
-    Float/TYPE     Float/TYPE
-    Long/TYPE      Long/TYPE
-    Integer/TYPE   Integer/TYPE
-    nil))
+  #{Double/TYPE Character/TYPE Byte/TYPE Boolean/TYPE
+    Short/TYPE Float/TYPE Long/TYPE Integer/TYPE})
 
-(defn ^:private convertible-primitives
+(def ^:private convertible-primitives
   "If the argument is a primitive Class, returns a set of Classes
    to which the primitive Class can be casted"
-  [c]
-  (case-class c
-    Integer/TYPE   #{Integer Long/TYPE Long Short/TYPE Byte/TYPE}
-    Float/TYPE     #{Float Double/TYPE}
-    Double/TYPE    #{Double Float/TYPE}
-    Long/TYPE      #{Long Integer/TYPE Short/TYPE Byte/TYPE}
-    Character/TYPE #{Character}
-    Short/TYPE     #{Short}
-    Byte/TYPE      #{Byte}
-    Boolean/TYPE   #{Boolean}
-    (when (= c Void/TYPE) #{Void})))
+  {Integer/TYPE   #{Integer Long/TYPE Long Short/TYPE Byte/TYPE}
+   Float/TYPE     #{Float Double/TYPE}
+   Double/TYPE    #{Double Float/TYPE}
+   Long/TYPE      #{Long Integer/TYPE Short/TYPE Byte/TYPE}
+   Character/TYPE #{Character}
+   Short/TYPE     #{Short}
+   Byte/TYPE      #{Byte}
+   Boolean/TYPE   #{Boolean}
+   Void/TYPE      #{Void}})
 
-(defn ^Class box
+(def ^Class box
   "If the argument is a primitive Class, returns its boxed equivalent,
    otherwise returns the argument"
-  [c]
-  (case-class c
-    Integer/TYPE   Integer
-    Float/TYPE     Float
-    Double/TYPE    Double
-    Long/TYPE      Long
-    Character/TYPE Character
-    Short/TYPE     Short
-    Byte/TYPE      Byte
-    Boolean/TYPE   Boolean
-    (if (= c Void/TYPE)
-      Void
-      c)))
+  {Integer/TYPE   Integer
+   Float/TYPE     Float
+   Double/TYPE    Double
+   Long/TYPE      Long
+   Character/TYPE Character
+   Short/TYPE     Short
+   Byte/TYPE      Byte
+   Boolean/TYPE   Boolean
+   Void/TYPE      Void})
 
-(defn ^Class unbox
+(def ^Class unbox
   "If the argument is a Class with a primitive equivalent, returns that,
    otherwise returns the argument"
-  [c]
-  (case-class c
-    Integer   Integer/TYPE,
-    Long      Long/TYPE,
-    Float     Float/TYPE,
-    Short     Short/TYPE,
-    Boolean   Boolean/TYPE,
-    Byte      Byte/TYPE,
-    Character Character/TYPE,
-    Double    Double/TYPE,
-    Void      Void/TYPE
-    c))
+  {Integer   Integer/TYPE,
+   Long      Long/TYPE,
+   Float     Float/TYPE,
+   Short     Short/TYPE,
+   Boolean   Boolean/TYPE,
+   Byte      Byte/TYPE,
+   Character Character/TYPE,
+   Double    Double/TYPE,
+   Void      Void/TYPE})
 
 (defn numeric?
   "Returns true if the given class is numeric"
@@ -185,17 +167,15 @@
        (and (primitive? c2)
             ((convertible-primitives c2) c1))))))
 
-(defn wider-than
+(def wider-than
   "If the argument is a numeric primitive Class, returns a set of primitive Classes
    that are narrower than the given one"
-  [c]
-  (case-class c
-    Long/TYPE    #{Integer/TYPE Short/TYPE Byte/TYPE}
-    Integer/TYPE #{Short/TYPE Byte/TYPE}
-    Float/TYPE   #{Integer/TYPE Short/TYPE Byte/TYPE Long/TYPE}
-    Double/TYPE  #{Integer/TYPE Short/TYPE Byte/TYPE Long/TYPE Float/TYPE}
-    Short/TYPE   #{Byte/TYPE}
-    Byte/TYPE    #{}))
+  {Long/TYPE    #{Integer/TYPE Short/TYPE Byte/TYPE}
+   Integer/TYPE #{Short/TYPE Byte/TYPE}
+   Float/TYPE   #{Integer/TYPE Short/TYPE Byte/TYPE Long/TYPE}
+   Double/TYPE  #{Integer/TYPE Short/TYPE Byte/TYPE Long/TYPE Float/TYPE}
+   Short/TYPE   #{Byte/TYPE}
+   Byte/TYPE    #{}})
 
 (defn wider-primitive
   "Given two numeric primitive Classes, returns the wider one"
@@ -361,6 +341,7 @@
                    p
                    :else
                    (conj p next))
+                  ;; loop in order check if subsumes
                   (every? true? (mapv (fn [n p] (or (subsumes? n p)
                                            (= n p)))
                               next-params prev-params))
