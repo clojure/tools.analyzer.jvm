@@ -68,7 +68,10 @@
                   (and (= :fn local) AFunction)
                   (and (= :arg local) variadic? ISeq)
                   o-tag
-                  Object)]
+                  Object)
+        o-tag (if (#{Void Void/TYPE} o-tag)
+                Object
+                o-tag)]
     (if-let [tag (or (:tag (meta form)) tag)]
       (let [ast (assoc ast :tag tag :o-tag tag)]
         (if init
