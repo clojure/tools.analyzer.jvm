@@ -7,7 +7,7 @@
    :doc
    "Analyzer for clojure code, extends tools.analyzer with JVM specific passes/forms"}
   {:source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm/clojure.tools.analyzer.jvm.utils-api.html",
    :name "clojure.tools.analyzer.jvm.utils",
@@ -124,9 +124,9 @@
    :name "box",
    :namespace "clojure.tools.analyzer.jvm.utils",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L115",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L115",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/box",
    :doc
@@ -138,9 +138,9 @@
    :name "convertible?",
    :namespace "clojure.tools.analyzer.jvm.utils",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L161",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L161",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/convertible?",
    :doc "Returns true if it's possible to convert from c1 to c2",
@@ -149,9 +149,9 @@
    :file "src/main/clojure/clojure/tools/analyzer/jvm/utils.clj"}
   {:file "src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L51",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L51",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/maybe-class",
    :namespace "clojure.tools.analyzer.jvm.utils",
@@ -164,9 +164,9 @@
    :name "numeric?",
    :namespace "clojure.tools.analyzer.jvm.utils",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L145",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L145",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/numeric?",
    :doc "Returns true if the given class is numeric",
@@ -177,9 +177,9 @@
    :name "prim-or-obj",
    :namespace "clojure.tools.analyzer.jvm.utils",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L299",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L299",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/prim-or-obj",
    :doc
@@ -189,9 +189,9 @@
    :file "src/main/clojure/clojure/tools/analyzer/jvm/utils.clj"}
   {:file "src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L97",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L97",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/primitive?",
    :namespace "clojure.tools.analyzer.jvm.utils",
@@ -204,9 +204,9 @@
    :name "subsumes?",
    :namespace "clojure.tools.analyzer.jvm.utils",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L151",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L151",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/subsumes?",
    :doc "Returns true if c2 is subsumed by c1",
@@ -217,9 +217,9 @@
    :name "try-best-match",
    :namespace "clojure.tools.analyzer.jvm.utils",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L314",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L314",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/try-best-match",
    :doc
@@ -231,9 +231,9 @@
    :name "unbox",
    :namespace "clojure.tools.analyzer.jvm.utils",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L130",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L130",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/unbox",
    :doc
@@ -245,9 +245,9 @@
    :name "wider-primitive",
    :namespace "clojure.tools.analyzer.jvm.utils",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L184",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L184",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/wider-primitive",
    :doc "Given two numeric primitive Classes, returns the wider one",
@@ -258,9 +258,9 @@
    :name "wider-tag",
    :namespace "clojure.tools.analyzer.jvm.utils",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L213",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L213",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/wider-tag",
    :doc "Given a collection of Classes returns the wider one",
@@ -271,9 +271,9 @@
    :name "wider-tag*",
    :namespace "clojure.tools.analyzer.jvm.utils",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L191",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L191",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/wider-tag*",
    :doc "Given two Classes returns the wider one",
@@ -282,9 +282,9 @@
    :file "src/main/clojure/clojure/tools/analyzer/jvm/utils.clj"}
   {:file "src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/e1bd158d93cbe4967b213b7f1b5564c8cff97009/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L174",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/aa7dbd49b82dcaaa9e5e3afad7ed2d9a991ddfeb/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L174",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/wider-than",
    :namespace "clojure.tools.analyzer.jvm.utils",
