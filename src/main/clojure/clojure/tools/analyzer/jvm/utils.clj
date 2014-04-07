@@ -345,10 +345,8 @@
                    p
                    :else
                    (conj p next))
-                  ;; loop in order check if subsumes
-                  (every? true? (mapv (fn [n p] (or (subsumes? n p)
-                                           (= n p)))
-                              next-params prev-params))
+                  (and (some true (map subsumes? next-params prev-params))
+                       (not-any? true (map subsumes? prev-params next-params)))
                   [next]
                   :else
                   (conj p next)))) [] methods)
