@@ -345,8 +345,8 @@
                    p
                    :else
                    (conj p next))
-                  (and (some true (map subsumes? next-params prev-params))
-                       (not-any? true (map subsumes? prev-params next-params)))
+                  (and (some true? (map subsumes? next-params prev-params))
+                       (not-any? true? (map subsumes? prev-params next-params)))
                   [next]
                   :else
                   (conj p next)))) [] methods)
