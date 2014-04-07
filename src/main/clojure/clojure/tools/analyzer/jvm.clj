@@ -410,17 +410,16 @@
                  annotate-internal-name)))
 
     ((fn analyze [ast]
-       (-> ast
-         (postwalk (fn [ast]
-                     (-> ast
-                       annotate-tag
-                       analyze-host-expr
-                       infer-tag
-                       validate
-                       classify-invoke
-                       constant-lift))) ;; needs to be run after validate so that
-                                        ;; :maybe-class is turned into a :const
-         (prewalk (validate-loop-locals analyze)))))
+       (postwalk ast
+                 (fn [ast]
+                   (-> ast
+                     annotate-tag
+                     analyze-host-expr
+                     infer-tag
+                     validate
+                     classify-invoke
+                     constant-lift ;; needs to be run after validate so that :maybe-class is turned into a :const
+                     (validate-loop-locals analyze))))))
 
     (prewalk (fn [ast]
                (-> ast

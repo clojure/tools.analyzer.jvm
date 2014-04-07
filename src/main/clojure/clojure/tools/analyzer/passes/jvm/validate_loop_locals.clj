@@ -7,21 +7,36 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.validate-loop-locals
-  (:require [clojure.tools.analyzer.ast :refer [prewalk postwalk children update-children]]
+  (:require [clojure.tools.analyzer.ast :refer [postwalk children update-children]]
             [clojure.tools.analyzer.jvm.utils :refer [wider-tag maybe-class primitive?]]))
 
 (def ^:dynamic ^:private validating nil)
 (def ^:dynamic ^:private mismatch?)
 (def ^:dynamic ^:private *loop-locals* [])
 
-(defn find-mismatch [{:keys [op exprs] :as ast} bindings loop-id]
-  (when (and (= op :recur) (= loop-id (:loop-id ast))
-             (some true? (mapv (fn [e {:keys [tag init form]}]
-                              (and (or (primitive? tag)
-                                       (not (or (:tag (meta form))
-                                              (:tag (meta (:form init))))))
-                                   (not= (:tag e) tag))) exprs bindings)))
-    (swap! mismatch? conj (mapv :tag exprs)))
+(defn find-mismatches [{:keys [op exprs] :as ast} bindings]
+  (case op
+    :recur
+    (when (some true? (mapv (fn [e {:keys [tag init form]}]
+                           (and (or (primitive? tag)
+                                    (not (or (:tag (meta form))
+                                           (:tag (meta (:form init))))))
+                                (not= (:tag e) tag))) exprs bindings))
+      (swap! mismatch? conj (mapv :tag exprs)))
+    :do
+    (doseq [child (children ast)]
+      (find-mismatches child bindings))
+    (:let :letfn)
+    (doseq [child (:body ast)]
+      (find-mismatches child bindings))
+    :if
+    (do (find-mismatches (:then ast) bindings)
+        (find-mismatches (:else ast) bindings))
+    :case
+    (do (find-mismatches (:default ast) bindings)
+        (doseq [child (:thend ast)]
+          (find-mismatches child bindings)))
+    nil)
   ast)
 
 (defmulti -validate-loop-locals (fn [_ {:keys [op]}] op))
@@ -65,7 +80,7 @@
     ast
     (binding [mismatch? (atom #{})]
       (let [bindings (key ast)]
-        (prewalk body (fn [ast] (find-mismatch ast bindings loop-id)))
+        (find-mismatches body bindings)
         (if-let [mismatches (seq @mismatch?)]
           (let [bindings-form (apply mapv
                                      (fn [{:keys [form tag]} & mismatches]
@@ -128,5 +143,5 @@
 (defn validate-loop-locals
   "Returns a pass that validates the loop locals, calling analyze on the loop AST when
    a mismatched loop-local is found"
-  [analyze]
-  (fn [ast] (-validate-loop-locals analyze ast)))
+  [ast analyze]
+  (-validate-loop-locals analyze ast))
