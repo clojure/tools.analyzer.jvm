@@ -27,14 +27,13 @@
     (doseq [child (children ast)]
       (find-mismatches child bindings))
     (:let :letfn)
-    (doseq [child (:body ast)]
-      (find-mismatches child bindings))
+    (find-mismatches (:body ast) bindings)
     :if
     (do (find-mismatches (:then ast) bindings)
         (find-mismatches (:else ast) bindings))
     :case
     (do (find-mismatches (:default ast) bindings)
-        (doseq [child (:thend ast)]
+        (doseq [child (:thens ast)]
           (find-mismatches child bindings)))
     nil)
   ast)
