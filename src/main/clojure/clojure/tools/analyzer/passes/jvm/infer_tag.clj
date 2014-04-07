@@ -170,7 +170,10 @@
   (let [annotated-tag (or (:tag (meta (first form)))
                           (:tag (meta (:form local))))
         body-tag (:tag body)
-        tag (or annotated-tag body-tag)]
+        tag (or annotated-tag body-tag)
+        tag (if (#{Void Void/TYPE} tag)
+              Object
+              tag)]
     (merge ast
            (when tag
              {:tag   (or body-tag tag)
