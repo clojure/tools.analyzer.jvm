@@ -56,7 +56,8 @@
   [{:keys [args validated?] :as ast}]
   (if validated?
     ast
-    (assoc ast :args (mapv -box args))))
+    (assoc ast :args (mapv -box args)
+           :o-tag Object)))
 
 (defmethod box :instance-field
   [{:keys [class] :as ast}]
