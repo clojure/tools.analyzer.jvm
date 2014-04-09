@@ -243,13 +243,13 @@
 
 (def members*
   (lru (fn ([class]
-             (into (remove (fn [{:keys [flags]}]
+             (into object-members
+                   (remove (fn [{:keys [flags]}]
                              (not-any? #{:public :protected} flags))
                            (-> (maybe-class class)
                              box
                              (type-reflect :ancestors true)
-                             :members))
-                    object-members)))))
+                             :members)))))))
 
 (defn members
   ([class] (members* class))
