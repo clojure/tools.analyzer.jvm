@@ -1,6 +1,6 @@
 Changelog
 ========================================
-* Release 0.1.0-beta11 on ???
+* Release 0.1.0-beta11 on 18 Apr 2014
   * Performance enhancements on reflection utils
   * Workaround for a weird behaviour of clojure.reflect on interfaces
   * Fix for annotate-tag and validate-loop-locals interaction
