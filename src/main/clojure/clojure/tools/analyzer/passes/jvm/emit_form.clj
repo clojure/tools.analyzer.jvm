@@ -134,6 +134,6 @@
 (defmethod -emit-form :var
   [{:keys [form ^clojure.lang.Var var]} ops]
   (if (:qualified-vars ops)
-    (with-meta (symbol (ns-name (.ns var)) (.sym var))
+    (with-meta (symbol (-> var .ns ns-name name) (-> var .sym name))
       (meta form))
     form))
