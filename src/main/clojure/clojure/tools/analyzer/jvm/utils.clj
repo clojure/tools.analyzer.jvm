@@ -13,11 +13,12 @@
   (:import (clojure.lang RT Symbol Var)
            (org.objectweb.asm Type)))
 
+(def ^:private reflector
+  (reflect/->JavaReflector (RT/baseLoader)))
+
 (defn ^:private type-reflect
   [typeref & options]
-  (apply reflect/type-reflect typeref
-         :reflector (reflect/->JavaReflector (RT/baseLoader))
-         options))
+  (apply reflect/type-reflect typeref :reflector creflector options))
 
 (defn ^:private specials [c]
   (case c
