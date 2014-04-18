@@ -8,6 +8,7 @@ Changelog
   * Improve handling of Void tag
   * Fix handling of tag on constructor that defer to runtime reflection
   * Fix validate-loop-locals when the return type of the loop changed after the invalidation
+  * Added :qualified-vars option to emit-form
 * Release 0.1.0-beta10 on 1 Apr 2014
   * Fix validate-loop-locals handling of tag
   * merge &form meta into mfrom meta to preserve source info during macroexpansion

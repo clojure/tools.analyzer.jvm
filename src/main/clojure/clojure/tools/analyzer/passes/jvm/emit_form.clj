@@ -20,7 +20,10 @@
       expr)))
 
 (defn emit-form
-  "Return the form represented by the given AST"
+  "Return the form represented by the given AST
+   Ops is a set of options, valid options are:
+    * :hygienic
+    * :qualified-vars"
   ([ast] (emit-form ast #{}))
   ([ast ops]
      (binding [default/-emit-form* -emit-form*]
