@@ -453,37 +453,39 @@
    tools.analyzer/analyzer on form.
 
    Calls `run-passes` on the AST."
-  [form env]
-  (with-bindings {clojure.lang.Compiler/LOADER (clojure.lang.RT/makeClassLoader)
-                  #'ana/macroexpand-1          macroexpand-1
-                  #'ana/create-var             create-var
-                  #'ana/parse                  parse
-                  #'ana/var?                   var?}
-    (run-passes (-analyze form env))))
+  ([form] (analyze form (empty-env)))
+  ([form env]
+     (with-bindings {clojure.lang.Compiler/LOADER (clojure.lang.RT/makeClassLoader)
+                     #'ana/macroexpand-1          macroexpand-1
+                     #'ana/create-var             create-var
+                     #'ana/parse                  parse
+                     #'ana/var?                   var?}
+       (run-passes (-analyze form env)))))
 
 (defn analyze+eval
   "Like analyze but evals the form after the analysis.
    Useful when analyzing whole files/namespaces."
-  [form env]
-  (let [mform (binding [ana/macroexpand-1 macroexpand-1]
-                (ana/macroexpand form env))]
-    (if (and (seq? mform) (= 'do (first mform)) (next mform))
-      ;; handle the Gilardi scenario
-      (let [[statements ret] (loop [statements [] [e & exprs] (rest mform)]
-                               (if exprs
-                                 (recur (conj statements e) exprs)
-                                 [statements e]))
-            statements-expr (mapv (fn [s] (analyze+eval s (-> env (ctx :statement) update-ns-map!))) statements)
-            ret-expr (analyze+eval ret (update-ns-map! env))]
-        (-> {:op         :do
-            :form       mform
-            :statements statements-expr
-            :ret        ret-expr
-            :children   [:statements :ret]
-            :env        env}
-          source-info
-          cleanup))
-      (let [a (analyze mform (update-ns-map! env))
-            frm (emit-form a)]
-        (eval frm) ;; eval the emitted form rather than directly the form to avoid double macroexpansion
-        a))))
+  ([form] (analyze+eval form (empty-env)))
+  ([form env]
+     (let [mform (binding [ana/macroexpand-1 macroexpand-1]
+                   (ana/macroexpand form env))]
+       (if (and (seq? mform) (= 'do (first mform)) (next mform))
+         ;; handle the Gilardi scenario
+         (let [[statements ret] (loop [statements [] [e & exprs] (rest mform)]
+                                  (if exprs
+                                    (recur (conj statements e) exprs)
+                                    [statements e]))
+               statements-expr (mapv (fn [s] (analyze+eval s (-> env (ctx :statement) update-ns-map!))) statements)
+               ret-expr (analyze+eval ret (update-ns-map! env))]
+           (-> {:op         :do
+               :form       mform
+               :statements statements-expr
+               :ret        ret-expr
+               :children   [:statements :ret]
+               :env        env}
+             source-info
+             cleanup))
+         (let [a (analyze mform (update-ns-map! env))
+               frm (emit-form a)]
+           (eval frm) ;; eval the emitted form rather than directly the form to avoid double macroexpansion
+           a)))))
