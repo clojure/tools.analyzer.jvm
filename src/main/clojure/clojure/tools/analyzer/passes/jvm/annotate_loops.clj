@@ -21,7 +21,7 @@
 
 (defn -check-recur [ast k]
   (let [ast (update-in ast [k] check-recur)]
-    (if (:recurs (k ast))
+    (if (:recurs (get ast k))
       (assoc ast :recurs true)
       ast)))
 
@@ -49,8 +49,8 @@
 (defmethod check-recur :case
   [ast]
   (let [ast (-> ast
-              (-check-recur :default)
-              (update-in [:thens] -check-recur))]
+                (-check-recur :default)
+                (update-in [:thens] #(mapv check-recur %)))]
     (if (some :recurs (:thens ast))
       (assoc ast :recurs true)
       ast)))

@@ -188,3 +188,8 @@
   (let [d-ast (ast1 (Double/isInfinite 2))]
     (is (= Boolean/TYPE (-> d-ast :tag)))
     (is (= Double/TYPE (->> d-ast :args first :tag)))))
+
+
+;; checks for specific bugs that have surfaced
+(deftest annotate-case-loop
+  (is (ast1 (loop [] (case 1 :a (recur) :b 42)))))
