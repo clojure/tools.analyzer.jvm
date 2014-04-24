@@ -7,8 +7,8 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.clear-locals
-  (:require [clojure.tools.analyzer.ast :refer [update-children rseqv]]
-            [clojure.tools.analyzer.utils :refer [ctx]]))
+  (:require [clojure.tools.analyzer.ast :refer [update-children]]
+            [clojure.tools.analyzer.utils :refer [ctx rseqv]]))
 
 (def ^:dynamic *clears*)
 
