@@ -21,7 +21,7 @@
 
 (defn -check-recur [ast k]
   (let [ast (update-in ast [k] check-recur)]
-    (if (:recurs (get ast k))
+    (if (:recurs (k ast))
       (assoc ast :recurs true)
       ast)))
 
