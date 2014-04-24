@@ -15,7 +15,7 @@
              :rename {analyze -analyze}]
 
             [clojure.tools.analyzer
-             [utils :refer [ctx resolve-var -source-info resolve-ns obj?]]
+             [utils :refer [ctx resolve-var -source-info resolve-ns obj? dissoc-env]]
              [ast :refer [walk prewalk postwalk cycling]]]
 
             [clojure.tools.analyzer.jvm.utils :refer :all :exclude [box]]
@@ -254,7 +254,7 @@
                      :o-tag (:this env)
                      :tag   (:this env)
                      :local :this}
-        env         (assoc-in (dissoc env :this) [:locals this] this-expr)
+        env         (assoc-in (dissoc env :this) [:locals this] (dissoc-env this-expr))
         method-expr (analyze-fn-method meth env)]
     (assoc (dissoc method-expr :variadic?)
       :op       :method
@@ -313,7 +313,7 @@
                           fields)
         menv (assoc env
                :context :expr
-               :locals  (zipmap fields fields-expr)
+               :locals  (zipmap fields (map dissoc-env fields-expr))
                :this    class-name)
         methods (mapv #(assoc (analyze-method-impls % menv) :interfaces interfaces)
                       methods)]
