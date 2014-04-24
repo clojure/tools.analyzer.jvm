@@ -1,5 +1,8 @@
 Changelog
 ========================================
+* Release 0.1.0-beta12 on 25 Apr 2014
+  * Default to (empty-env) if env not provided
+  * Fix a bug in check-recur with case
 * Release 0.1.0-beta11 on 18 Apr 2014
   * Performance enhancements on reflection utils
   * Workaround for a weird behaviour of clojure.reflect on interfaces
