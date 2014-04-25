@@ -1,7 +1,7 @@
 Changelog
 ========================================
-Since tools.analyzer.jvm version are usually cut simultaneously with a tools.analyzer version, check also the tools.analyzer [CHANGELOG](https://github.com/clojure/tools.analyzer.jvm/blob/master/CHANGELOG.md) for changes on the corresponding version, since changes in that library will reflect on this one.
-========================================
+Since tools.analyzer.jvm version are usually cut simultaneously with a tools.analyzer version, check also the tools.analyzer [CHANGELOG](https://github.com/clojure/tools.analyzer/blob/master/CHANGELOG.md) for changes on the corresponding version, since changes in that library will reflect on this one.
+- - -
 * Release 0.1.0-beta12 on 25 Apr 2014
   * Default to (empty-env) if env not provided
   * Fix a bug in check-recur with case
