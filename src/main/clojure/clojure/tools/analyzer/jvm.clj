@@ -441,9 +441,7 @@
                            :top-level? false})
 
     ;; needs to be run after collect-closed-overs
-    clear-locals
-
-    (prewalk cleanup)))
+    clear-locals))
 
 (defn analyze
   "Returns an AST for the form that's compatible with what tools.emitter.jvm requires.
@@ -483,9 +481,20 @@
                :ret        ret-expr
                :children   [:statements :ret]
                :env        env}
-             source-info
-             cleanup))
+             source-info))
          (let [a (analyze mform (update-ns-map! env))
                frm (emit-form a)]
            (eval frm) ;; eval the emitted form rather than directly the form to avoid double macroexpansion
            a)))))
+
+(defn analyze'
+  "Like `analyze` but runs cleanup on the AST"
+  ([form] (analyze' form (empty-env)))
+  ([form env]
+     (prewalk (analyze form env) cleanup)))
+
+(defn analyze+eval'
+  "Like `analyze+eval` but runs cleanup on the AST"
+  ([form] (analyze+eval' form (empty-env)))
+  ([form env]
+     (prewalk (analyze+eval' form env) cleanup)))
