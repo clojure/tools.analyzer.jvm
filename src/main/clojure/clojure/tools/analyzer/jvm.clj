@@ -476,6 +476,7 @@
                statements-expr (mapv (fn [s] (analyze+eval s (-> env (ctx :statement) update-ns-map!))) statements)
                ret-expr (analyze+eval ret (update-ns-map! env))]
            (-> {:op         :do
+               :top-level  true
                :form       mform
                :statements statements-expr
                :ret        ret-expr
