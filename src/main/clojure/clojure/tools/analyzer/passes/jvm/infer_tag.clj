@@ -176,8 +176,8 @@
               tag)]
     (merge ast
            (when tag
-             {:tag   (or body-tag tag)
-              :o-tag tag})
+             {:tag   (or tag body-tag)
+              :o-tag (or body-tag tag)})
            {:arglist (with-meta (vec (mapcat (fn [{:keys [form variadic?]}]
                                                (if variadic? ['& form] [form]))
                                              params))
