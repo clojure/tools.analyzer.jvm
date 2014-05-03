@@ -450,22 +450,24 @@
    tools.analyzer.jvm/{macroexpand-1,create-var,parse} and calls
    tools.analyzer/analyzer on form.
 
-   If provided, binds should be a map of Var->value pairs that will be merged into the
+   If provided, opts should be a map of options to analyze, currently the only valid option
+   is :bindings.
+   If provided, :bindings should be a map of Var->value pairs that will be merged into the
    default bindings for tools.analyzer, useful to provide custom extension points.
 
    E.g.
-   (analyze form env {#'ana/macroexpand my-mexpand-1})
+   (analyze form env {:bindings  {#'ana/macroexpand my-mexpand-1}})
 
    Calls `run-passes` on the AST."
   ([form] (analyze form (empty-env) {}))
   ([form env] (analyze form env {}))
-  ([form env binds]
+  ([form env opts]
      (with-bindings (merge {clojure.lang.Compiler/LOADER (clojure.lang.RT/makeClassLoader)
                             #'ana/macroexpand-1          macroexpand-1
                             #'ana/create-var             create-var
                             #'ana/parse                  parse
                             #'ana/var?                   var?}
-                           binds)
+                           (:bindings opts))
        (run-passes (-analyze form env)))))
 
 (defn analyze+eval
@@ -473,8 +475,8 @@
    Useful when analyzing whole files/namespaces."
   ([form] (analyze+eval form (empty-env) {}))
   ([form env] (analyze+eval form env {}))
-  ([form env binds]
-     (let [mform (binding [ana/macroexpand-1 (get binds #'ana/macroexpand-1 macroexpand-1)]
+  ([form env opts]
+     (let [mform (binding [ana/macroexpand-1 (get-in opts [:bindings #'ana/macroexpand-1] macroexpand-1)]
                    (ana/macroexpand form env))]
        (if (and (seq? mform) (= 'do (first mform)) (next mform))
          ;; handle the Gilardi scenario
@@ -483,7 +485,7 @@
                                     (recur (conj statements e) exprs)
                                     [statements e]))
                statements-expr (mapv (fn [s] (analyze+eval s (-> env (ctx :statement) update-ns-map!))) statements)
-               ret-expr (analyze+eval ret (update-ns-map! env) binds)]
+               ret-expr (analyze+eval ret (update-ns-map! env) opts)]
            (-> {:op         :do
                :top-level  true
                :form       mform
@@ -492,7 +494,7 @@
                :children   [:statements :ret]
                :env        env}
              source-info))
-         (let [a (analyze mform (update-ns-map! env) binds)
+         (let [a (analyze mform (update-ns-map! env) opts)
                frm (emit-form a)]
            (eval frm) ;; eval the emitted form rather than directly the form to avoid double macroexpansion
            a)))))
@@ -501,12 +503,12 @@
   "Like `analyze` but runs cleanup on the AST"
   ([form] (analyze' form (empty-env)))
   ([form env] (analyze' form env {}))
-  ([form env binds]
-     (prewalk (analyze form env binds) cleanup)))
+  ([form env opts]
+     (prewalk (analyze form env opts) cleanup)))
 
 (defn analyze+eval'
   "Like `analyze+eval` but runs cleanup on the AST"
   ([form] (analyze+eval' form (empty-env)))
   ([form env] (analyze+eval' form env {}))
-  ([form env binds]
-     (prewalk (analyze+eval form env binds) cleanup)))
+  ([form env opts]
+     (prewalk (analyze+eval form env opts) cleanup)))
