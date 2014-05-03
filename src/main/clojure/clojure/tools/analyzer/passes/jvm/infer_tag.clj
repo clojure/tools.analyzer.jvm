@@ -174,10 +174,12 @@
         tag (if (#{Void Void/TYPE} tag)
               Object
               tag)]
-    (merge ast
+    (merge (if (not= tag body-tag)
+             (assoc-in ast [:body :tag] (u/maybe-class tag))
+             ast)
            (when tag
-             {:tag   (or tag body-tag)
-              :o-tag (or body-tag tag)})
+             {:tag   tag
+              :o-tag tag})
            {:arglist (with-meta (vec (mapcat (fn [{:keys [form variadic?]}]
                                                (if variadic? ['& form] [form]))
                                              params))
