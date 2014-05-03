@@ -234,24 +234,16 @@
   (when-let [t (:tag (meta form))]
     (when-not (u/maybe-class t)
       (throw (ex-info (str "Class not found: " t)
-                      (merge {:class t
-                              :ast   (prewalk ast cleanup)}
+                      (merge {:class    t
+                              :ast      (prewalk ast cleanup)}
                              (source-info env))))))
   (let [ast (merge (-validate ast)
                    (when tag
-                     {:tag tag}))
-        {:keys [tag o-tag] :as ast} (merge ast
-                                           (when (:tag ast)
-                                             (validate-tag :tag ast))
-                                           (when (:o-tag ast)
-                                             (validate-tag :o-tag ast))
-                                           (when (:return-tag ast)
-                                             (validate-tag :return-tag ast)))]
-    (when (and tag o-tag (not (u/convertible? o-tag tag)))
-      (throw (ex-info (str "Cannot cast " (.getName ^Class o-tag)
-                           " to " (.getName ^Class tag))
-                      (merge {:tag   tag
-                              :o-tag o-tag
-                              :ast   (prewalk ast cleanup)}
-                             (source-info env)))))
-    ast))
+                     {:tag tag}))]
+    (merge ast
+           (when (:tag ast)
+             (validate-tag :tag ast))
+           (when (:o-tag ast)
+             (validate-tag :o-tag ast))
+           (when (:return-tag ast)
+             (validate-tag :return-tag ast)))))
