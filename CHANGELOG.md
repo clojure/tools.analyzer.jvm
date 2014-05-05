@@ -5,8 +5,8 @@ Since tools.analyzer.jvm version are usually cut simultaneously with a tools.ana
 * Release 0.1.0-beta13 on ???
   * Don't run cleanup on analyze, added analyze' and analyze+eval' that run it
   * Added :top-level true to constructed :do nodes
-  * Made the validate pass throw an exception if :o-tag cannot be casted to :tag
-  * Added 3-rity to analyze taking an optional map of options
+  * Added 3-arity to analyze taking an optional map of options
+  * Fixes regarding :fn-method :o-tag/:tag handling
 * Release 0.1.0-beta12 on 25 Apr 2014
   * Default to (empty-env) if env not provided
   * Fix a bug in check-recur with case
