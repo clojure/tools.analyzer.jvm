@@ -2,7 +2,7 @@ Changelog
 ========================================
 Since tools.analyzer.jvm version are usually cut simultaneously with a tools.analyzer version, check also the tools.analyzer [CHANGELOG](https://github.com/clojure/tools.analyzer/blob/master/CHANGELOG.md) for changes on the corresponding version, since changes in that library will reflect on this one.
 - - -
-* Release 0.1.0-beta13 on ???
+* Release 0.1.0-beta13 on 11 Mar 2014
   * Don't run cleanup on analyze, added analyze' and analyze+eval' that run it
   * Added :top-level true to constructed :do nodes
   * Added 3-arity to analyze taking an optional map of options
