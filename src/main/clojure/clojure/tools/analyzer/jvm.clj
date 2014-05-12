@@ -456,7 +456,7 @@
    default bindings for tools.analyzer, useful to provide custom extension points.
 
    E.g.
-   (analyze form env {:bindings  {#'ana/macroexpand my-mexpand-1}})
+   (analyze form env {:bindings  {#'ana/macroexpand-1 my-mexpand-1}})
 
    Calls `run-passes` on the AST."
   ([form] (analyze form (empty-env) {}))
