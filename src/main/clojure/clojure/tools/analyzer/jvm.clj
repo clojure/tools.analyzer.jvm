@@ -76,13 +76,15 @@
   (reset! (:namespaces env) (build-ns-map))
   env)
 
+(def namespaces (atom (build-ns-map)))
+
 (defn empty-env
   "Returns an empty env map"
   []
   {:context    :expr
    :locals     {}
    :ns         (ns-name *ns*)
-   :namespaces (atom (build-ns-map))})
+   :namespaces namespaces})
 
 (defn desugar-host-expr [form env]
   (cond
