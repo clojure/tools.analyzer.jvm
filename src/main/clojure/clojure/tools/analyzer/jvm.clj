@@ -16,7 +16,8 @@
 
             [clojure.tools.analyzer
              [utils :refer [ctx resolve-var -source-info resolve-ns obj? dissoc-env]]
-             [ast :refer [walk prewalk postwalk cycling]]]
+             [ast :refer [walk prewalk postwalk]]
+             [env :as env :refer [*env*]]]
 
             [clojure.tools.analyzer.jvm.utils :refer :all :exclude [box]]
 
@@ -72,19 +73,17 @@
                            :ns       (ns-name %)})
                  (all-ns))))
 
-(defn update-ns-map! [env]
-  (reset! (:namespaces env) (build-ns-map))
-  env)
+(defn update-ns-map! []
+  (swap! *env* assoc-in [:namespaces] (build-ns-map)))
 
-(def namespaces (atom (build-ns-map)))
+(def global-env (atom {:namespaces (build-ns-map)}))
 
 (defn empty-env
   "Returns an empty env map"
   []
   {:context    :expr
    :locals     {}
-   :ns         (ns-name *ns*)
-   :namespaces namespaces})
+   :ns         (ns-name *ns*)})
 
 (defn desugar-host-expr [form env]
   (cond
@@ -154,14 +153,14 @@
 
            macro?
            (let [res (apply v form (:locals env) (rest form))] ; (m &form &env & args)
-             (update-ns-map! env)
+             (update-ns-map!)
              (if (obj? res)
                (vary-meta res merge (meta form))
                res))
 
            inline?
            (let [res (apply inline? args)]
-             (update-ns-map! env)
+             (update-ns-map!)
              (if (obj? res)
                (vary-meta res merge
                           (and t {:tag t})
@@ -470,7 +469,8 @@
                             #'ana/parse                  parse
                             #'ana/var?                   var?}
                            (:bindings opts))
-       (run-passes (-analyze form env)))))
+       (env/with-env global-env
+         (run-passes (-analyze form env))))))
 
 (defn analyze+eval
   "Like analyze but evals the form after the analysis.
@@ -478,6 +478,7 @@
   ([form] (analyze+eval form (empty-env) {}))
   ([form env] (analyze+eval form env {}))
   ([form env opts]
+     (update-ns-map!)
      (let [mform (binding [ana/macroexpand-1 (get-in opts [:bindings #'ana/macroexpand-1] macroexpand-1)]
                    (ana/macroexpand form env))]
        (if (and (seq? mform) (= 'do (first mform)) (next mform))
@@ -486,8 +487,8 @@
                                   (if exprs
                                     (recur (conj statements e) exprs)
                                     [statements e]))
-               statements-expr (mapv (fn [s] (analyze+eval s (-> env (ctx :statement) update-ns-map!))) statements)
-               ret-expr (analyze+eval ret (update-ns-map! env) opts)]
+               statements-expr (mapv (fn [s] (analyze+eval s (-> env (ctx :statement)))) statements)
+               ret-expr (analyze+eval ret env opts)]
            (-> {:op         :do
                :top-level  true
                :form       mform
@@ -496,7 +497,7 @@
                :children   [:statements :ret]
                :env        env}
              source-info))
-         (let [a (analyze mform (update-ns-map! env) opts)
+         (let [a (analyze mform env opts)
                frm (emit-form a)]
            (eval frm) ;; eval the emitted form rather than directly the form to avoid double macroexpansion
            a)))))

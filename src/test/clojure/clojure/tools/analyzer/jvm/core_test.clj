@@ -2,6 +2,7 @@
   (:refer-clojure :exclude [macroexpand-1])
   (:require [clojure.tools.analyzer :as ana]
             [clojure.tools.analyzer.jvm :as ana.jvm]
+            [clojure.tools.analyzer.env :as env]
             [clojure.test :refer [deftest is]]))
 
 (defprotocol p (f [_]))
@@ -13,7 +14,8 @@
              ana/create-var    ana.jvm/create-var
              ana/parse         ana.jvm/parse
              ana/var?          var?]
-     (ana/analyze '~form e)))
+     (env/with-env ana.jvm/global-env
+       (ana/analyze '~form e))))
 
 (defmacro ast1 [form]
   `(binding [ana/macroexpand-1 ana.jvm/macroexpand-1
@@ -23,7 +25,8 @@
      (ana.jvm/analyze '~form e)))
 
 (defmacro mexpand [form]
-  `(ana.jvm/macroexpand-1 '~form e))
+  `(env/with-env ana.jvm/global-env
+     (ana.jvm/macroexpand-1 '~form e)))
 
 (deftest macroexpander-test
   (is (= (list '. (list 'clojure.core/identity java.lang.Object) 'toString)

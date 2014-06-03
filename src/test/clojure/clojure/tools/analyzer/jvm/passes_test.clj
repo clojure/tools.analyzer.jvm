@@ -1,6 +1,8 @@
 (ns clojure.tools.analyzer.jvm.passes-test
   (:refer-clojure :exclude [macroexpand-1])
   (:require [clojure.tools.analyzer.ast :refer :all]
+            [clojure.tools.analyzer.jvm :as ana.jvm]
+            [clojure.tools.analyzer.env :as env]
             [clojure.test :refer [deftest is]]
             [clojure.set :as set]
             [clojure.tools.analyzer.passes.add-binding-atom :refer [add-binding-atom]]
@@ -8,7 +10,7 @@
             [clojure.tools.analyzer.jvm.core-test :refer [ast ast1 e f f1]]
             [clojure.tools.analyzer.passes.jvm.emit-form
              :refer [emit-form emit-hygienic-form]]
-            [clojure.tools.analyzer.passes.jvm.validate :refer [validate]]
+            [clojure.tools.analyzer.passes.jvm.validate :as v]
             [clojure.tools.analyzer.passes.jvm.annotate-tag :refer [annotate-tag]]
             [clojure.tools.analyzer.passes.jvm.clear-locals :refer [clear-locals]]
             [clojure.tools.analyzer.passes.jvm.infer-tag :refer [infer-tag]]
@@ -21,6 +23,10 @@
   (:import (clojure.lang Keyword Var Symbol AFunction
                          PersistentVector PersistentArrayMap PersistentHashSet ISeq)
            java.util.regex.Pattern))
+
+(defn validate [ast]
+  (env/with-env ana.jvm/global-env
+    (v/validate ast)))
 
 (deftest emit-form-test
   (is (= '(monitor-enter 1) (emit-form (ast (monitor-enter 1)))))
