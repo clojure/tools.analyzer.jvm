@@ -135,41 +135,42 @@
   "If form represents a macro form or an inlineable function,
    returns its expansion, else returns form."
   [form env]
-  (if (seq? form)
-    (let [[op & args] form]
-      (if (specials op)
-        form
-        (let [v (resolve-var op env)
-              m (meta v)
-              local? (-> env :locals (get op))
-              macro? (and (not local?) (:macro m)) ;; locals shadow macros
-              inline-arities-f (:inline-arities m)
-              inline? (and (not local?)
-                           (or (not inline-arities-f)
-                               (inline-arities-f (count args)))
-                           (:inline m))
-              t (:tag m)]
-          (cond
+  (env/ensure global-env
+    (if (seq? form)
+      (let [[op & args] form]
+        (if (specials op)
+          form
+          (let [v (resolve-var op env)
+                m (meta v)
+                local? (-> env :locals (get op))
+                macro? (and (not local?) (:macro m)) ;; locals shadow macros
+                inline-arities-f (:inline-arities m)
+                inline? (and (not local?)
+                             (or (not inline-arities-f)
+                                 (inline-arities-f (count args)))
+                             (:inline m))
+                t (:tag m)]
+            (cond
 
-           macro?
-           (let [res (apply v form (:locals env) (rest form))] ; (m &form &env & args)
-             (update-ns-map!)
-             (if (obj? res)
-               (vary-meta res merge (meta form))
-               res))
+             macro?
+             (let [res (apply v form (:locals env) (rest form))] ; (m &form &env & args)
+               (update-ns-map!)
+               (if (obj? res)
+                 (vary-meta res merge (meta form))
+                 res))
 
-           inline?
-           (let [res (apply inline? args)]
-             (update-ns-map!)
-             (if (obj? res)
-               (vary-meta res merge
-                          (and t {:tag t})
-                          (meta form))
-               res))
+             inline?
+             (let [res (apply inline? args)]
+               (update-ns-map!)
+               (if (obj? res)
+                 (vary-meta res merge
+                            (and t {:tag t})
+                            (meta form))
+                 res))
 
-           :else
-           (desugar-host-expr form env)))))
-    (desugar-host-expr form env)))
+             :else
+             (desugar-host-expr form env)))))
+      (desugar-host-expr form env))))
 
 (defn create-var
   "Creates a Var for sym and returns it.
@@ -469,7 +470,7 @@
                             #'ana/parse                  parse
                             #'ana/var?                   var?}
                            (:bindings opts))
-       (env/with-env global-env
+       (env/ensure global-env
          (run-passes (-analyze form env))))))
 
 (defn analyze+eval
@@ -478,29 +479,30 @@
   ([form] (analyze+eval form (empty-env) {}))
   ([form env] (analyze+eval form env {}))
   ([form env opts]
-     (update-ns-map!)
-     (let [mform (binding [ana/macroexpand-1 (get-in opts [:bindings #'ana/macroexpand-1] macroexpand-1)]
-                   (ana/macroexpand form env))]
-       (if (and (seq? mform) (= 'do (first mform)) (next mform))
-         ;; handle the Gilardi scenario
-         (let [[statements ret] (loop [statements [] [e & exprs] (rest mform)]
-                                  (if exprs
-                                    (recur (conj statements e) exprs)
-                                    [statements e]))
-               statements-expr (mapv (fn [s] (analyze+eval s (-> env (ctx :statement)))) statements)
-               ret-expr (analyze+eval ret env opts)]
-           (-> {:op         :do
-               :top-level  true
-               :form       mform
-               :statements statements-expr
-               :ret        ret-expr
-               :children   [:statements :ret]
-               :env        env}
-             source-info))
-         (let [a (analyze mform env opts)
-               frm (emit-form a)]
-           (eval frm) ;; eval the emitted form rather than directly the form to avoid double macroexpansion
-           a)))))
+     (env/ensure global-env
+       (update-ns-map!)
+       (let [mform (binding [ana/macroexpand-1 (get-in opts [:bindings #'ana/macroexpand-1] macroexpand-1)]
+                     (ana/macroexpand form env))]
+         (if (and (seq? mform) (= 'do (first mform)) (next mform))
+           ;; handle the Gilardi scenario
+           (let [[statements ret] (loop [statements [] [e & exprs] (rest mform)]
+                                    (if exprs
+                                      (recur (conj statements e) exprs)
+                                      [statements e]))
+                 statements-expr (mapv (fn [s] (analyze+eval s (-> env (ctx :statement)))) statements)
+                 ret-expr (analyze+eval ret env opts)]
+             (-> {:op         :do
+                 :top-level  true
+                 :form       mform
+                 :statements statements-expr
+                 :ret        ret-expr
+                 :children   [:statements :ret]
+                 :env        env}
+               source-info))
+           (let [a (analyze mform env opts)
+                 frm (emit-form a)]
+             (eval frm) ;; eval the emitted form rather than directly the form to avoid double macroexpansion
+             a))))))
 
 (defn analyze'
   "Like `analyze` but runs cleanup on the AST"

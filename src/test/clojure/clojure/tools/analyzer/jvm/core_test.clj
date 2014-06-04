@@ -25,8 +25,7 @@
      (ana.jvm/analyze '~form e)))
 
 (defmacro mexpand [form]
-  `(env/with-env ana.jvm/global-env
-     (ana.jvm/macroexpand-1 '~form e)))
+  `(ana.jvm/macroexpand-1 '~form e))
 
 (deftest macroexpander-test
   (is (= (list '. (list 'clojure.core/identity java.lang.Object) 'toString)
