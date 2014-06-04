@@ -14,7 +14,7 @@
              ana/create-var    ana.jvm/create-var
              ana/parse         ana.jvm/parse
              ana/var?          var?]
-     (env/with-env ana.jvm/global-env
+     (env/with-env (ana.jvm/global-env)
        (ana/analyze '~form e))))
 
 (defmacro ast1 [form]

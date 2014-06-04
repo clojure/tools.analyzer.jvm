@@ -76,7 +76,8 @@
 (defn update-ns-map! []
   (swap! *env* assoc-in [:namespaces] (build-ns-map)))
 
-(def global-env (atom {:namespaces (build-ns-map)}))
+(defn global-env []
+  (atom {:namespaces (build-ns-map)}))
 
 (defn empty-env
   "Returns an empty env map"
@@ -135,7 +136,7 @@
   "If form represents a macro form or an inlineable function,
    returns its expansion, else returns form."
   [form env]
-  (env/ensure global-env
+  (env/ensure (global-env)
     (if (seq? form)
       (let [[op & args] form]
         (if (specials op)
@@ -470,7 +471,7 @@
                             #'ana/parse                  parse
                             #'ana/var?                   var?}
                            (:bindings opts))
-       (env/ensure global-env
+       (env/ensure (global-env)
          (run-passes (-analyze form env))))))
 
 (defn analyze+eval
@@ -479,7 +480,7 @@
   ([form] (analyze+eval form (empty-env) {}))
   ([form env] (analyze+eval form env {}))
   ([form env opts]
-     (env/ensure global-env
+     (env/ensure (global-env)
        (update-ns-map!)
        (let [mform (binding [ana/macroexpand-1 (get-in opts [:bindings #'ana/macroexpand-1] macroexpand-1)]
                      (ana/macroexpand form env))]

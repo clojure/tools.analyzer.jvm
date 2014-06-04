@@ -25,7 +25,7 @@
            java.util.regex.Pattern))
 
 (defn validate [ast]
-  (env/with-env ana.jvm/global-env
+  (env/with-env (ana.jvm/global-env)
     (v/validate ast)))
 
 (deftest emit-form-test
