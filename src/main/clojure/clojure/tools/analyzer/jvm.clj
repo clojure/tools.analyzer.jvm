@@ -475,7 +475,8 @@
          (run-passes (-analyze form env))))))
 
 (defn analyze+eval
-  "Like analyze but evals the form after the analysis.
+  "Like analyze but evals the form after the analysis and attaches the
+   returned value in the :result field of the AST node.
    Useful when analyzing whole files/namespaces."
   ([form] (analyze+eval form (empty-env) {}))
   ([form env] (analyze+eval form env {}))
@@ -498,12 +499,13 @@
                  :statements statements-expr
                  :ret        ret-expr
                  :children   [:statements :ret]
-                 :env        env}
+                 :env        env
+                 :result     (:result ret-expr)}
                source-info))
            (let [a (analyze mform env opts)
-                 frm (emit-form a)]
-             (eval frm) ;; eval the emitted form rather than directly the form to avoid double macroexpansion
-             a))))))
+                 frm (emit-form a)
+                 result (eval frm)] ;; eval the emitted form rather than directly the form to avoid double macroexpansion
+             (assoc a :result result)))))))
 
 (defn analyze'
   "Like `analyze` but runs cleanup on the AST"
