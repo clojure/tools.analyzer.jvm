@@ -2,7 +2,7 @@ Changelog
 ========================================
 Since tools.analyzer.jvm version are usually cut simultaneously with a tools.analyzer version, check also the tools.analyzer [CHANGELOG](https://github.com/clojure/tools.analyzer/blob/master/CHANGELOG.md) for changes on the corresponding version, since changes in that library will reflect on this one.
 - - -
-* Release 0.2.0 on ???
+* Release 0.2.0 on 05 Jun 2014
   * BREAKING API CHANGE: Updated to new global env interface
   * Made analyze+eval attach the result of evaluating the form to the AST
 * Release 0.1.0-beta13 on 11 Mar 2014
