@@ -109,6 +109,9 @@ Latest stable release: 0.1.0-beta13
 </dependency>
 ```
 
+[Changelog](CHANGELOG.md)
+========================================
+
 Developer Information
 ========================================
 
