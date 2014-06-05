@@ -2,6 +2,75 @@
 
 Additional jvm-specific passes for tools.analyzer
 
+## Example Usage
+
+Calling `analyze` on the form is all it takes to get its AST (the output has been pritty printed for clarity):
+```clojure
+user> (require '[clojure.tools.analyzer.jvm :as ana.jvm])
+nil
+user> (ana.jvm/analyze 1)
+{:op        :const,
+ :env       {:context :expr, :locals {}, :ns user},
+ :form      1,
+ :top-level true,
+ :val       1,
+ :type      :number,
+ :literal?  true,
+ :id        0,
+ :tag       long,
+ :o-tag     long}
+```
+
+To get a clojure form out of an AST, use the `emit-form` pass:
+```clojure
+user> (require '[clojure.tools.analyzer.passes.jvm.emit-form :as e])
+nil
+user> (e/emit-form (ana.jvm/analyze '(let [a 1] a)))
+(let* [a 1] a)
+```
+Note that the output will be fully macroexpanded.
+You can also get an hygienic form back, using the `emit-hygienic-form` pass:
+```clojure
+user> (e/emit-hygienic-form (ana.jvm/analyze '(let [a 1 a a] a)))
+(let* [a__#0 1 a__#1 a__#0] a__#1)
+```
+As you can see the local names are renamed to resolve shadowing.
+
+The `analyze` function can take an environment arg (when not provided it uses the default empty-env) which allows for more advanced usages, like injecting locals from an outer scope:
+```clojure
+user> (-> '(let [a a] a)
+        (ana.jvm/analyze (assoc (ana.jvm/empty-env)
+                           :locals '{a {:op    :binding
+                                        :name  a
+                                        :form  a
+                                        :local :let}}))
+        e/emit-hygienic-form)
+(let* [a__#0 a] a__#0)
+```
+
+When using `tools.analyzer.jvm` for analyzing whole namespaces or whole files, you should use `analyze+eval` rather than `analyze`; as the name suggests, `analyze+eval` evals the form after its analysis and stores the resulting value in the `:result` field of the AST.
+
+This would not work using `analyze` but works fine when using `analyze+eval`:
+```clojure
+user> (ana.jvm/analyze+eval '(defmacro x []))
+{:op        :do,
+ :top-level true,
+ :form      (do (clojure.core/defn x ([&form &env])) (. (var x) (setMacro)) (var x)),
+ ... ,
+ :result    #'user/x}
+user> (ana.jvm/analyze+eval '(x))
+{:op        :const,
+ :env       {:context :expr, :locals {}, :ns user},
+ :form      nil,
+ :top-level true,
+ :val       nil,
+ :type      :nil,
+ :literal?  true,
+ :tag       java.lang.Object,
+ :o-tag     java.lang.Object,
+ :result    nil}
+```
+
 ## SPONSORSHIP
 
 * Cognitect (http://cognitect.com/) is sponsoring tools.analyzer.jvm development (https://groups.google.com/d/msg/clojure/iaP16MHpX0E/EMtnGmOz-rgJ)
