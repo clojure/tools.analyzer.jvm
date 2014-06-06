@@ -372,7 +372,7 @@
   (let [etype (if (= etype :default) Throwable etype)] ;; catch-all
     (ana/-parse `(catch ~etype ~ename ~@body) env)))
 
-(defn run-passes
+(defn ^:dynamic run-passes
   "Applies the following passes in the correct order to the AST:
    * uniquify
    * add-binding-atom
