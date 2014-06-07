@@ -7,8 +7,7 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.annotate-tag
-  (:require [clojure.tools.analyzer.jvm.utils :refer [unbox maybe-class]]
-            [clojure.tools.analyzer.ast :refer [prewalk]])
+  (:require [clojure.tools.analyzer.jvm.utils :refer [unbox maybe-class]])
   (:import (clojure.lang ISeq Var AFunction)))
 
 (defmulti -annotate-tag :op)
