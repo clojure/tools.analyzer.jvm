@@ -2,6 +2,9 @@ Changelog
 ========================================
 Since tools.analyzer.jvm version are usually cut simultaneously with a tools.analyzer version, check also the tools.analyzer [CHANGELOG](https://github.com/clojure/tools.analyzer/blob/master/CHANGELOG.md) for changes on the corresponding version, since changes in that library will reflect on this one.
 - - -
+* Release 0.2.1 on 08 Jun 2014
+  * Made run-passes dynamic
+  * Made analyze-host-expr and classify-invoke preserve the original AST fields
 * Release 0.2.0 on 05 Jun 2014
   * BREAKING API CHANGE: Updated to new global env interface
   * Made analyze+eval attach the result of evaluating the form to the AST
