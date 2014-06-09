@@ -1,7 +1,7 @@
 <html>
   <head>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-    <title>clojure.tools.analyzer.jvm - JVM-specific passes for tools.analyzer 0.2.1 API documentation</title>
+    <title>clojure.tools.analyzer.jvm - JVM-specific passes for tools.analyzer 0.2.2 API documentation</title>
     <link href="static/favicon.png" rel="icon" />
     <link href="static/favicon.png" rel="shortcut icon" />
     <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
@@ -25,7 +25,7 @@ namespace.
       <div id="leftcolumn"><div style="text-align: center;"></div>
 <div class="menu">
   <div class="WikiCustomNav WikiElement wiki">
-    <span class="toc-header"><span id="project-name">JVM-specific passes for tools.analyzer</span> <span id="version">0.2.1</span> API</span><br />
+    <span class="toc-header"><span id="project-name">JVM-specific passes for tools.analyzer</span> <span id="version">0.2.2</span> API</span><br />
     <ul>
       <li><a class="wiki_link" href="index.html">Overview</a></li>
       <li><a class="wiki_link" href="api-index.html">API Index</a></li>
@@ -49,11 +49,17 @@ namespace.
     <a href="#" style="margin-top: 3px;"></a>
     
   </div><div style="margin-left: 1em;" class="toc-section">
-    <a href="#" style="margin-top: 3px;"></a>
-    
+    <a href="#type-section" style="margin-top: 3px;">Types</a>
+    <div style="margin-left: 1em;" class="toc-entry">
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm/ExceptionThrown">ExceptionThrown</a>
+      
+    </div>
   </div><div style="margin-left: 1em;" class="toc-section">
     <a href="#var-section" style="margin-top: 3px;">Vars and Functions</a>
     <div style="margin-left: 1em;" class="toc-entry">
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm/-&gt;ExceptionThrown">-&gt;ExceptionThrown</a>
+      
+    </div><div style="margin-left: 1em;" class="toc-entry">
       <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm/analyze">analyze</a>
       
     </div><div style="margin-left: 1em;" class="toc-entry">
@@ -130,7 +136,7 @@ namespace.
 </div>
 </div>
                 <div id="content-tag"><h1 id="overview">API for <span id="clojure.tools.analyzer.jvm">clojure.tools.analyzer.jvm</span>
-  - <span id="header-project">JVM-specific passes for tools.analyzer</span> <span id="header-version">0.2.1</span><span id="header-status-block"> (<span id="header-status">in development</span>)</span>
+  - <span id="header-project">JVM-specific passes for tools.analyzer</span> <span id="header-version">0.2.2</span><span id="header-status-block"> (<span id="header-status">in development</span>)</span>
   </h1>
 
 <br />Full namespace name: <span id="long-name">clojure.tools.analyzer.jvm</span>
@@ -143,11 +149,35 @@ namespace.
 <br />
 
 
-
+<div id="type-section">
+  <p></p>
+  <h2>Types</h2>
+  <div id="type-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.jvm/ExceptionThrown">ExceptionThrown</h2>
+    <span id="type-type">type</span><br />
+    <pre id="type-docstr"></pre>
+    Fields: <span id="type-fields">[e]</span><br />
+    Protocols: <span id="type-protocols"></span><br />
+    Interfaces: <span id="type-interfaces"></span><br />
+  </div>
+</div>
 <div id="var-section">
   <p></p>
   <h2>Public Variables and Functions</h2>
   <div id="var-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.jvm/-&gt;ExceptionThrown">-&gt;ExceptionThrown</h2>
+    <span id="var-type">function</span><br />
+    <pre id="var-usage">Usage: (-&gt;ExceptionThrown e)
+</pre>
+    <pre id="var-docstr">Positional factory function for class clojure.tools.analyzer.jvm.ExceptionThrown.</pre>
+    
+    
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/4e6f24be35d61af4435fdc35ae1dc1b32e373d68/src/main/clojure/clojure/tools/analyzer/jvm.clj#L478" id="var-source">Source</a>
+  </div><div id="var-entry">
     <br />
     <hr />
     <h2 id="clojure.tools.analyzer.jvm/analyze">analyze</h2>
@@ -173,7 +203,7 @@ E.g.
 Calls `run-passes` on the AST.</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/b351df2c4ad9d33bdc925d62529a865534da41ce/src/main/clojure/clojure/tools/analyzer/jvm.clj#L449" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/4e6f24be35d61af4435fdc35ae1dc1b32e373d68/src/main/clojure/clojure/tools/analyzer/jvm.clj#L450" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -186,7 +216,7 @@ Calls `run-passes` on the AST.</pre>
     <pre id="var-docstr">Like `analyze` but runs cleanup on the AST</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/b351df2c4ad9d33bdc925d62529a865534da41ce/src/main/clojure/clojure/tools/analyzer/jvm.clj#L510" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/4e6f24be35d61af4435fdc35ae1dc1b32e373d68/src/main/clojure/clojure/tools/analyzer/jvm.clj#L519" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -198,10 +228,14 @@ Calls `run-passes` on the AST.</pre>
 </pre>
     <pre id="var-docstr">Like analyze but evals the form after the analysis and attaches the
 returned value in the :result field of the AST node.
+If evaluating the form will cause an exception to be thrown, the exception
+will be caught and the :result field will hold an ExceptionThrown instance
+with the exception in the "e" field.
+
 Useful when analyzing whole files/namespaces.</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/b351df2c4ad9d33bdc925d62529a865534da41ce/src/main/clojure/clojure/tools/analyzer/jvm.clj#L477" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/4e6f24be35d61af4435fdc35ae1dc1b32e373d68/src/main/clojure/clojure/tools/analyzer/jvm.clj#L480" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -214,7 +248,7 @@ Useful when analyzing whole files/namespaces.</pre>
     <pre id="var-docstr">Like `analyze+eval` but runs cleanup on the AST</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/b351df2c4ad9d33bdc925d62529a865534da41ce/src/main/clojure/clojure/tools/analyzer/jvm.clj#L517" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/4e6f24be35d61af4435fdc35ae1dc1b32e373d68/src/main/clojure/clojure/tools/analyzer/jvm.clj#L526" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -226,7 +260,7 @@ Useful when analyzing whole files/namespaces.</pre>
 The Var gets interned in the env namespace.</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/b351df2c4ad9d33bdc925d62529a865534da41ce/src/main/clojure/clojure/tools/analyzer/jvm.clj#L176" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/4e6f24be35d61af4435fdc35ae1dc1b32e373d68/src/main/clojure/clojure/tools/analyzer/jvm.clj#L177" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -237,19 +271,20 @@ The Var gets interned in the env namespace.</pre>
     <pre id="var-docstr">Returns an empty env map</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/b351df2c4ad9d33bdc925d62529a865534da41ce/src/main/clojure/clojure/tools/analyzer/jvm.clj#L82" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/4e6f24be35d61af4435fdc35ae1dc1b32e373d68/src/main/clojure/clojure/tools/analyzer/jvm.clj#L82" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
     <h2 id="clojure.tools.analyzer.jvm/macroexpand-1">macroexpand-1</h2>
     <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (macroexpand-1 form env)
+    <pre id="var-usage">Usage: (macroexpand-1 form)
+       (macroexpand-1 form env)
 </pre>
     <pre id="var-docstr">If form represents a macro form or an inlineable function,
 returns its expansion, else returns form.</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/b351df2c4ad9d33bdc925d62529a865534da41ce/src/main/clojure/clojure/tools/analyzer/jvm.clj#L135" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/4e6f24be35d61af4435fdc35ae1dc1b32e373d68/src/main/clojure/clojure/tools/analyzer/jvm.clj#L135" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -259,7 +294,7 @@ returns its expansion, else returns form.</pre>
     <pre id="var-docstr">Extension to tools.analyzer/-parse for JVM special forms</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/b351df2c4ad9d33bdc925d62529a865534da41ce/src/main/clojure/clojure/tools/analyzer/jvm.clj#L60" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/4e6f24be35d61af4435fdc35ae1dc1b32e373d68/src/main/clojure/clojure/tools/analyzer/jvm.clj#L60" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -292,7 +327,7 @@ returns its expansion, else returns form.</pre>
 * jvm.analyze-host-expr</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/b351df2c4ad9d33bdc925d62529a865534da41ce/src/main/clojure/clojure/tools/analyzer/jvm.clj#L375" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/4e6f24be35d61af4435fdc35ae1dc1b32e373d68/src/main/clojure/clojure/tools/analyzer/jvm.clj#L376" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -302,7 +337,7 @@ returns its expansion, else returns form.</pre>
     <pre id="var-docstr">Set of the special forms for clojure in the JVM</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/b351df2c4ad9d33bdc925d62529a865534da41ce/src/main/clojure/clojure/tools/analyzer/jvm.clj#L55" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/4e6f24be35d61af4435fdc35ae1dc1b32e373d68/src/main/clojure/clojure/tools/analyzer/jvm.clj#L55" id="var-source">Source</a>
   </div>
 </div>
 <br />
