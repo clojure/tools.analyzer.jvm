@@ -71,6 +71,26 @@ user> (ana.jvm/analyze+eval '(x))
  :result    nil}
 ```
 
+### A note about environments
+
+Until version 0.1.0-beta13 it was required to provide an environment to analyze/analyze+eval and maintain/share said environment across analysis when using `tools.analyzer.jvm` to analyze whole namespaces.
+Since version 0.2.0 this is no longer required nor encouraged and an explicit environment should be provided only when strictly necessary, for example when it's required to provide constructed locals as above.
+
+Version 0.2.0 introduced the notion of a global environment and the namespace system has been moved from the analysis environment to that environment.
+
+When analyzing whole namespaces/files, it is *strongly encouraged* to provide a global environment shared across analysis, by wrapping the analysis loop in a `ana/with-env`, here's a proof of concept:
+```clojure
+user> (require '[clojure.tools.analyzer.env :as env])
+nil
+user> (env/with-env (ana.jvm/global-env)
+        (loop [forms []]
+          (let [form (read stream nil sentinel)]
+            (if (= sentinel form)
+              forms
+              (recur (conj forms (ana.jvm/analyze+eval form)))))))
+```
+This is not required but it's encouraged for the sake of unifying behaviour between `tools.analyzer.jvm` and `tools.analyzer.js` and to potentially allow some passes to share info across analysis.
+
 ## SPONSORSHIP
 
 * Cognitect (http://cognitect.com/) is sponsoring tools.analyzer.jvm development (https://groups.google.com/d/msg/clojure/iaP16MHpX0E/EMtnGmOz-rgJ)
