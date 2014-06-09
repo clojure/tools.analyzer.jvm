@@ -135,43 +135,44 @@
 (defn macroexpand-1
   "If form represents a macro form or an inlineable function,
    returns its expansion, else returns form."
-  [form env]
-  (env/ensure (global-env)
-    (if (seq? form)
-      (let [[op & args] form]
-        (if (specials op)
-          form
-          (let [v (resolve-var op env)
-                m (meta v)
-                local? (-> env :locals (get op))
-                macro? (and (not local?) (:macro m)) ;; locals shadow macros
-                inline-arities-f (:inline-arities m)
-                inline? (and (not local?)
-                             (or (not inline-arities-f)
-                                 (inline-arities-f (count args)))
-                             (:inline m))
-                t (:tag m)]
-            (cond
+  ([form] (macroexpand-1 (empty-env)))
+  ([form env]
+     (env/ensure (global-env)
+       (if (seq? form)
+         (let [[op & args] form]
+           (if (specials op)
+             form
+             (let [v (resolve-var op env)
+                   m (meta v)
+                   local? (-> env :locals (get op))
+                   macro? (and (not local?) (:macro m)) ;; locals shadow macros
+                   inline-arities-f (:inline-arities m)
+                   inline? (and (not local?)
+                                (or (not inline-arities-f)
+                                    (inline-arities-f (count args)))
+                                (:inline m))
+                   t (:tag m)]
+               (cond
 
-             macro?
-             (let [res (apply v form (:locals env) (rest form))] ; (m &form &env & args)
-               (update-ns-map!)
-               (if (obj? res)
-                 (vary-meta res merge (meta form))
-                 res))
+                macro?
+                (let [res (apply v form (:locals env) (rest form))] ; (m &form &env & args)
+                  (update-ns-map!)
+                  (if (obj? res)
+                    (vary-meta res merge (meta form))
+                    res))
 
-             inline?
-             (let [res (apply inline? args)]
-               (update-ns-map!)
-               (if (obj? res)
-                 (vary-meta res merge
-                            (and t {:tag t})
-                            (meta form))
-                 res))
+                inline?
+                (let [res (apply inline? args)]
+                  (update-ns-map!)
+                  (if (obj? res)
+                    (vary-meta res merge
+                               (and t {:tag t})
+                               (meta form))
+                    res))
 
-             :else
-             (desugar-host-expr form env)))))
-      (desugar-host-expr form env))))
+                :else
+                (desugar-host-expr form env)))))
+         (desugar-host-expr form env)))))
 
 (defn create-var
   "Creates a Var for sym and returns it.
