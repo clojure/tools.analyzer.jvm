@@ -74,9 +74,9 @@ user> (ana.jvm/analyze+eval '(x))
 ### A note about environments
 
 Until version 0.1.0-beta13 it was required to provide an environment to analyze/analyze+eval and maintain/share said environment across analysis when using `tools.analyzer.jvm` to analyze whole namespaces.
-Since version 0.2.0 this is no longer required nor encouraged and an explicit environment should be provided only when strictly necessary, for example when it's required to provide constructed locals as above.
+Since version 0.2.0 this is no longer required nor encouraged and an explicit environment should be provided only when strictly necessary (see the example above with the constructed locals for a good use-case)
 
-Version 0.2.0 introduced the notion of a global environment and the namespace system has been moved from the analysis environment to that environment.
+Version 0.2.0 introduced the notion of a global environment which now holds the namespaces info rather then the analysis environment.
 
 When analyzing whole namespaces/files, it is *strongly encouraged* to provide a global environment shared across analysis, by wrapping the analysis loop in a `ana/with-env`, here's a proof of concept:
 ```clojure
