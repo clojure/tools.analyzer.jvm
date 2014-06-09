@@ -149,7 +149,7 @@
   (is (= :prim-invoke (-> (ast (f1 1)) (prewalk infer-tag) classify-invoke :op))))
 
 (deftest annotate-methods-test
-  (let [r-ast (-> (ast (reify Object (toString [_] ""))) (prewalk annotate-methods))]
+  (let [r-ast (-> (ast ^:foo (reify Object (toString [_] ""))) (prewalk annotate-methods))]
     (is (= 'toString (-> r-ast :expr :methods first :name)))
     (is (= [] (-> r-ast :expr :methods first :params)))
     (is (= '_ (-> r-ast :expr :methods first :this :name)))))

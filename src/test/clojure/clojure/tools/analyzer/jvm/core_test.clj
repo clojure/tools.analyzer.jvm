@@ -3,6 +3,8 @@
   (:require [clojure.tools.analyzer :as ana]
             [clojure.tools.analyzer.jvm :as ana.jvm]
             [clojure.tools.analyzer.env :as env]
+            [clojure.tools.analyzer.passes.elide-meta :refer [elides elide-meta]]
+            [clojure.tools.analyzer.ast :refer [postwalk]]
             [clojure.test :refer [deftest is]]))
 
 (defprotocol p (f [_]))
@@ -13,15 +15,17 @@
   `(binding [ana/macroexpand-1 ana.jvm/macroexpand-1
              ana/create-var    ana.jvm/create-var
              ana/parse         ana.jvm/parse
-             ana/var?          var?]
+             ana/var?          var?
+             elides            #{:line :column :file}]
      (env/with-env (ana.jvm/global-env)
-       (ana/analyze '~form e))))
+       (postwalk (ana/analyze '~form e) elide-meta))))
 
 (defmacro ast1 [form]
   `(binding [ana/macroexpand-1 ana.jvm/macroexpand-1
              ana/create-var    ana.jvm/create-var
              ana/parse         ana.jvm/parse
-             ana/var?          var?]
+             ana/var?          var?
+             elides            #{:line :column :file}]
      (ana.jvm/analyze '~form e)))
 
 (defmacro mexpand [form]
@@ -50,9 +54,9 @@
     (is (= :import (:op i-ast)))
     (is (= "java.lang.String" (:class i-ast))))
 
-  (let [r-ast (ast (reify
-                     Object (toString [this] "")
-                     Appendable (^Appendable append [this ^char x] this)))]
+  (let [r-ast (ast ^:foo (reify
+                           Object (toString [this] "")
+                           Appendable (^Appendable append [this ^char x] this)))]
     (is (= :with-meta (-> r-ast :op))) ;; line/column info
     (is (= :reify (-> r-ast :expr :op)))
     (is (= #{Appendable clojure.lang.IObj} (-> r-ast :expr :interfaces)))
