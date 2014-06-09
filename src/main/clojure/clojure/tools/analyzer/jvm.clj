@@ -179,13 +179,13 @@
    The Var gets interned in the env namespace."
   [sym {:keys [ns]}]
   (or (find-var (symbol (str ns) (name sym)))
-      (doto (intern ns (vary-meta sym merge
-                               (let [{:keys [inline inline-arities]} (meta sym)]
-                                 (merge {}
-                                        (when inline
-                                          {:inline (eval inline)})
-                                        (when inline-arities
-                                          {:inline-arities (eval inline-arities)}))))))))
+      (intern ns (vary-meta sym merge
+                            (let [{:keys [inline inline-arities]} (meta sym)]
+                              (merge {}
+                                     (when inline
+                                       {:inline (eval inline)})
+                                     (when inline-arities
+                                       {:inline-arities (eval inline-arities)})))))))
 
 (defmethod parse 'var
   [[_ var :as form] env]
