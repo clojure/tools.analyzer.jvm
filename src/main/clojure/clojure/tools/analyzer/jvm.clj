@@ -475,9 +475,15 @@
        (env/ensure (global-env)
          (run-passes (-analyze form env))))))
 
+(deftype ExceptionThrown [e])
+
 (defn analyze+eval
   "Like analyze but evals the form after the analysis and attaches the
    returned value in the :result field of the AST node.
+   If evaluating the form will cause an exception to be thrown, the exception
+   will be caught and the :result field will hold an ExceptionThrown instance
+   with the exception in the \"e\" field.
+
    Useful when analyzing whole files/namespaces."
   ([form] (analyze+eval form (empty-env) {}))
   ([form env] (analyze+eval form env {}))
@@ -505,7 +511,9 @@
                source-info))
            (let [a (analyze mform env opts)
                  frm (emit-form a)
-                 result (eval frm)] ;; eval the emitted form rather than directly the form to avoid double macroexpansion
+                 result (try (eval frm) ;; eval the emitted form rather than directly the form to avoid double macroexpansion
+                             (catch Exception e
+                               (ExceptionThrown. e)))]
              (assoc a :result result)))))))
 
 (defn analyze'
