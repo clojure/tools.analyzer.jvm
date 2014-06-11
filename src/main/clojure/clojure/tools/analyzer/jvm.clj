@@ -490,8 +490,12 @@
   ([form env opts]
      (env/ensure (global-env)
        (update-ns-map!)
-       (let [mform (binding [ana/macroexpand-1 (get-in opts [:bindings #'ana/macroexpand-1] macroexpand-1)]
-                     (ana/macroexpand form env))]
+       (let [[mform raw-forms] (binding [ana/macroexpand-1 (get-in opts [:bindings #'ana/macroexpand-1] macroexpand-1)]
+                                 (loop [form form raw-forms []]
+                                   (let [mform (ana/macroexpand-1 form env)]
+                                     (if (= mform form)
+                                       [mform (seq raw-forms)]
+                                       (recur mform (conj raw-forms form))))))]
          (if (and (seq? mform) (= 'do (first mform)) (next mform))
            ;; handle the Gilardi scenario
            (let [[statements ret] (loop [statements [] [e & exprs] (rest mform)]
@@ -507,7 +511,8 @@
                  :ret        ret-expr
                  :children   [:statements :ret]
                  :env        env
-                 :result     (:result ret-expr)}
+                 :result     (:result ret-expr)
+                 :raw-forms  raw-forms}
                source-info))
            (let [a (analyze mform env opts)
                  frm (emit-form a)
