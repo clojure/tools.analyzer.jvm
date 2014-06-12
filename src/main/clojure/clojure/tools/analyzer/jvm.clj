@@ -477,6 +477,17 @@
 
 (deftype ExceptionThrown [e])
 
+(defn butlast+last
+  "Returns same value as (juxt butlast last), but slightly more
+efficient since it only traverses the input sequence s once, not
+twice."
+  [s]
+  (loop [butlast (transient [])
+         s s]
+    (if-let [xs (next s)]
+      (recur (conj! butlast (first s)) xs)
+      [(seq (persistent! butlast)) (first s)])))
+
 (defn analyze+eval
   "Like analyze but evals the form after the analysis and attaches the
    returned value in the :result field of the AST node.
@@ -498,12 +509,13 @@
                                        (recur mform (conj raw-forms form))))))]
          (if (and (seq? mform) (= 'do (first mform)) (next mform))
            ;; handle the Gilardi scenario
-           (let [[statements ret] (loop [statements [] [e & exprs] (rest mform)]
-                                    (if exprs
-                                      (recur (conj statements e) exprs)
-                                      [statements e]))
-                 statements-expr (mapv (fn [s] (analyze+eval s (-> env (ctx :statement)))) statements)
-                 ret-expr (analyze+eval ret env opts)]
+           (let [[statements ret] (butlast+last (rest mform))
+                 statements-expr (mapv (fn [s] (analyze+eval s (-> env
+                                                                   (ctx :statement)
+                                                                   (assoc :ns (ns-name *ns*)))
+                                                             opts))
+                                       statements)
+                 ret-expr (analyze+eval ret (assoc env :ns (ns-name *ns*)) opts)]
              (-> {:op         :do
                  :top-level  true
                  :form       mform
