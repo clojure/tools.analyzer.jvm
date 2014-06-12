@@ -145,7 +145,7 @@
   (is (= :keyword-invoke (-> (ast (:foo {})) classify-invoke :op)))
   (is (= :protocol-invoke (-> (ast (f nil)) classify-invoke :op)))
   (is (= :instance? (-> (ast (instance? String ""))
-                      (prewalk validate) classify-invoke :op)))
+                      (prewalk analyze-host-expr) classify-invoke :op)))
   (is (= :prim-invoke (-> (ast (f1 1)) (prewalk infer-tag) classify-invoke :op))))
 
 (deftest annotate-methods-test
@@ -156,8 +156,6 @@
 
 ;; TODO: test primitives, tag matching, throwing validation, method validation
 (deftest validate-test
-  (is (= String (-> (ast String) validate :val)))
-  (is (= 'String (-> (ast String) validate :form)))
   (is (= Exception (-> (ast (try (catch Exception e)))
                      (prewalk validate) :catches first :class)))
   (is (-> (ast (set! *warn-on-reflection* true)) validate))
@@ -190,6 +188,9 @@
     (is (= String (->> t-ast :bindings (filter #(= 'c (:form %))) first :tag)))
     (is (= Integer/TYPE (->> t-ast :bindings (filter #(= 'd (:form %))) first :tag))))
   (is (= Void/TYPE (:tag (ast1 (.println System/out "foo")))))
+
+  (is (= String (-> (ast1 String) :val)))
+  (is (= 'String (-> (ast1 String) :form)))
 
   (let [d-ast (ast1 (Double/isInfinite 2))]
     (is (= Boolean/TYPE (-> d-ast :tag)))
