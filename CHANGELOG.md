@@ -2,6 +2,13 @@ Changelog
 ========================================
 Since tools.analyzer.jvm version are usually cut simultaneously with a tools.analyzer version, check also the tools.analyzer [CHANGELOG](https://github.com/clojure/tools.analyzer/blob/master/CHANGELOG.md) for changes on the corresponding version, since changes in that library will reflect on this one.
 - - -
+
+* Release 0.2.2 on 13 Jun 2014
+  * Added 1-arity version of macroexpand-1
+  * Made analyze+eval handle exceptions via ExceptionThrown
+  * Fixed a bug in the valiadte pass that caused some instance-methods to stay unresolved
+  * Keep :raw-forms on analyze+eval
+  * Update \*ns\* in each call to analyze+eval
 * Release 0.2.1 on 08 Jun 2014
   * Made run-passes dynamic
   * Made analyze-host-expr and classify-invoke preserve the original AST fields
