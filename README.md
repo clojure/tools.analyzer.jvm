@@ -4,7 +4,7 @@ Additional jvm-specific passes for tools.analyzer
 
 ## Example Usage
 
-Calling `analyze` on the form is all it takes to get its AST (the output has been pritty printed for clarity):
+Calling `analyze` on the form is all it takes to get its AST (the output has been pretty-printed for clarity):
 ```clojure
 user> (require '[clojure.tools.analyzer.jvm :as ana.jvm])
 nil
