@@ -79,7 +79,7 @@
 (defn empty-env
   "Returns an empty env map"
   []
-  {:context    :expr/any
+  {:context    :ctx/expr
    :locals     {}
    :ns         (ns-name *ns*)
    :namespaces (atom (build-ns-map))})
@@ -312,7 +312,7 @@
                              :op      :binding})
                           fields)
         menv (assoc env
-               :context :expr/any
+               :context :ctx/expr
                :locals  (zipmap fields (map dissoc-env fields-expr))
                :this    class-name)
         methods (mapv #(assoc (analyze-method-impls % menv) :interfaces interfaces)
