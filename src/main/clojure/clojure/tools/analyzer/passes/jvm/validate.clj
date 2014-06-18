@@ -9,7 +9,7 @@
 (ns clojure.tools.analyzer.passes.jvm.validate
   (:require [clojure.tools.analyzer.ast :refer [prewalk]]
             [clojure.tools.analyzer.passes.cleanup :refer [cleanup]]
-            [clojure.tools.analyzer.utils :refer [arglist-for-arity source-info resolve-var]]
+            [clojure.tools.analyzer.utils :refer [arglist-for-arity source-info resolve-var resolve-ns]]
             [clojure.tools.analyzer.jvm.utils :as u :refer [tag-match? try-best-match]])
   (:import (clojure.lang IFn ExceptionInfo)))
 
@@ -17,8 +17,7 @@
 
 (defmethod -validate :maybe-class
   [{:keys [class env] :as ast}]
-  (if (or (resolve-ns class env)
-          (not (.contains (str class) ".")))
+  (if (not (.contains (str class) "."))
     (throw (ex-info (str "Could not resolve var: " class)
                     (merge {:var class}
                            (source-info env))))
@@ -28,11 +27,15 @@
                            (source-info env))))))
 
 (defmethod -validate :maybe-host-form
-  [{:keys [class form env]}]
-  (throw (ex-info (str "No such namespace: " class)
-                  (merge {:ns   class
-                          :form form}
-                         (source-info env)))))
+  [{:keys [class field form env]}]
+  (if (resolve-ns class env)
+    (throw (ex-info (str "No such var: " class)
+                    (merge {:form form}
+                           (source-info env))))
+    (throw (ex-info (str "No such namespace: " class)
+                    (merge {:ns   class
+                            :form form}
+                           (source-info env))))))
 
 (defn validate-class
   [{:keys [class form env] :as ast}]
