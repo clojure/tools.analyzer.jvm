@@ -17,12 +17,14 @@
 
 (defmethod -validate :maybe-class
   [{:keys [class env] :as ast}]
-  (if (.contains (str class) ".") ;; try and be smart for the exception
-    (throw (ex-info (str "Class not found: " class)
-                    (merge {:class class}
-                           (source-info env))))
+  (if (or (resolve-ns class env)
+          (not (.contains (str class) ".")))
     (throw (ex-info (str "Could not resolve var: " class)
                     (merge {:var class}
+                           (source-info env))))
+
+    (throw (ex-info (str "Class not found: " class)
+                    (merge {:class class}
                            (source-info env))))))
 
 (defmethod -validate :maybe-host-form
