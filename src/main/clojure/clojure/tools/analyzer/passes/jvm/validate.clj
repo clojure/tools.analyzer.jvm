@@ -169,6 +169,14 @@
 
 (defmethod -validate :def
   [ast]
+  (when-let [tag (-> ast :name meta :tag)]
+    (let [c (u/maybe-class tag)
+          s (if (symbol? tag) (name tag) tag)]
+      (when-not (and c (not (or (u/specials s) (u/special-arrays s))))
+        (throw (ex-info (str "Wrong tag: " (eval tag) " in def: " (:name ast))
+                        (merge {:ast      (prewalk ast cleanup)}
+                               (source-info (:env ast))))))))
+
   #_(let [init (:init ast)]
       (when-let [tag (:tag init)]
         (alter-meta! var assoc :tag tag))

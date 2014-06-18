@@ -19,7 +19,7 @@
              [ast :refer [walk prewalk postwalk]]
              [env :as env :refer [*env*]]]
 
-            [clojure.tools.analyzer.jvm.utils :refer :all :exclude [box]]
+            [clojure.tools.analyzer.jvm.utils :refer :all :exclude [box specials]]
 
             [clojure.tools.analyzer.passes
              [source-info :refer [source-info]]
