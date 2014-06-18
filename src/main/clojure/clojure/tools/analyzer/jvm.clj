@@ -135,7 +135,7 @@
 (defn macroexpand-1
   "If form represents a macro form or an inlineable function,
    returns its expansion, else returns form."
-  ([form] (macroexpand-1 (empty-env)))
+  ([form] (macroexpand-1 form (empty-env)))
   ([form env]
      (env/ensure (global-env)
        (if (seq? form)
