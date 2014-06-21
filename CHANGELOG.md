@@ -2,7 +2,10 @@ Changelog
 ========================================
 Since tools.analyzer.jvm version are usually cut simultaneously with a tools.analyzer version, check also the tools.analyzer [CHANGELOG](https://github.com/clojure/tools.analyzer/blob/master/CHANGELOG.md) for changes on the corresponding version, since changes in that library will reflect on this one.
 - - -
-
+* Release 0.3.0 on 21 Jun 2014
+  * BREAKING API CHANGE: Updated to new :context
+  * Fixed 1-arity macroexpand-1
+  * validate throws on Var not found
 * Release 0.2.2 on 13 Jun 2014
   * Added 1-arity version of macroexpand-1
   * Made analyze+eval handle exceptions via ExceptionThrown

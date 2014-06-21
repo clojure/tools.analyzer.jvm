@@ -1,4 +1,4 @@
-(defproject org.clojure/tools.analyzer.jvm "0.2.3-SNAPSHOT"
+(defproject org.clojure/tools.analyzer.jvm "0.3.1-SNAPSHOT"
   :description "Additional jvm-specific passes for tools.analyzer."
   :url "https://github.com/clojure/tools.analyzer.jvm"
   :license {:name "Eclipse Public License"
