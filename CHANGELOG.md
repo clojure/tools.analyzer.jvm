@@ -9,7 +9,7 @@ Since tools.analyzer.jvm version are usually cut simultaneously with a tools.ana
 * Release 0.2.2 on 13 Jun 2014
   * Added 1-arity version of macroexpand-1
   * Made analyze+eval handle exceptions via ExceptionThrown
-  * Fixed a bug in the valiadte pass that caused some instance-methods to stay unresolved
+  * Fixed a bug in the validate pass that caused some instance-methods to stay unresolved
   * Keep :raw-forms on analyze+eval
   * Update \*ns\* in each call to analyze+eval
 * Release 0.2.1 on 08 Jun 2014
