@@ -16,7 +16,7 @@
              ana/create-var    ana.jvm/create-var
              ana/parse         ana.jvm/parse
              ana/var?          var?
-             elides            #{:line :column :file}]
+             elides            {:all #{:line :column :file}}]
      (env/with-env (ana.jvm/global-env)
        (postwalk (ana/analyze '~form e) elide-meta))))
 
@@ -25,7 +25,7 @@
              ana/create-var    ana.jvm/create-var
              ana/parse         ana.jvm/parse
              ana/var?          var?
-             elides            #{:line :column :file}]
+             elides            {:all #{:line :column :file}}]
      (ana.jvm/analyze '~form e)))
 
 (defmacro mexpand [form]

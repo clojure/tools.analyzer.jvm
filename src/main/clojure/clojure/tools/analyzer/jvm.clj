@@ -24,7 +24,7 @@
             [clojure.tools.analyzer.passes
              [source-info :refer [source-info]]
              [cleanup :refer [cleanup]]
-             [elide-meta :refer [elide-meta]]
+             [elide-meta :refer [elide-meta elides]]
              [warn-earmuff :refer [warn-earmuff]]
              [collect :refer [collect collect-closed-overs]]
              [add-binding-atom :refer [add-binding-atom]]
@@ -470,7 +470,10 @@
                             #'ana/macroexpand-1          macroexpand-1
                             #'ana/create-var             create-var
                             #'ana/parse                  parse
-                            #'ana/var?                   var?}
+                            #'ana/var?                   var?
+                            #'elides                     (merge {:fn    #{:line :column :end-line :end-column :file :source}
+                                                                 :reify #{:line :column :end-line :end-column :file :source}}
+                                                                elides)}
                            (:bindings opts))
        (env/ensure (global-env)
          (run-passes (-analyze form env))))))
