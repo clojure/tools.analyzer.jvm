@@ -342,10 +342,14 @@
                                 (let [test-expr (ana/-analyze :const test env)
                                       then-expr (-analyze then env)]
                                   [(conj te {:op       :case-test
+                                             :form     test
+                                             :env      env
                                              :hash     min-hash
                                              :test     test-expr
                                              :children [:test]})
                                    (conj th {:op       :case-then
+                                             :form     then
+                                             :env      env
                                              :hash     min-hash
                                              :then     then-expr
                                              :children [:then]})]))
