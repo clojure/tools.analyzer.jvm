@@ -52,7 +52,7 @@
 
 (defmethod -infer-tag :new
   [ast]
-  (let [t (:class ast)]
+  (let [t (-> ast :class :val)]
     (assoc ast :o-tag t :tag t)))
 
 (defmethod -infer-tag :with-meta

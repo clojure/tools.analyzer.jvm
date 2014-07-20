@@ -157,9 +157,9 @@
 ;; TODO: test primitives, tag matching, throwing validation, method validation
 (deftest validate-test
   (is (= Exception (-> (ast (try (catch Exception e)))
-                     (prewalk validate) :catches first :class)))
+                     (prewalk (comp validate analyze-host-expr)) :catches first :class :val)))
   (is (-> (ast (set! *warn-on-reflection* true)) validate))
-  (is (= true (-> (ast (String. "foo")) (postwalk annotate-tag) validate
+  (is (= true (-> (ast (String. "foo")) (postwalk (comp validate annotate-tag analyze-host-expr))
               :validated?)))
 
   (let [s-ast (-> (ast (Integer/parseInt "7")) (prewalk annotate-tag) analyze-host-expr validate)]
