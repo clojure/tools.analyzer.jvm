@@ -35,6 +35,11 @@
       <artifactId>asm-all</artifactId>
       <version>4.1</version>
     </dependency>
+    <dependency>
+      <groupId>org.clojure</groupId>
+      <artifactId>tools.reader</artifactId>
+      <version>0.8.5</version>
+    </dependency>
   </dependencies>
 
   <scm>
