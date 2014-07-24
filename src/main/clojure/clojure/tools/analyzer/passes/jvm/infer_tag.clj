@@ -86,8 +86,12 @@
 
 (defmethod -infer-tag :loop
   [{:keys [body] :as ast}]
-  (merge ast (select-keys body [:return-tag :arglists :tag])
-         {:o-tag (:tag body)}))
+  (merge ast (select-keys body [:return-tag :arglists])
+         {:o-tag (:tag body)}
+         (let [tag (:tag body)]
+           (if (#{Void Void/TYPE} tag)
+             (assoc ast :tag Object)
+             (assoc ast :tag tag)))))
 
 (defn =-arglists? [a1 a2]
   (let [tag (fn [x] (-> x meta :tag u/maybe-class))]
