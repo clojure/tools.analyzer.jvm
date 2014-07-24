@@ -181,12 +181,15 @@
       ast)))
 
 (defmethod box :try
-  [ast]
-  (-> ast
-    (update-in [:body] -box)
-    (update-in [:catches] #(mapv -box %))
-    (update-in [:finally] -box)
-    (update-in [:o-tag] u/box)))
+  [{:keys [tag] :as ast}]
+  (let [ast (if (and tag (u/primitive? tag))
+              ast
+              (-> ast
+                (update-in [:catches] #(mapv -box %))
+                (update-in [:body] -box)
+                (update-in [:o-tag] u/box)))]
+    (-> ast
+      (update-in [:finally] -box))))
 
 (defmethod box :invoke
   [ast]
