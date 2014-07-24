@@ -161,13 +161,14 @@
 
 (defmethod -infer-tag :try
   [{:keys [body catches] :as ast}]
-  (let [{:keys [tag return-tag arglists]} body]
+  (let [{:keys [tag return-tag arglists]} body
+        catches (remove :ignore-tag (mapv :body catches))]
     (merge ast
-           (when (and tag (every? #(= % tag) (mapv (comp :tag :body) catches)))
+           (when (and tag (every? #(= % tag) (mapv :tag catches)))
              {:tag tag :o-tag tag})
-           (when (and return-tag (every? #(= % return-tag) (mapv (comp :return-tag :body) catches)))
+           (when (and return-tag (every? #(= % return-tag) (mapv :return-tag catches)))
              {:return-tag return-tag})
-           (when (and arglists (every? #(=-arglists? % arglists) (mapv (comp :arglists :body) catches)))
+           (when (and arglists (every? #(=-arglists? % arglists) (mapv :arglists catches)))
              {:arglists arglists}))))
 
 (defmethod -infer-tag :fn-method
