@@ -341,13 +341,14 @@
 (defmethod parse 'case*
   [[_ expr shift mask default case-map switch-type test-type & [skip-check?] :as form] env]
   (let [[low high] ((juxt first last) (keys case-map)) ;;case-map is a sorted-map
-        test-expr (-analyze expr (ctx env :expr/any))
+        e (ctx env :ctx/expr)
+        test-expr (-analyze expr e)
         [tests thens] (reduce (fn [[te th] [min-hash [test then]]]
-                                (let [test-expr (ana/-analyze :const test env)
+                                (let [test-expr (ana/-analyze :const test e)
                                       then-expr (-analyze then env)]
                                   [(conj te {:op       :case-test
                                              :form     test
-                                             :env      env
+                                             :env      e
                                              :hash     min-hash
                                              :test     test-expr
                                              :children [:test]})
