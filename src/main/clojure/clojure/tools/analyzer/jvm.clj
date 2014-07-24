@@ -213,7 +213,7 @@
   {:op       :monitor-enter
    :env      env
    :form     form
-   :target   (-analyze target (ctx env :expr/any))
+   :target   (-analyze target (ctx env :ctx/expr))
    :children [:target]})
 
 (defmethod parse 'monitor-exit
@@ -225,7 +225,7 @@
   {:op       :monitor-exit
    :env      env
    :form     form
-   :target   (-analyze target (ctx env :expr/any))
+   :target   (-analyze target (ctx env :ctx/expr))
    :children [:target]})
 
 (defmethod parse 'clojure.core/import*
