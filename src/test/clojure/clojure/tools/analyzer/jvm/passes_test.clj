@@ -124,10 +124,8 @@
 (deftest annotate-tag-test
   (is (= PersistentVector (-> {:op :const :form [] :val []} annotate-tag :tag)))
   (is (= PersistentVector (-> (ast []) annotate-tag :tag)))
-  (is (= PersistentVector (-> (ast '[]) annotate-tag :tag)))
   (is (= PersistentArrayMap(-> (ast {}) annotate-tag :tag)))
   (is (= PersistentHashSet (-> (ast #{}) annotate-tag :tag)))
-  (is (= ISeq (-> (ast '()) annotate-tag :tag)))
   (is (= Class (-> {:op :const :type :class :form Object :val Object}
                  annotate-tag :tag)))
   (is (= String (-> (ast "foo") annotate-tag :tag)))
@@ -191,6 +189,8 @@
 
   (is (= String (-> (ast1 String) :val)))
   (is (= 'String (-> (ast1 String) :form)))
+(is (= PersistentVector (-> (ast1 '[]) :tag)))
+(is (= ISeq (-> (ast1 '()) :tag)))
 
   (let [d-ast (ast1 (Double/isInfinite 2))]
     (is (= Boolean/TYPE (-> d-ast :tag)))

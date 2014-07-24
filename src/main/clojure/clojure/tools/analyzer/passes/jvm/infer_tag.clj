@@ -50,6 +50,11 @@
   (merge (assoc ast :tag clojure.lang.Var :o-tag clojure.lang.Var)
          (select-keys (:init ast) [:return-tag :arglists])))
 
+(defmethod -infer-tag :quote
+  [ast]
+  (let [tag (-> ast :expr :tag)]
+    (assoc ast :tag tag :o-tag tag)))
+
 (defmethod -infer-tag :new
   [ast]
   (let [t (-> ast :class :val)]
@@ -162,7 +167,7 @@
              {:tag tag :o-tag tag})
            (when (and return-tag (every? #(= % return-tag) (mapv (comp :return-tag :body) catches)))
              {:return-tag return-tag})
-           (when (and arglists (every? #(= % arglists) (mapv (comp :arglists :body) catches))) ;;FIX: should check meta
+           (when (and arglists (every? #(=-arglists? % arglists) (mapv (comp :arglists :body) catches)))
              {:arglists arglists}))))
 
 (defmethod -infer-tag :fn-method
