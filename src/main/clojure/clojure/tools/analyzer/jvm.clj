@@ -450,7 +450,7 @@
     ;; needs to be run in a separate pass to avoid collecting
     ;; constants/callsites in :loop
     (collect-closed-overs {:what  #{:closed-overs}
-                           :where #{:deftype :reify :fn :loop}
+                           :where #{:deftype :reify :fn :loop :try}
                            :top-level? false})
 
     ;; needs to be run after collect-closed-overs
