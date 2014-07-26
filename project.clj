@@ -9,4 +9,4 @@
                  [org.clojure/core.memoize "0.5.6"]
                  [org.clojure/tools.reader "0.8.5"]
                  [org.clojure/tools.analyzer "0.4.1-SNAPSHOT"]
-                 [org.ow2.asm/asm-all "4.1"]])
+                 [org.ow2.asm/asm-all "4.2"]])
