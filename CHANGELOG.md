@@ -2,6 +2,17 @@ Changelog
 ========================================
 Since tools.analyzer.jvm version are usually cut simultaneously with a tools.analyzer version, check also the tools.analyzer [CHANGELOG](https://github.com/clojure/tools.analyzer/blob/master/CHANGELOG.md) for changes on the corresponding version, since changes in that library will reflect on this one.
 - - -
+* Release 0.4.0 on 26 Jul 2014
+  * BREAKING CHANGE: update to new :class field for :new and :catch nodes
+  * Elide source info metadata on :reify, :fn
+  * Fixed performance regression
+  * Added :qualified-symbols option to emit-form, deprecate :qualified-vars
+  * Don't promote :invoke to :keyword-invoke when the keyword is namespaced
+  * Added analyze-ns
+  * Fixed some wrong contexts
+  * Fixed and enhanced :tag/:arglists inference for :try nodes
+  * Fixed handling of void bodies in loops
+  * Collect closed-overs on :try
 * Release 0.3.0 on 21 Jun 2014
   * BREAKING API CHANGE: Updated to new :context
   * Fixed 1-arity macroexpand-1
