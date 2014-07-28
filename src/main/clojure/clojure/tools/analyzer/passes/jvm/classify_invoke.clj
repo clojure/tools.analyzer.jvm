@@ -41,7 +41,11 @@
             (= :keyword (:type the-fn)))
        (if (<= 1 argc 2)
          (if (not (namespace (:val the-fn)))
-           (assoc ast :op :keyword-invoke)
+           (merge ast
+                  {:op       :keyword-invoke
+                   :target   (first args)
+                   :keyword  (:val the-fn)
+                   :children [:target]})
            ast)
          (throw (ex-info (str "Cannot invoke keyword with " argc " arguments")
                          (merge {:form form}
@@ -63,7 +67,12 @@
 
        (and var? (protocol-node? the-var))
        (if (>= argc 1)
-         (assoc ast :op :protocol-invoke)
+         (merge ast
+                {:op          :protocol-invoke
+                 :protocol-fn the-fn
+                 :target      (first args)
+                 :args        (rest args)
+                 :children    [:protocol-fn :target :args]})
          (throw (ex-info "Cannot invoke protocol method with no args"
                          (merge {:form form}
                                 (source-info env)))))
