@@ -353,7 +353,7 @@
            [:finally "Synthetic :do AST node (with :body? `true`) representing the final clause of this try expression"]]}
   {:op   :var
    :doc  "Node for a var symbol"
-   :kehys [[:form "A symbol naming the var"]
+   :keys [[:form "A symbol naming the var"]
            [:var "The Var object this symbol refers to"]
            ^:optional
            [:assignable? "`true` if the Var is :dynamic"]
