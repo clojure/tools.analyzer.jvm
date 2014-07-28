@@ -48,8 +48,7 @@
 
 (defmethod -validate :set!
   [{:keys [target form env] :as ast}]
-  (when (and (not (:assignable? target))
-             (not (= :host-interop (:op target))))
+  (when (not (:assignable? target))
     (throw (ex-info "Cannot set! non-assignable target"
                     (merge {:target (prewalk target cleanup)
                             :form   form}
