@@ -334,7 +334,7 @@
           [:class "The Class the static field belongs to"]
           [:field "The symbol name of the static field"]
           ^:optional
-          [:assignable?? "`true` if the static field is set!able"]]}
+          [:assignable? "`true` if the static field is set!able"]]}
   {:op   :the-var
    :doc  "Node for a var special-form expression"
    :keys [[:form "`(var var-name)`"]
