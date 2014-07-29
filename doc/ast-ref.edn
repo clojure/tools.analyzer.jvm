@@ -239,7 +239,7 @@
           ^:children
           [:keys "A vector of AST nodes representing the keys of the map"]
           ^:children
-          [:keys "A vector of AST nodes representing the vals of the map"]]}
+          [:vals "A vector of AST nodes representing the vals of the map"]]}
   {:op   :method
    :doc  "Node for a method in a deftype* or reify* special-form expression"
    :keys [[:form "`(method [this arg*] body*)`"]
