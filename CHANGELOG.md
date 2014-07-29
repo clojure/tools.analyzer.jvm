@@ -2,6 +2,9 @@ Changelog
 ========================================
 Since tools.analyzer.jvm version are usually cut simultaneously with a tools.analyzer version, check also the tools.analyzer [CHANGELOG](https://github.com/clojure/tools.analyzer/blob/master/CHANGELOG.md) for changes on the corresponding version, since changes in that library will reflect on this one.
 - - -
+* Release 0.5.0 on 29 Jul 2014
+  * BREAKING CHANGE: changed :protocol-invoke and :keyword-invoke fields
+  * Made :host-interop :assignable?
 * Release 0.4.0 on 26 Jul 2014
   * BREAKING CHANGE: update to new :class field for :new and :catch nodes
   * Elide source info metadata on :reify, :fn
