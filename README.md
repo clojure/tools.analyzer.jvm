@@ -3,6 +3,7 @@
 Additional jvm-specific passes for tools.analyzer
 
 * [Example Usage](#example-usage)
+* [AST Quickref](#ast-quickref)
 * [Releases and Dependency Information](#releases-and-dependency-information)
 * [Changelog](#changelog)
 * [Developer Information](#developer-information)
@@ -87,6 +88,10 @@ user> (ana.jvm/analyze-ns 'clojure.string)
   ...}
 ..]
 ```
+
+[AST Quickref](http://clojure.github.io/tools.analyzer.jvm/quickref.html)
+========================================
+
 
 ## SPONSORSHIP
 
