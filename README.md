@@ -2,6 +2,12 @@
 
 Additional jvm-specific passes for tools.analyzer
 
+* [Example Usage](#example-usage)
+* [Releases and Dependency Information](#releases-and-dependency-information)
+* [Changelog](#changelog)
+* [Developer Information](#developer-information)
+* [License](#license)
+
 ## Example Usage
 
 Calling `analyze` on the form is all it takes to get its AST (the output has been pretty printed for clarity):
@@ -48,7 +54,7 @@ user> (-> '(let [a a] a)
 (let* [a__#0 a] a__#0)
 ```
 
-When using `tools.analyzer.jvm` for analyzing whole namespaces or whole files, you should use `analyze+eval` rather than `analyze`; as the name suggests, `analyze+eval` evals the form after its analysis and stores the resulting value in the `:result` field of the AST.
+There's also an `analyze+eval` function that, as the name suggests, evaluates the form after its analysis and stores the resulting value in the `:result` field of the AST, this function should be used when analyzing multiple forms, as the analysis of a clojure form might require the evaluation of a previous one to make sense.
 
 This would not work using `analyze` but works fine when using `analyze+eval`:
 ```clojure
@@ -71,25 +77,16 @@ user> (ana.jvm/analyze+eval '(x))
  :result    nil}
 ```
 
-### A note about environments
-
-Until version 0.1.0-beta13 it was required to provide an environment to analyze/analyze+eval and maintain/share said environment across analysis when using `tools.analyzer.jvm` to analyze whole namespaces.
-Since version 0.2.0 this is no longer required nor encouraged and an explicit environment should be provided only when strictly necessary (see the example above with the constructed locals for a good use-case)
-
-Version 0.2.0 introduced the notion of a global environment which now holds the namespaces info rather then the analysis environment.
-
-When analyzing whole namespaces/files, it is *strongly encouraged* to provide a global environment shared across analysis, by wrapping the analysis loop in a `ana/with-env`, here's a proof of concept:
+To analyze a whole namespace, use `analyze-ns` which behaves like `analyze+eval` and puts the ASTs for each analyzed form in a vector, in order.
 ```clojure
-user> (require '[clojure.tools.analyzer.env :as env])
-nil
-user> (env/with-env (ana.jvm/global-env)
-        (loop [forms []]
-          (let [form (read stream nil sentinel)]
-            (if (= sentinel form)
-              forms
-              (recur (conj forms (ana.jvm/analyze+eval form)))))))
+user> (ana.jvm/analyze-ns 'clojure.string)
+[{:op        :do,
+  :result    nil,
+  :top-level true,
+  :form      (do (clojure.core/in-ns (quote clojure.string)) ..),
+  ...}
+..]
 ```
-This is not required but it's encouraged for the sake of unifying behaviour between `tools.analyzer.jvm` and `tools.analyzer.js` and to potentially allow some passes to share info across analysis.
 
 ## SPONSORSHIP
 
