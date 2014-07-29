@@ -117,11 +117,11 @@
           [:max-fixed-arity "The number of arguments taken by the fixed-arity method taking the most arguments"]
           [:internal-name "The internal name symbol used for the fn"]
           [:class-id "A unique id representing this function"]
+          ^:optional ^:children
+          [:local "A :binding AST node with :local :fn representing the function's local name, if one is supplied"]
           ^:children
           [:methods "A vector :fn-method AST nodes representing the fn method arities"]
           [:once "`true` if the fn is marked as `^:once fn*`, meaning it will only be executed once and thus allowing for the clearing of closed-over locals"]
-          ^:optional
-          [:local "A :binding AST node with :local :fn representing the function's local name, if one is supplied"]
           [:closed-overs "A map of uniquified local name -> :binding AST node of the local, containing all the locals closed-over by this fn"]
           [:protocol-callsites "A map of protocol Vars that appear in the bodies of the fn methods"]
           [:keyword-callsites "A map of keywords that appear in keyword-invoke position in the bodies of the fn methods"]
@@ -131,12 +131,11 @@
    :keys [[:form "`([arg*] body*)`"]
           [:loop-id "Unique symbol identifying this method as a target for recursion"]
           [:variadic? "`true` if this fn-method takes a variable number of arguments"]
+          ^:children
           [:params "A vector of :binding AST nodes with :local :arg representing this fn-method args"]
           [:fixed-arity "The number of non-variadic args this fn-method takes"]
           ^:children
-          [:body "Synthetic :do node (with :body? `true`) representing the body of this fn-method"]
-          ^:optional ^:children
-          [:local "A :binding AST node with :local :fn representing the parent function's local name"]]}
+          [:body "Synthetic :do node (with :body? `true`) representing the body of this fn-method"]]}
   {:op   :host-interop
    :doc  "Node for a no-arg instance-call or for an instance-field that couldn't be resolved at compile time"
    :keys [[:form "`(. target m-or-f)`"]
@@ -214,16 +213,16 @@
   {:op   :local
    :doc  "Node for a local symbol"
    :keys [[:form "The local symbol"]
-          [:assignable? "`true` if the coresponding :binding AST node is :local :field and is declared either ^:volatile-mutable or ^:unsynchronized-mutable"
-           [:name "The uniquified local symbol"]
-           [:local "One of :arg, :catch, :fn, :let, :letfn, :loop, :field or :this"]
-           ^:optional
-           [:arg-id "When :local is :arg, the parameter index"]
-           ^:optional
-           [:variadic? "When :local is :arg, a boolean indicating whether this parameter binds to a variable number of arguments"]
-           [:atom "An atom shared by this :local node, the :binding node this local refers to and all the other :local nodes that refer to this same local"]
-           ^:optional
-           [:to-clear? "When :local is :let, :loop, :catch or :arg, a boolean indicating whether this local is eligible for locals clearing"]]]}
+          [:assignable? "`true` if the coresponding :binding AST node is :local :field and is declared either ^:volatile-mutable or ^:unsynchronized-mutable"]
+          [:name "The uniquified local symbol"]
+          [:local "One of :arg, :catch, :fn, :let, :letfn, :loop, :field or :this"]
+          ^:optional
+          [:arg-id "When :local is :arg, the parameter index"]
+          ^:optional
+          [:variadic? "When :local is :arg, a boolean indicating whether this parameter binds to a variable number of arguments"]
+          [:atom "An atom shared by this :local node, the :binding node this local refers to and all the other :local nodes that refer to this same local"]
+          ^:optional
+          [:to-clear? "When :local is :let, :loop, :catch or :arg, a boolean indicating whether this local is eligible for locals clearing"]]}
   {:op   :loop
    :doc  "Node a loop* special-form expression"
    :keys [[:form "`(loop* [binding*] body*)`"]
