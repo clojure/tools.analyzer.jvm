@@ -89,7 +89,7 @@ user> (ana.jvm/analyze-ns 'clojure.string)
 ..]
 ```
 
-[AST Quickref](http://clojure.github.io/tools.analyzer.jvm/quickref.html)
+[AST Quickref](http://clojure.github.io/tools.analyzer.jvm/doc/quickref.html)
 ========================================
 
 
