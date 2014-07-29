@@ -1,6 +1,10 @@
 {:all-keys
 
- [[:env "The environment map"]
+ [[:op "The node op"]
+  [:form "The clojure form from which the node originated"]
+  [:env "The environment map"]
+  ^:optional
+  [:children "A vector of keywords, representing the children nodes of this node, in order of evaluation"]
   ^:optional
   [:raw-forms "If this node's :form has been macroexpanded, a sequence of all the intermediate forms from the original form to the macroexpanded form"]
   ^:optional
@@ -115,7 +119,7 @@
           [:class-id "A unique id representing this function"]
           ^:children
           [:methods "A vector :fn-method AST nodes representing the fn method arities"]
-          [:once "`true` if the fn is marked as ^:once fn*, meaning it will only be executed once and thus allowing for the clearing of closed-over locals"]
+          [:once "`true` if the fn is marked as `^:once fn*`, meaning it will only be executed once and thus allowing for the clearing of closed-over locals"]
           ^:optional
           [:local "A :binding AST node with :local :fn representing the function's local name, if one is supplied"]
           [:closed-overs "A map of uniquified local name -> :binding AST node of the local, containing all the locals closed-over by this fn"]
@@ -354,10 +358,10 @@
   {:op   :var
    :doc  "Node for a var symbol"
    :keys [[:form "A symbol naming the var"]
-           [:var "The Var object this symbol refers to"]
-           ^:optional
-           [:assignable? "`true` if the Var is :dynamic"]
-           [:id "A numeric id for this var, will be the same for every instance of this var inside the same compilation unit"]]}
+          [:var "The Var object this symbol refers to"]
+          ^:optional
+          [:assignable? "`true` if the Var is :dynamic"]
+          [:id "A numeric id for this var, will be the same for every instance of this var inside the same compilation unit"]]}
   {:op   :vector
    :doc  "Node for a vector literal with attached metadata and/or non literal elements"
    :keys [[:form "`[item*]`"]
