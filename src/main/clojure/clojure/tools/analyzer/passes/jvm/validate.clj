@@ -8,6 +8,7 @@
 
 (ns clojure.tools.analyzer.passes.jvm.validate
   (:require [clojure.tools.analyzer.ast :refer [prewalk]]
+            [clojure.tools.analyzer.env :as env]
             [clojure.tools.analyzer.passes.cleanup :refer [cleanup]]
             [clojure.tools.analyzer.utils :refer [arglist-for-arity source-info resolve-var resolve-ns]]
             [clojure.tools.analyzer.jvm.utils :as u :refer [tag-match? try-best-match]])
@@ -221,10 +222,12 @@
   (let [tag (ast t)]
     (if-let [the-class (u/maybe-class tag)]
       {t the-class}
-      (throw (ex-info (str "Class not found: " tag)
-                      (merge {:class    tag
-                              :ast      (prewalk ast cleanup)}
-                             (source-info env)))))))
+      (if-let [handle (:validate/wrong-tag-handler (env/deref-env))]
+        (handle t ast)
+        (throw (ex-info (str "Class not found: " tag)
+                        (merge {:class    tag
+                                :ast      (prewalk ast cleanup)}
+                               (source-info env))))))))
 
 (defn validate
   "Validate tags, classes, method calls.
