@@ -5,7 +5,9 @@ java -cp .:`lein cp` clojure.main <<EOF
  (System/exit 0)
 EOF
 
+mv quickref.html q.html
 git checkout origin/gh-pages
+mv q.html quickref.html
 git add quickref.html
 git commit -m "update quickref"
 git push origin HEAD:gh-pages
