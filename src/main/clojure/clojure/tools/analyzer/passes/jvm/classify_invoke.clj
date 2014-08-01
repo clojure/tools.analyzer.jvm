@@ -44,8 +44,8 @@
            (merge ast
                   {:op       :keyword-invoke
                    :target   (first args)
-                   :keyword  (:val the-fn)
-                   :children [:target]})
+                   :keyword  the-fn
+                   :children [:keyword :target]})
            ast)
          (throw (ex-info (str "Cannot invoke keyword with " argc " arguments")
                          (merge {:form form}
