@@ -193,7 +193,8 @@
   {:op   :keyword-invoke
    :doc  "Node for an invoke expression where the fn is a not-namespaced keyword and thus a keyword callsite can be emitted"
    :keys [[:form "`(:k instance)`"]
-          [:keyword "The keyword to lookup in the instance"]
+          ^:children
+          [:keyword "An AST node representing the keyword to lookup in the instance"]
           ^:children
           [:target "An AST node representing the instance to lookup the keyword in"]]}
   {:op   :let
