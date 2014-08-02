@@ -157,7 +157,7 @@
           [:class "String representing the qualified class to import"]]}
   {:op   :instance-call
    :doc  "Node for an instance method call"
-   :keys [[:form "`(.method instance args*)`"]
+   :keys [[:form "`(.method instance arg*)`"]
           [:method "Symbol naming the invoked method"]
           ^:children
           [:instance "An AST node representing the instance to call the method on"]
