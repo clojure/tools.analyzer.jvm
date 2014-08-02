@@ -141,7 +141,8 @@
    :keys [[:form "`(. target m-or-f)`"]
           ^:children
           [:target "An AST node representing the target object"]
-          [:m-or-f "Symbol naming the no-arg method or field to lookup in the target"]]}
+          [:m-or-f "Symbol naming the no-arg method or field to lookup in the target"]
+          [:assignable? "true"]]}
   {:op   :if
    :doc  "Node for an if special-form expression"
    :keys [[:form "`(if test then else?)`"]
