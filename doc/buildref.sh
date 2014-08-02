@@ -5,6 +5,7 @@ java -cp .:`lein cp` clojure.main <<EOF
  (System/exit 0)
 EOF
 
+git pull
 mv quickref.html q.html
 git checkout origin/gh-pages
 mv q.html quickref.html
