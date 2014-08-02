@@ -215,7 +215,7 @@
   {:op   :local
    :doc  "Node for a local symbol"
    :keys [[:form "The local symbol"]
-          [:assignable? "`true` if the coresponding :binding AST node is :local :field and is declared either ^:volatile-mutable or ^:unsynchronized-mutable"]
+          [:assignable? "`true` if the corresponding :binding AST node is :local :field and is declared either ^:volatile-mutable or ^:unsynchronized-mutable"]
           [:name "The uniquified local symbol"]
           [:local "One of :arg, :catch, :fn, :let, :letfn, :loop, :field or :this"]
           ^:optional
