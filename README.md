@@ -1,6 +1,6 @@
 # tools.analyzer.jvm
 
-Additional jvm-specific passes for tools.analyzer
+An analyzer for Clojure code, written on top of [tools.analyzer](https://github.com/clojure/tools.analyzer), providing additional jvm-specific passes.
 
 * [Example Usage](#example-usage)
 * [AST Quickref](#ast-quickref)
