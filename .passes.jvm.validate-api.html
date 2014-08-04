@@ -1,7 +1,7 @@
 <html>
   <head>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-    <title>clojure.tools.analyzer.passes.jvm.annotate-class-id - JVM-specific passes for tools.analyzer 0.5.1 API documentation</title>
+    <title>.passes.jvm.validate - JVM-specific passes for tools.analyzer 0.5.1 API documentation</title>
     <link href="static/favicon.png" rel="icon" />
     <link href="static/favicon.png" rel="shortcut icon" />
     <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
@@ -33,7 +33,7 @@ namespace.
     <div class="NamespaceTOC">
       <span class="toc-header">Namespaces</span>
       <ul id="left-sidebar-list">
-        <li><a href="-api.html" class="wiki_link"></a></li><li><a href="clojure.tools.analyzer.passes.jvm.analyze-host-expr-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.analyze-host-expr</a></li><li><a href="clojure.tools.analyzer.passes.jvm.annotate-branch-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.annotate-branch</a></li><li><a href="clojure.tools.analyzer.passes.jvm.annotate-class-id-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.annotate-class-id</a></li><li><a href="clojure.tools.analyzer.passes.jvm.annotate-internal-name-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.annotate-internal-name</a></li><li><a href="clojure.tools.analyzer.passes.jvm.annotate-loops-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.annotate-loops</a></li><li><a href="clojure.tools.analyzer.passes.jvm.annotate-methods-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.annotate-methods</a></li><li><a href="clojure.tools.analyzer.passes.jvm.annotate-tag-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.annotate-tag</a></li><li><a href="clojure.tools.analyzer.passes.jvm.box-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.box</a></li><li><a href="clojure.tools.analyzer.passes.jvm.classify-invoke-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.classify-invoke</a></li><li><a href="clojure.tools.analyzer.passes.jvm.clear-locals-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.clear-locals</a></li><li><a href="clojure.tools.analyzer.passes.jvm.constant-lifter-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.constant-lifter</a></li><li><a href="clojure.tools.analyzer.passes.jvm.emit-form-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.emit-form</a></li><li><a href="clojure.tools.analyzer.passes.jvm.fix-case-test-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.fix-case-test</a></li><li><a href="clojure.tools.analyzer.passes.jvm.infer-tag-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.infer-tag</a></li><li><a href="clojure.tools.analyzer.passes.jvm.validate-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.validate</a></li><li><a href="clojure.tools.analyzer.passes.jvm.validate-loop-locals-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.validate-loop-locals</a></li><li><a href="clojure.tools.analyzer.passes.jvm.warn-on-reflection-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.warn-on-reflection</a></li>
+        <li><a href=".jvm-api.html" class="wiki_link">.jvm</a></li><li><a href=".passes.jvm.analyze-host-expr-api.html" class="wiki_link">.passes.jvm.analyze-host-expr</a></li><li><a href=".passes.jvm.annotate-branch-api.html" class="wiki_link">.passes.jvm.annotate-branch</a></li><li><a href=".passes.jvm.annotate-class-id-api.html" class="wiki_link">.passes.jvm.annotate-class-id</a></li><li><a href=".passes.jvm.annotate-internal-name-api.html" class="wiki_link">.passes.jvm.annotate-internal-name</a></li><li><a href=".passes.jvm.annotate-loops-api.html" class="wiki_link">.passes.jvm.annotate-loops</a></li><li><a href=".passes.jvm.annotate-methods-api.html" class="wiki_link">.passes.jvm.annotate-methods</a></li><li><a href=".passes.jvm.annotate-tag-api.html" class="wiki_link">.passes.jvm.annotate-tag</a></li><li><a href=".passes.jvm.box-api.html" class="wiki_link">.passes.jvm.box</a></li><li><a href=".passes.jvm.classify-invoke-api.html" class="wiki_link">.passes.jvm.classify-invoke</a></li><li><a href=".passes.jvm.clear-locals-api.html" class="wiki_link">.passes.jvm.clear-locals</a></li><li><a href=".passes.jvm.constant-lifter-api.html" class="wiki_link">.passes.jvm.constant-lifter</a></li><li><a href=".passes.jvm.emit-form-api.html" class="wiki_link">.passes.jvm.emit-form</a></li><li><a href=".passes.jvm.fix-case-test-api.html" class="wiki_link">.passes.jvm.fix-case-test</a></li><li><a href=".passes.jvm.infer-tag-api.html" class="wiki_link">.passes.jvm.infer-tag</a></li><li><a href=".passes.jvm.validate-api.html" class="wiki_link">.passes.jvm.validate</a></li><li><a href=".passes.jvm.validate-loop-locals-api.html" class="wiki_link">.passes.jvm.validate-loop-locals</a></li><li><a href=".passes.jvm.warn-on-reflection-api.html" class="wiki_link">.passes.jvm.warn-on-reflection</a></li>
       </ul>
     </div>
     
@@ -59,17 +59,17 @@ namespace.
   </div><div style="margin-left: 1em;" class="toc-section">
     <a href="#var-section" style="margin-top: 3px;">Vars and Functions</a>
     <div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.passes.jvm.annotate-class-id/annotate-class-id">annotate-class-id</a>
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.passes.jvm.validate/validate">validate</a>
       
     </div>
   </div>
 </div>
 </div>
-                <div id="content-tag"><h1 id="overview">API for <span id="clojure.tools.analyzer.passes.jvm.annotate-class-id">clojure.tools.analyzer.passes.jvm.annotate-class-id</span>
+                <div id="content-tag"><h1 id="overview">API for <span id=".passes.jvm.validate">.passes.jvm.validate</span>
   - <span id="header-project">JVM-specific passes for tools.analyzer</span> <span id="header-version">0.5.1</span><span id="header-status-block"> (<span id="header-status">in development</span>)</span>
   </h1>
 
-<br />Full namespace name: <span id="long-name">clojure.tools.analyzer.passes.jvm.annotate-class-id</span>
+<br />Full namespace name: <span id="long-name">clojure.tools.analyzer.passes.jvm.validate</span>
 <p></p>
 <h2>Overview</h2>
 
@@ -86,14 +86,16 @@ namespace.
   <div id="var-entry">
     <br />
     <hr />
-    <h2 id="clojure.tools.analyzer.passes.jvm.annotate-class-id/annotate-class-id">annotate-class-id</h2>
+    <h2 id="clojure.tools.analyzer.passes.jvm.validate/validate">validate</h2>
     <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (annotate-class-id ast)
+    <pre id="var-usage">Usage: (validate {:keys [tag form env], :as ast})
 </pre>
-    <pre id="var-docstr">Adds a unique class id to :reify/:fn nodes</pre>
+    <pre id="var-docstr">Validate tags, classes, method calls.
+Throws exceptions when invalid forms are encountered, replaces
+class symbols with class objects.</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/41e47a3af10fdc596a783628e1ef32b8171dfd29/src/main/clojure/clojure/tools/analyzer/passes/jvm/annotate_class_id.clj#L11" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/b8d76333c3d8201347b37d43b927452f3c88758f/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj#L229" id="var-source">Source</a>
   </div>
 </div>
 
