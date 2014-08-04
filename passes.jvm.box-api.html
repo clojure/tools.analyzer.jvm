@@ -1,7 +1,7 @@
 <html>
   <head>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-    <title>.passes.jvm.clear-locals - JVM-specific passes for tools.analyzer 0.5.1 API documentation</title>
+    <title>passes.jvm.box - JVM-specific passes for tools.analyzer 0.5.1 API documentation</title>
     <link href="static/favicon.png" rel="icon" />
     <link href="static/favicon.png" rel="shortcut icon" />
     <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
@@ -33,7 +33,7 @@ namespace.
     <div class="NamespaceTOC">
       <span class="toc-header">Namespaces</span>
       <ul id="left-sidebar-list">
-        <li><a href=".jvm-api.html" class="wiki_link">.jvm</a></li><li><a href=".passes.jvm.analyze-host-expr-api.html" class="wiki_link">.passes.jvm.analyze-host-expr</a></li><li><a href=".passes.jvm.annotate-branch-api.html" class="wiki_link">.passes.jvm.annotate-branch</a></li><li><a href=".passes.jvm.annotate-class-id-api.html" class="wiki_link">.passes.jvm.annotate-class-id</a></li><li><a href=".passes.jvm.annotate-internal-name-api.html" class="wiki_link">.passes.jvm.annotate-internal-name</a></li><li><a href=".passes.jvm.annotate-loops-api.html" class="wiki_link">.passes.jvm.annotate-loops</a></li><li><a href=".passes.jvm.annotate-methods-api.html" class="wiki_link">.passes.jvm.annotate-methods</a></li><li><a href=".passes.jvm.annotate-tag-api.html" class="wiki_link">.passes.jvm.annotate-tag</a></li><li><a href=".passes.jvm.box-api.html" class="wiki_link">.passes.jvm.box</a></li><li><a href=".passes.jvm.classify-invoke-api.html" class="wiki_link">.passes.jvm.classify-invoke</a></li><li><a href=".passes.jvm.clear-locals-api.html" class="wiki_link">.passes.jvm.clear-locals</a></li><li><a href=".passes.jvm.constant-lifter-api.html" class="wiki_link">.passes.jvm.constant-lifter</a></li><li><a href=".passes.jvm.emit-form-api.html" class="wiki_link">.passes.jvm.emit-form</a></li><li><a href=".passes.jvm.fix-case-test-api.html" class="wiki_link">.passes.jvm.fix-case-test</a></li><li><a href=".passes.jvm.infer-tag-api.html" class="wiki_link">.passes.jvm.infer-tag</a></li><li><a href=".passes.jvm.validate-api.html" class="wiki_link">.passes.jvm.validate</a></li><li><a href=".passes.jvm.validate-loop-locals-api.html" class="wiki_link">.passes.jvm.validate-loop-locals</a></li><li><a href=".passes.jvm.warn-on-reflection-api.html" class="wiki_link">.passes.jvm.warn-on-reflection</a></li>
+        <li><a href="jvm-api.html" class="wiki_link">jvm</a></li><li><a href="passes.jvm.analyze-host-expr-api.html" class="wiki_link">passes.jvm.analyze-host-expr</a></li><li><a href="passes.jvm.annotate-branch-api.html" class="wiki_link">passes.jvm.annotate-branch</a></li><li><a href="passes.jvm.annotate-class-id-api.html" class="wiki_link">passes.jvm.annotate-class-id</a></li><li><a href="passes.jvm.annotate-internal-name-api.html" class="wiki_link">passes.jvm.annotate-internal-name</a></li><li><a href="passes.jvm.annotate-loops-api.html" class="wiki_link">passes.jvm.annotate-loops</a></li><li><a href="passes.jvm.annotate-methods-api.html" class="wiki_link">passes.jvm.annotate-methods</a></li><li><a href="passes.jvm.annotate-tag-api.html" class="wiki_link">passes.jvm.annotate-tag</a></li><li><a href="passes.jvm.box-api.html" class="wiki_link">passes.jvm.box</a></li><li><a href="passes.jvm.classify-invoke-api.html" class="wiki_link">passes.jvm.classify-invoke</a></li><li><a href="passes.jvm.clear-locals-api.html" class="wiki_link">passes.jvm.clear-locals</a></li><li><a href="passes.jvm.constant-lifter-api.html" class="wiki_link">passes.jvm.constant-lifter</a></li><li><a href="passes.jvm.emit-form-api.html" class="wiki_link">passes.jvm.emit-form</a></li><li><a href="passes.jvm.fix-case-test-api.html" class="wiki_link">passes.jvm.fix-case-test</a></li><li><a href="passes.jvm.infer-tag-api.html" class="wiki_link">passes.jvm.infer-tag</a></li><li><a href="passes.jvm.validate-api.html" class="wiki_link">passes.jvm.validate</a></li><li><a href="passes.jvm.validate-loop-locals-api.html" class="wiki_link">passes.jvm.validate-loop-locals</a></li><li><a href="passes.jvm.warn-on-reflection-api.html" class="wiki_link">passes.jvm.warn-on-reflection</a></li>
       </ul>
     </div>
     
@@ -57,16 +57,19 @@ namespace.
     <a href="#" style="margin-top: 3px;"></a>
     
   </div><div style="margin-left: 1em;" class="toc-section">
-    <a href="#" style="margin-top: 3px;"></a>
-    
+    <a href="#var-section" style="margin-top: 3px;">Vars and Functions</a>
+    <div style="margin-left: 1em;" class="toc-entry">
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.passes.jvm.box/box">box</a>
+      
+    </div>
   </div>
 </div>
 </div>
-                <div id="content-tag"><h1 id="overview">API for <span id=".passes.jvm.clear-locals">.passes.jvm.clear-locals</span>
+                <div id="content-tag"><h1 id="overview">API for <span id="passes.jvm.box">passes.jvm.box</span>
   - <span id="header-project">JVM-specific passes for tools.analyzer</span> <span id="header-version">0.5.1</span><span id="header-status-block"> (<span id="header-status">in development</span>)</span>
   </h1>
 
-<br />Full namespace name: <span id="long-name">clojure.tools.analyzer.passes.jvm.clear-locals</span>
+<br />Full namespace name: <span id="long-name">clojure.tools.analyzer.passes.jvm.box</span>
 <p></p>
 <h2>Overview</h2>
 
@@ -77,7 +80,21 @@ namespace.
 
 
 
-
+<div id="var-section">
+  <p></p>
+  <h2>Public Variables and Functions</h2>
+  <div id="var-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.passes.jvm.box/box">box</h2>
+    <span id="var-type">multimethod</span><br />
+    <pre id="var-usage">No usage documentation available</pre>
+    <pre id="var-docstr">Box the AST node tag where necessary</pre>
+    
+    
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/37e2a96fff7675606e3b318de3bfefaccd86c64f/src/main/clojure/clojure/tools/analyzer/passes/jvm/box.clj#L13" id="var-source">Source</a>
+  </div>
+</div>
 
 
 </div>

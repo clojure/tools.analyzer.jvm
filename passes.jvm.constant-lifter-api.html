@@ -1,7 +1,7 @@
 <html>
   <head>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-    <title>.passes.jvm.analyze-host-expr - JVM-specific passes for tools.analyzer 0.5.1 API documentation</title>
+    <title>passes.jvm.constant-lifter - JVM-specific passes for tools.analyzer 0.5.1 API documentation</title>
     <link href="static/favicon.png" rel="icon" />
     <link href="static/favicon.png" rel="shortcut icon" />
     <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
@@ -33,7 +33,7 @@ namespace.
     <div class="NamespaceTOC">
       <span class="toc-header">Namespaces</span>
       <ul id="left-sidebar-list">
-        <li><a href=".jvm-api.html" class="wiki_link">.jvm</a></li><li><a href=".passes.jvm.analyze-host-expr-api.html" class="wiki_link">.passes.jvm.analyze-host-expr</a></li><li><a href=".passes.jvm.annotate-branch-api.html" class="wiki_link">.passes.jvm.annotate-branch</a></li><li><a href=".passes.jvm.annotate-class-id-api.html" class="wiki_link">.passes.jvm.annotate-class-id</a></li><li><a href=".passes.jvm.annotate-internal-name-api.html" class="wiki_link">.passes.jvm.annotate-internal-name</a></li><li><a href=".passes.jvm.annotate-loops-api.html" class="wiki_link">.passes.jvm.annotate-loops</a></li><li><a href=".passes.jvm.annotate-methods-api.html" class="wiki_link">.passes.jvm.annotate-methods</a></li><li><a href=".passes.jvm.annotate-tag-api.html" class="wiki_link">.passes.jvm.annotate-tag</a></li><li><a href=".passes.jvm.box-api.html" class="wiki_link">.passes.jvm.box</a></li><li><a href=".passes.jvm.classify-invoke-api.html" class="wiki_link">.passes.jvm.classify-invoke</a></li><li><a href=".passes.jvm.clear-locals-api.html" class="wiki_link">.passes.jvm.clear-locals</a></li><li><a href=".passes.jvm.constant-lifter-api.html" class="wiki_link">.passes.jvm.constant-lifter</a></li><li><a href=".passes.jvm.emit-form-api.html" class="wiki_link">.passes.jvm.emit-form</a></li><li><a href=".passes.jvm.fix-case-test-api.html" class="wiki_link">.passes.jvm.fix-case-test</a></li><li><a href=".passes.jvm.infer-tag-api.html" class="wiki_link">.passes.jvm.infer-tag</a></li><li><a href=".passes.jvm.validate-api.html" class="wiki_link">.passes.jvm.validate</a></li><li><a href=".passes.jvm.validate-loop-locals-api.html" class="wiki_link">.passes.jvm.validate-loop-locals</a></li><li><a href=".passes.jvm.warn-on-reflection-api.html" class="wiki_link">.passes.jvm.warn-on-reflection</a></li>
+        <li><a href="jvm-api.html" class="wiki_link">jvm</a></li><li><a href="passes.jvm.analyze-host-expr-api.html" class="wiki_link">passes.jvm.analyze-host-expr</a></li><li><a href="passes.jvm.annotate-branch-api.html" class="wiki_link">passes.jvm.annotate-branch</a></li><li><a href="passes.jvm.annotate-class-id-api.html" class="wiki_link">passes.jvm.annotate-class-id</a></li><li><a href="passes.jvm.annotate-internal-name-api.html" class="wiki_link">passes.jvm.annotate-internal-name</a></li><li><a href="passes.jvm.annotate-loops-api.html" class="wiki_link">passes.jvm.annotate-loops</a></li><li><a href="passes.jvm.annotate-methods-api.html" class="wiki_link">passes.jvm.annotate-methods</a></li><li><a href="passes.jvm.annotate-tag-api.html" class="wiki_link">passes.jvm.annotate-tag</a></li><li><a href="passes.jvm.box-api.html" class="wiki_link">passes.jvm.box</a></li><li><a href="passes.jvm.classify-invoke-api.html" class="wiki_link">passes.jvm.classify-invoke</a></li><li><a href="passes.jvm.clear-locals-api.html" class="wiki_link">passes.jvm.clear-locals</a></li><li><a href="passes.jvm.constant-lifter-api.html" class="wiki_link">passes.jvm.constant-lifter</a></li><li><a href="passes.jvm.emit-form-api.html" class="wiki_link">passes.jvm.emit-form</a></li><li><a href="passes.jvm.fix-case-test-api.html" class="wiki_link">passes.jvm.fix-case-test</a></li><li><a href="passes.jvm.infer-tag-api.html" class="wiki_link">passes.jvm.infer-tag</a></li><li><a href="passes.jvm.validate-api.html" class="wiki_link">passes.jvm.validate</a></li><li><a href="passes.jvm.validate-loop-locals-api.html" class="wiki_link">passes.jvm.validate-loop-locals</a></li><li><a href="passes.jvm.warn-on-reflection-api.html" class="wiki_link">passes.jvm.warn-on-reflection</a></li>
       </ul>
     </div>
     
@@ -59,17 +59,17 @@ namespace.
   </div><div style="margin-left: 1em;" class="toc-section">
     <a href="#var-section" style="margin-top: 3px;">Vars and Functions</a>
     <div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.passes.jvm.analyze-host-expr/analyze-host-expr">analyze-host-expr</a>
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.passes.jvm.constant-lifter/constant-lift">constant-lift</a>
       
     </div>
   </div>
 </div>
 </div>
-                <div id="content-tag"><h1 id="overview">API for <span id=".passes.jvm.analyze-host-expr">.passes.jvm.analyze-host-expr</span>
+                <div id="content-tag"><h1 id="overview">API for <span id="passes.jvm.constant-lifter">passes.jvm.constant-lifter</span>
   - <span id="header-project">JVM-specific passes for tools.analyzer</span> <span id="header-version">0.5.1</span><span id="header-status-block"> (<span id="header-status">in development</span>)</span>
   </h1>
 
-<br />Full namespace name: <span id="long-name">clojure.tools.analyzer.passes.jvm.analyze-host-expr</span>
+<br />Full namespace name: <span id="long-name">clojure.tools.analyzer.passes.jvm.constant-lifter</span>
 <p></p>
 <h2>Overview</h2>
 
@@ -86,18 +86,16 @@ namespace.
   <div id="var-entry">
     <br />
     <hr />
-    <h2 id="clojure.tools.analyzer.passes.jvm.analyze-host-expr/analyze-host-expr">analyze-host-expr</h2>
+    <h2 id="clojure.tools.analyzer.passes.jvm.constant-lifter/constant-lift">constant-lift</h2>
     <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (analyze-host-expr {:keys [op target form tag env class], :as ast})
+    <pre id="var-usage">Usage: (constant-lift ast)
 </pre>
-    <pre id="var-docstr">Performing some reflection, transforms :host-interop/:host-call/:host-field
-nodes in either: :static-field, :static-call, :instance-call, :instance-field
-or :host-interop nodes.
-
-A :host-interop node represents either an instance-field or a no-arg instance-method.</pre>
+    <pre id="var-docstr">Like clojure.tools.analyzer.passes.constant-lifter/constant-lift but
+transforms also :var nodes where the var has :const in the metadata
+into :const nodes and preserves tag info</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/b8d76333c3d8201347b37d43b927452f3c88758f/src/main/clojure/clojure/tools/analyzer/passes/jvm/analyze_host_expr.clj#L142" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/7a6741093dd41c75a4b0905c7a55c149774ab4ba/src/main/clojure/clojure/tools/analyzer/passes/jvm/constant_lifter.clj#L17" id="var-source">Source</a>
   </div>
 </div>
 
