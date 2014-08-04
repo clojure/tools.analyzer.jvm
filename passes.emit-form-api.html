@@ -1,7 +1,7 @@
 <html>
   <head>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-    <title>passes.jvm.annotate-tag - JVM-specific passes for tools.analyzer 0.5.1 API documentation</title>
+    <title>passes.emit-form - JVM-specific passes for tools.analyzer 0.5.1 API documentation</title>
     <link href="static/favicon.png" rel="icon" />
     <link href="static/favicon.png" rel="shortcut icon" />
     <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
@@ -59,17 +59,23 @@ namespace.
   </div><div style="margin-left: 1em;" class="toc-section">
     <a href="#var-section" style="margin-top: 3px;">Vars and Functions</a>
     <div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.passes.jvm.annotate-tag/annotate-tag">annotate-tag</a>
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.passes.emit-form/-emit-form*">-emit-form*</a>
+      
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.passes.emit-form/emit-form">emit-form</a>
+      
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.passes.emit-form/emit-hygienic-form">emit-hygienic-form</a>
       
     </div>
   </div>
 </div>
 </div>
-                <div id="content-tag"><h1 id="overview">API for <span id="passes.jvm.annotate-tag">passes.jvm.annotate-tag</span>
+                <div id="content-tag"><h1 id="overview">API for <span id="passes.emit-form">passes.emit-form</span>
   - <span id="header-project">JVM-specific passes for tools.analyzer</span> <span id="header-version">0.5.1</span><span id="header-status-block"> (<span id="header-status">in development</span>)</span>
   </h1>
 
-<br />Full namespace name: <span id="long-name">clojure.tools.analyzer.passes.jvm.annotate-tag</span>
+<br />Full namespace name: <span id="long-name">clojure.tools.analyzer.passes.emit-form</span>
 <p></p>
 <h2>Overview</h2>
 
@@ -86,15 +92,40 @@ namespace.
   <div id="var-entry">
     <br />
     <hr />
-    <h2 id="clojure.tools.analyzer.passes.jvm.annotate-tag/annotate-tag">annotate-tag</h2>
-    <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (annotate-tag {:keys [op tag o-tag atom], :as ast})
+    <h2 id="clojure.tools.analyzer.passes.emit-form/-emit-form*">-emit-form*</h2>
+    <span id="var-type">dynamic function</span><br />
+    <pre id="var-usage">Usage: (-emit-form* {:keys [form], :as ast} opts)
 </pre>
-    <pre id="var-docstr">If the AST node type is a constant object or contains :tag metadata,
-attach the appropriate :tag and :o-tag to the node.</pre>
+    <pre id="var-docstr">Extension point for custom emit-form implementations, should be rebound
+to a multimethod with custom emit-form :opts.</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/a0e8eabd70a474787982f2179d4a6e484a4f5ac9/src/main/clojure/clojure/tools/analyzer/passes/jvm/annotate_tag.clj#L81" id="var-source">Source</a>
+    
+  </div><div id="var-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.passes.emit-form/emit-form">emit-form</h2>
+    <span id="var-type">function</span><br />
+    <pre id="var-usage">Usage: (emit-form ast)
+       (emit-form ast opts)
+</pre>
+    <pre id="var-docstr">Return the form represented by the given AST.
+Opts is a set of options, valid options are:
+ * :hygienic</pre>
+    
+    
+    
+  </div><div id="var-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.passes.emit-form/emit-hygienic-form">emit-hygienic-form</h2>
+    <span id="var-type">function</span><br />
+    <pre id="var-usage">Usage: (emit-hygienic-form ast)
+</pre>
+    <pre id="var-docstr">Return an hygienic form represented by the given AST</pre>
+    
+    
+    
   </div>
 </div>
 

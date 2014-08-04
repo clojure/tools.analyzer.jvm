@@ -33,7 +33,7 @@ namespace.
     <div class="NamespaceTOC">
       <span class="toc-header">Namespaces</span>
       <ul id="left-sidebar-list">
-        <li><a href="jvm-api.html" class="wiki_link">jvm</a></li><li><a href="passes.jvm.analyze-host-expr-api.html" class="wiki_link">passes.jvm.analyze-host-expr</a></li><li><a href="passes.jvm.annotate-branch-api.html" class="wiki_link">passes.jvm.annotate-branch</a></li><li><a href="passes.jvm.annotate-class-id-api.html" class="wiki_link">passes.jvm.annotate-class-id</a></li><li><a href="passes.jvm.annotate-internal-name-api.html" class="wiki_link">passes.jvm.annotate-internal-name</a></li><li><a href="passes.jvm.annotate-loops-api.html" class="wiki_link">passes.jvm.annotate-loops</a></li><li><a href="passes.jvm.annotate-methods-api.html" class="wiki_link">passes.jvm.annotate-methods</a></li><li><a href="passes.jvm.annotate-tag-api.html" class="wiki_link">passes.jvm.annotate-tag</a></li><li><a href="passes.jvm.box-api.html" class="wiki_link">passes.jvm.box</a></li><li><a href="passes.jvm.classify-invoke-api.html" class="wiki_link">passes.jvm.classify-invoke</a></li><li><a href="passes.jvm.clear-locals-api.html" class="wiki_link">passes.jvm.clear-locals</a></li><li><a href="passes.jvm.constant-lifter-api.html" class="wiki_link">passes.jvm.constant-lifter</a></li><li><a href="passes.jvm.emit-form-api.html" class="wiki_link">passes.jvm.emit-form</a></li><li><a href="passes.jvm.fix-case-test-api.html" class="wiki_link">passes.jvm.fix-case-test</a></li><li><a href="passes.jvm.infer-tag-api.html" class="wiki_link">passes.jvm.infer-tag</a></li><li><a href="passes.jvm.validate-api.html" class="wiki_link">passes.jvm.validate</a></li><li><a href="passes.jvm.validate-loop-locals-api.html" class="wiki_link">passes.jvm.validate-loop-locals</a></li><li><a href="passes.jvm.warn-on-reflection-api.html" class="wiki_link">passes.jvm.warn-on-reflection</a></li>
+        <li><a href="jvm-api.html" class="wiki_link">jvm</a></li><li><a href="passes.add-binding-atom-api.html" class="wiki_link">passes.add-binding-atom</a></li><li><a href="passes.cleanup-api.html" class="wiki_link">passes.cleanup</a></li><li><a href="passes.collect-api.html" class="wiki_link">passes.collect</a></li><li><a href="passes.constant-lifter-api.html" class="wiki_link">passes.constant-lifter</a></li><li><a href="passes.elide-meta-api.html" class="wiki_link">passes.elide-meta</a></li><li><a href="passes.emit-form-api.html" class="wiki_link">passes.emit-form</a></li><li><a href="passes.jvm.analyze-host-expr-api.html" class="wiki_link">passes.jvm.analyze-host-expr</a></li><li><a href="passes.jvm.annotate-branch-api.html" class="wiki_link">passes.jvm.annotate-branch</a></li><li><a href="passes.jvm.annotate-class-id-api.html" class="wiki_link">passes.jvm.annotate-class-id</a></li><li><a href="passes.jvm.annotate-internal-name-api.html" class="wiki_link">passes.jvm.annotate-internal-name</a></li><li><a href="passes.jvm.annotate-loops-api.html" class="wiki_link">passes.jvm.annotate-loops</a></li><li><a href="passes.jvm.annotate-methods-api.html" class="wiki_link">passes.jvm.annotate-methods</a></li><li><a href="passes.jvm.annotate-tag-api.html" class="wiki_link">passes.jvm.annotate-tag</a></li><li><a href="passes.jvm.box-api.html" class="wiki_link">passes.jvm.box</a></li><li><a href="passes.jvm.classify-invoke-api.html" class="wiki_link">passes.jvm.classify-invoke</a></li><li><a href="passes.jvm.clear-locals-api.html" class="wiki_link">passes.jvm.clear-locals</a></li><li><a href="passes.jvm.constant-lifter-api.html" class="wiki_link">passes.jvm.constant-lifter</a></li><li><a href="passes.jvm.emit-form-api.html" class="wiki_link">passes.jvm.emit-form</a></li><li><a href="passes.jvm.fix-case-test-api.html" class="wiki_link">passes.jvm.fix-case-test</a></li><li><a href="passes.jvm.infer-tag-api.html" class="wiki_link">passes.jvm.infer-tag</a></li><li><a href="passes.jvm.validate-api.html" class="wiki_link">passes.jvm.validate</a></li><li><a href="passes.jvm.validate-loop-locals-api.html" class="wiki_link">passes.jvm.validate-loop-locals</a></li><li><a href="passes.jvm.warn-on-reflection-api.html" class="wiki_link">passes.jvm.warn-on-reflection</a></li><li><a href="passes.source-info-api.html" class="wiki_link">passes.source-info</a></li><li><a href="passes.uniquify-api.html" class="wiki_link">passes.uniquify</a></li><li><a href="passes.warn-earmuff-api.html" class="wiki_link">passes.warn-earmuff</a></li>
       </ul>
     </div>
     
@@ -49,6 +49,24 @@ namespace.
   <h1 class="nopad">Table of Contents</h1>
   <div style="margin-left: 1em;" class="toc-section">
     <a href="#jvm" style="margin-top: 3px;">jvm</a>
+    
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#passes.add-binding-atom" style="margin-top: 3px;">passes.add-binding-atom</a>
+    
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#passes.cleanup" style="margin-top: 3px;">passes.cleanup</a>
+    
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#passes.collect" style="margin-top: 3px;">passes.collect</a>
+    
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#passes.constant-lifter" style="margin-top: 3px;">passes.constant-lifter</a>
+    
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#passes.elide-meta" style="margin-top: 3px;">passes.elide-meta</a>
+    
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#passes.emit-form" style="margin-top: 3px;">passes.emit-form</a>
     
   </div><div style="margin-left: 1em;" class="toc-section">
     <a href="#passes.jvm.analyze-host-expr" style="margin-top: 3px;">passes.jvm.analyze-host-expr</a>
@@ -101,6 +119,15 @@ namespace.
   </div><div style="margin-left: 1em;" class="toc-section">
     <a href="#passes.jvm.warn-on-reflection" style="margin-top: 3px;">passes.jvm.warn-on-reflection</a>
     
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#passes.source-info" style="margin-top: 3px;">passes.source-info</a>
+    
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#passes.uniquify" style="margin-top: 3px;">passes.uniquify</a>
+    
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#passes.warn-earmuff" style="margin-top: 3px;">passes.warn-earmuff</a>
+    
   </div>
 </div>
 </div>
@@ -152,6 +179,84 @@ namespace.
     </span>
     <br />
   </span>
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="passes.add-binding-atom">passes.add-binding-atom</h2>
+  
+  <a href="passes.add-binding-atom-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="passes.add-binding-atom-api.html#clojure.tools.analyzer.passes.add-binding-atom/add-binding-atom" id="var-tag">add-binding-atom</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="passes.cleanup">passes.cleanup</h2>
+  
+  <a href="passes.cleanup-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="passes.collect">passes.collect</h2>
+  
+  <a href="passes.collect-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="passes.collect-api.html#clojure.tools.analyzer.passes.collect/collect" id="var-tag">collect</a> </span><span id="var-link"><a href="passes.collect-api.html#clojure.tools.analyzer.passes.collect/collect-closed-overs" id="var-tag">collect-closed-overs</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="passes.constant-lifter">passes.constant-lifter</h2>
+  
+  <a href="passes.constant-lifter-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="passes.constant-lifter-api.html#clojure.tools.analyzer.passes.constant-lifter/constant-lift" id="var-tag">constant-lift</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="passes.elide-meta">passes.elide-meta</h2>
+  
+  <a href="passes.elide-meta-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="passes.elide-meta-api.html#clojure.tools.analyzer.passes.elide-meta/elide-meta" id="var-tag">elide-meta</a> </span><span id="var-link"><a href="passes.elide-meta-api.html#clojure.tools.analyzer.passes.elide-meta/elides" id="var-tag">elides</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="passes.emit-form">passes.emit-form</h2>
+  
+  <a href="passes.emit-form-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="passes.emit-form-api.html#clojure.tools.analyzer.passes.emit-form/-emit-form*" id="var-tag">-emit-form*</a> </span><span id="var-link"><a href="passes.emit-form-api.html#clojure.tools.analyzer.passes.emit-form/emit-form" id="var-tag">emit-form</a> </span><span id="var-link"><a href="passes.emit-form-api.html#clojure.tools.analyzer.passes.emit-form/emit-hygienic-form" id="var-tag">emit-hygienic-form</a> </span><br />
+  
 </div><div id="namespace-entry">
   <br />
   <hr />
@@ -372,6 +477,45 @@ namespace.
   
   Contents:
   <br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="passes.source-info">passes.source-info</h2>
+  
+  <a href="passes.source-info-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="passes.source-info-api.html#clojure.tools.analyzer.passes.source-info/source-info" id="var-tag">source-info</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="passes.uniquify">passes.uniquify</h2>
+  
+  <a href="passes.uniquify-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="passes.uniquify-api.html#clojure.tools.analyzer.passes.uniquify/uniquify-locals" id="var-tag">uniquify-locals</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="passes.warn-earmuff">passes.warn-earmuff</h2>
+  
+  <a href="passes.warn-earmuff-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="passes.warn-earmuff-api.html#clojure.tools.analyzer.passes.warn-earmuff/warn-earmuff" id="var-tag">warn-earmuff</a> </span><br />
   
 </div>
 </div>
