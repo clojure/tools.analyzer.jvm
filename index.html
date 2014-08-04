@@ -1,7 +1,7 @@
 <html>
   <head>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-    <title>clojure.tools.analyzer.jvm - JVM-specific passes for tools.analyzer 0.5.1 API documentation</title>
+    <title>Overview - JVM-specific passes for tools.analyzer 0.5.1 API documentation</title>
     <link href="static/favicon.png" rel="icon" />
     <link href="static/favicon.png" rel="shortcut icon" />
     <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
@@ -30,7 +30,12 @@ namespace.
       <li><a class="wiki_link" href="index.html">Overview</a></li>
       <li><a class="wiki_link" href="api-index.html">API Index</a></li>
     </ul>
-    
+    <div class="NamespaceTOC">
+      <span class="toc-header">Namespaces</span>
+      <ul id="left-sidebar-list">
+        <li><a href="clojure.tools.analyzer.jvm-api.html" class="wiki_link">clojure.tools.analyzer.jvm</a></li><li><a href="clojure.tools.analyzer.passes.jvm.analyze-host-expr-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.analyze-host-expr</a></li><li><a href="clojure.tools.analyzer.passes.jvm.annotate-branch-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.annotate-branch</a></li><li><a href="clojure.tools.analyzer.passes.jvm.annotate-class-id-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.annotate-class-id</a></li><li><a href="clojure.tools.analyzer.passes.jvm.annotate-internal-name-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.annotate-internal-name</a></li><li><a href="clojure.tools.analyzer.passes.jvm.annotate-loops-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.annotate-loops</a></li><li><a href="clojure.tools.analyzer.passes.jvm.annotate-methods-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.annotate-methods</a></li><li><a href="clojure.tools.analyzer.passes.jvm.annotate-tag-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.annotate-tag</a></li><li><a href="clojure.tools.analyzer.passes.jvm.box-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.box</a></li><li><a href="clojure.tools.analyzer.passes.jvm.classify-invoke-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.classify-invoke</a></li><li><a href="clojure.tools.analyzer.passes.jvm.clear-locals-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.clear-locals</a></li><li><a href="clojure.tools.analyzer.passes.jvm.constant-lifter-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.constant-lifter</a></li><li><a href="clojure.tools.analyzer.passes.jvm.emit-form-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.emit-form</a></li><li><a href="clojure.tools.analyzer.passes.jvm.fix-case-test-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.fix-case-test</a></li><li><a href="clojure.tools.analyzer.passes.jvm.infer-tag-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.infer-tag</a></li><li><a href="clojure.tools.analyzer.passes.jvm.validate-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.validate</a></li><li><a href="clojure.tools.analyzer.passes.jvm.validate-loop-locals-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.validate-loop-locals</a></li><li><a href="clojure.tools.analyzer.passes.jvm.warn-on-reflection-api.html" class="wiki_link">clojure.tools.analyzer.passes.jvm.warn-on-reflection</a></li>
+      </ul>
+    </div>
     
     <a href="http://clojure.org" class="wiki_link">Clojure Home</a>
   </div>
@@ -43,494 +48,332 @@ namespace.
                 <div id="right-sidebar"><div id="toc">
   <h1 class="nopad">Table of Contents</h1>
   <div style="margin-left: 1em;" class="toc-section">
-    <a href="#toc0" style="margin-top: 3px;">Overview</a>
+    <a href="#clojure.tools.analyzer.jvm" style="margin-top: 3px;">clojure.tools.analyzer.jvm</a>
     
   </div><div style="margin-left: 1em;" class="toc-section">
-    <a href="#" style="margin-top: 3px;"></a>
+    <a href="#clojure.tools.analyzer.passes.jvm.analyze-host-expr" style="margin-top: 3px;">clojure.tools.analyzer.passes.jvm.analyze-host-expr</a>
     
   </div><div style="margin-left: 1em;" class="toc-section">
-    <a href="#type-section" style="margin-top: 3px;">Types</a>
-    <div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm/ExceptionThrown">ExceptionThrown</a>
-      
-    </div>
+    <a href="#clojure.tools.analyzer.passes.jvm.annotate-branch" style="margin-top: 3px;">clojure.tools.analyzer.passes.jvm.annotate-branch</a>
+    
   </div><div style="margin-left: 1em;" class="toc-section">
-    <a href="#var-section" style="margin-top: 3px;">Vars and Functions</a>
-    <div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm/-&gt;ExceptionThrown">-&gt;ExceptionThrown</a>
-      
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm/analyze">analyze</a>
-      
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm/analyze'">analyze'</a>
-      
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm/analyze+eval">analyze+eval</a>
-      
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm/analyze+eval'">analyze+eval'</a>
-      
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm/analyze-ns">analyze-ns</a>
-      
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm/butlast+last">butlast+last</a>
-      
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm/create-var">create-var</a>
-      
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm/empty-env">empty-env</a>
-      
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm/macroexpand-1">macroexpand-1</a>
-      
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm/parse">parse</a>
-      
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm/run-passes">run-passes</a>
-      
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm/specials">specials</a>
-      
-    </div>
+    <a href="#clojure.tools.analyzer.passes.jvm.annotate-class-id" style="margin-top: 3px;">clojure.tools.analyzer.passes.jvm.annotate-class-id</a>
+    
   </div><div style="margin-left: 1em;" class="toc-section">
-    <a href="#clojure.tools.analyzer.jvm.utils" style="margin-top: 3px;">clojure.tools.analyzer.jvm.utils</a>
-    <div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/box">box</a>
-      
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/convertible?">convertible?</a>
-      
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/maybe-class">maybe-class</a>
-      
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/numeric?">numeric?</a>
-      
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/prim-or-obj">prim-or-obj</a>
-      
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/primitive?">primitive?</a>
-      
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/subsumes?">subsumes?</a>
-      
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/try-best-match">try-best-match</a>
-      
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/unbox">unbox</a>
-      
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/wider-primitive">wider-primitive</a>
-      
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/wider-tag">wider-tag</a>
-      
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/wider-tag*">wider-tag*</a>
-      
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.jvm.utils/wider-than">wider-than</a>
-      
-    </div>
+    <a href="#clojure.tools.analyzer.passes.jvm.annotate-internal-name" style="margin-top: 3px;">clojure.tools.analyzer.passes.jvm.annotate-internal-name</a>
+    
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#clojure.tools.analyzer.passes.jvm.annotate-loops" style="margin-top: 3px;">clojure.tools.analyzer.passes.jvm.annotate-loops</a>
+    
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#clojure.tools.analyzer.passes.jvm.annotate-methods" style="margin-top: 3px;">clojure.tools.analyzer.passes.jvm.annotate-methods</a>
+    
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#clojure.tools.analyzer.passes.jvm.annotate-tag" style="margin-top: 3px;">clojure.tools.analyzer.passes.jvm.annotate-tag</a>
+    
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#clojure.tools.analyzer.passes.jvm.box" style="margin-top: 3px;">clojure.tools.analyzer.passes.jvm.box</a>
+    
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#clojure.tools.analyzer.passes.jvm.classify-invoke" style="margin-top: 3px;">clojure.tools.analyzer.passes.jvm.classify-invoke</a>
+    
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#clojure.tools.analyzer.passes.jvm.clear-locals" style="margin-top: 3px;">clojure.tools.analyzer.passes.jvm.clear-locals</a>
+    
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#clojure.tools.analyzer.passes.jvm.constant-lifter" style="margin-top: 3px;">clojure.tools.analyzer.passes.jvm.constant-lifter</a>
+    
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#clojure.tools.analyzer.passes.jvm.emit-form" style="margin-top: 3px;">clojure.tools.analyzer.passes.jvm.emit-form</a>
+    
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#clojure.tools.analyzer.passes.jvm.fix-case-test" style="margin-top: 3px;">clojure.tools.analyzer.passes.jvm.fix-case-test</a>
+    
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#clojure.tools.analyzer.passes.jvm.infer-tag" style="margin-top: 3px;">clojure.tools.analyzer.passes.jvm.infer-tag</a>
+    
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#clojure.tools.analyzer.passes.jvm.validate" style="margin-top: 3px;">clojure.tools.analyzer.passes.jvm.validate</a>
+    
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#clojure.tools.analyzer.passes.jvm.validate-loop-locals" style="margin-top: 3px;">clojure.tools.analyzer.passes.jvm.validate-loop-locals</a>
+    
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#clojure.tools.analyzer.passes.jvm.warn-on-reflection" style="margin-top: 3px;">clojure.tools.analyzer.passes.jvm.warn-on-reflection</a>
+    
   </div>
 </div>
 </div>
-                <div id="content-tag"><h1 id="overview">API for <span id="clojure.tools.analyzer.jvm">clojure.tools.analyzer.jvm</span>
-  - <span id="header-project">JVM-specific passes for tools.analyzer</span> <span id="header-version">0.5.1</span><span id="header-status-block"> (<span id="header-status">in development</span>)</span>
-  </h1>
-
-<br />Full namespace name: <span id="long-name">clojure.tools.analyzer.jvm</span>
-<p></p>
-<h2>Overview</h2>
+                <div id="content-tag"><h1 id="toc0">API Overview - <span id="header-project">JVM-specific passes for tools.analyzer</span> <span id="header-version">0.5.1</span><span id="header-status-block"> (<span id="header-status">in development</span>)</span></h1>
+<br />
+<div id="project-description"></div>
 <div id="home-page">Project home page is <a href="http://github.com/clojure/tools.analyzer.jvm/">http://github.com/clojure/tools.analyzer.jvm/</a></div>
-<pre id="namespace-docstr">Analyzer for clojure code, extends tools.analyzer with JVM specific passes/forms</pre>
-
-
 <br />
-
-
-<div id="type-section">
-  <p></p>
-  <h2>Types</h2>
-  <div id="type-entry">
+<div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="clojure.tools.analyzer.jvm">clojure.tools.analyzer.jvm</h2>
+  
+  <a href="clojure.tools.analyzer.jvm-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr">Analyzer for clojure code, extends tools.analyzer with JVM specific passes/forms</pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm/-&gt;ExceptionThrown" id="var-tag">-&gt;ExceptionThrown</a> </span><span id="var-link"><a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm/analyze" id="var-tag">analyze</a> </span><span id="var-link"><a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm/analyze'" id="var-tag">analyze'</a> </span><span id="var-link"><a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm/analyze+eval" id="var-tag">analyze+eval</a> </span><span id="var-link"><a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm/analyze+eval'" id="var-tag">analyze+eval'</a> </span><span id="var-link"><a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm/analyze-ns" id="var-tag">analyze-ns</a> </span><span id="var-link"><a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm/butlast+last" id="var-tag">butlast+last</a> </span><span id="var-link"><a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm/create-var" id="var-tag">create-var</a> </span><span id="var-link"><a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm/empty-env" id="var-tag">empty-env</a> </span><span id="var-link"><a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm/ExceptionThrown" id="var-tag">ExceptionThrown</a> </span><span id="var-link"><a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm/macroexpand-1" id="var-tag">macroexpand-1</a> </span><span id="var-link"><a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm/parse" id="var-tag">parse</a> </span><span id="var-link"><a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm/run-passes" id="var-tag">run-passes</a> </span><span id="var-link"><a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm/specials" id="var-tag">specials</a> </span><br />
+  <span id="subspace"><br />Variables and functions in
+    <span id="name">clojure.tools.analyzer.jvm.utils</span>:
+    <span id="sub-var-link">
+      <a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/box">box</a>
+    </span><span id="sub-var-link">
+      <a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/convertible?">convertible?</a>
+    </span><span id="sub-var-link">
+      <a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/maybe-class">maybe-class</a>
+    </span><span id="sub-var-link">
+      <a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/numeric?">numeric?</a>
+    </span><span id="sub-var-link">
+      <a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/prim-or-obj">prim-or-obj</a>
+    </span><span id="sub-var-link">
+      <a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/primitive?">primitive?</a>
+    </span><span id="sub-var-link">
+      <a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/subsumes?">subsumes?</a>
+    </span><span id="sub-var-link">
+      <a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/try-best-match">try-best-match</a>
+    </span><span id="sub-var-link">
+      <a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/unbox">unbox</a>
+    </span><span id="sub-var-link">
+      <a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/wider-primitive">wider-primitive</a>
+    </span><span id="sub-var-link">
+      <a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/wider-tag">wider-tag</a>
+    </span><span id="sub-var-link">
+      <a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/wider-tag*">wider-tag*</a>
+    </span><span id="sub-var-link">
+      <a href="clojure.tools.analyzer.jvm-api.html#clojure.tools.analyzer.jvm.utils/wider-than">wider-than</a>
+    </span>
     <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm/ExceptionThrown">ExceptionThrown</h2>
-    <span id="type-type">type</span><br />
-    <pre id="type-docstr"></pre>
-    Fields: <span id="type-fields">[e]</span><br />
-    Protocols: <span id="type-protocols"></span><br />
-    Interfaces: <span id="type-interfaces"></span><br />
-  </div>
+  </span>
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="clojure.tools.analyzer.passes.jvm.analyze-host-expr">clojure.tools.analyzer.passes.jvm.analyze-host-expr</h2>
+  
+  <a href="clojure.tools.analyzer.passes.jvm.analyze-host-expr-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="clojure.tools.analyzer.passes.jvm.analyze-host-expr-api.html#clojure.tools.analyzer.passes.jvm.analyze-host-expr/analyze-host-expr" id="var-tag">analyze-host-expr</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="clojure.tools.analyzer.passes.jvm.annotate-branch">clojure.tools.analyzer.passes.jvm.annotate-branch</h2>
+  
+  <a href="clojure.tools.analyzer.passes.jvm.annotate-branch-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="clojure.tools.analyzer.passes.jvm.annotate-branch-api.html#clojure.tools.analyzer.passes.jvm.annotate-branch/annotate-branch" id="var-tag">annotate-branch</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="clojure.tools.analyzer.passes.jvm.annotate-class-id">clojure.tools.analyzer.passes.jvm.annotate-class-id</h2>
+  
+  <a href="clojure.tools.analyzer.passes.jvm.annotate-class-id-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="clojure.tools.analyzer.passes.jvm.annotate-class-id-api.html#clojure.tools.analyzer.passes.jvm.annotate-class-id/annotate-class-id" id="var-tag">annotate-class-id</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="clojure.tools.analyzer.passes.jvm.annotate-internal-name">clojure.tools.analyzer.passes.jvm.annotate-internal-name</h2>
+  
+  <a href="clojure.tools.analyzer.passes.jvm.annotate-internal-name-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="clojure.tools.analyzer.passes.jvm.annotate-internal-name-api.html#clojure.tools.analyzer.passes.jvm.annotate-internal-name/annotate-internal-name" id="var-tag">annotate-internal-name</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="clojure.tools.analyzer.passes.jvm.annotate-loops">clojure.tools.analyzer.passes.jvm.annotate-loops</h2>
+  
+  <a href="clojure.tools.analyzer.passes.jvm.annotate-loops-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="clojure.tools.analyzer.passes.jvm.annotate-loops-api.html#clojure.tools.analyzer.passes.jvm.annotate-loops/annotate-loops" id="var-tag">annotate-loops</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="clojure.tools.analyzer.passes.jvm.annotate-methods">clojure.tools.analyzer.passes.jvm.annotate-methods</h2>
+  
+  <a href="clojure.tools.analyzer.passes.jvm.annotate-methods-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="clojure.tools.analyzer.passes.jvm.annotate-methods-api.html#clojure.tools.analyzer.passes.jvm.annotate-methods/annotate-methods" id="var-tag">annotate-methods</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="clojure.tools.analyzer.passes.jvm.annotate-tag">clojure.tools.analyzer.passes.jvm.annotate-tag</h2>
+  
+  <a href="clojure.tools.analyzer.passes.jvm.annotate-tag-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="clojure.tools.analyzer.passes.jvm.annotate-tag-api.html#clojure.tools.analyzer.passes.jvm.annotate-tag/annotate-tag" id="var-tag">annotate-tag</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="clojure.tools.analyzer.passes.jvm.box">clojure.tools.analyzer.passes.jvm.box</h2>
+  
+  <a href="clojure.tools.analyzer.passes.jvm.box-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="clojure.tools.analyzer.passes.jvm.box-api.html#clojure.tools.analyzer.passes.jvm.box/box" id="var-tag">box</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="clojure.tools.analyzer.passes.jvm.classify-invoke">clojure.tools.analyzer.passes.jvm.classify-invoke</h2>
+  
+  <a href="clojure.tools.analyzer.passes.jvm.classify-invoke-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="clojure.tools.analyzer.passes.jvm.classify-invoke-api.html#clojure.tools.analyzer.passes.jvm.classify-invoke/classify-invoke" id="var-tag">classify-invoke</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="clojure.tools.analyzer.passes.jvm.clear-locals">clojure.tools.analyzer.passes.jvm.clear-locals</h2>
+  
+  <a href="clojure.tools.analyzer.passes.jvm.clear-locals-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="clojure.tools.analyzer.passes.jvm.constant-lifter">clojure.tools.analyzer.passes.jvm.constant-lifter</h2>
+  
+  <a href="clojure.tools.analyzer.passes.jvm.constant-lifter-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="clojure.tools.analyzer.passes.jvm.constant-lifter-api.html#clojure.tools.analyzer.passes.jvm.constant-lifter/constant-lift" id="var-tag">constant-lift</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="clojure.tools.analyzer.passes.jvm.emit-form">clojure.tools.analyzer.passes.jvm.emit-form</h2>
+  
+  <a href="clojure.tools.analyzer.passes.jvm.emit-form-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="clojure.tools.analyzer.passes.jvm.emit-form-api.html#clojure.tools.analyzer.passes.jvm.emit-form/emit-form" id="var-tag">emit-form</a> </span><span id="var-link"><a href="clojure.tools.analyzer.passes.jvm.emit-form-api.html#clojure.tools.analyzer.passes.jvm.emit-form/emit-hygienic-form" id="var-tag">emit-hygienic-form</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="clojure.tools.analyzer.passes.jvm.fix-case-test">clojure.tools.analyzer.passes.jvm.fix-case-test</h2>
+  
+  <a href="clojure.tools.analyzer.passes.jvm.fix-case-test-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="clojure.tools.analyzer.passes.jvm.fix-case-test-api.html#clojure.tools.analyzer.passes.jvm.fix-case-test/fix-case-test" id="var-tag">fix-case-test</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="clojure.tools.analyzer.passes.jvm.infer-tag">clojure.tools.analyzer.passes.jvm.infer-tag</h2>
+  
+  <a href="clojure.tools.analyzer.passes.jvm.infer-tag-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="clojure.tools.analyzer.passes.jvm.infer-tag-api.html#clojure.tools.analyzer.passes.jvm.infer-tag/infer-tag" id="var-tag">infer-tag</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="clojure.tools.analyzer.passes.jvm.validate">clojure.tools.analyzer.passes.jvm.validate</h2>
+  
+  <a href="clojure.tools.analyzer.passes.jvm.validate-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="clojure.tools.analyzer.passes.jvm.validate-api.html#clojure.tools.analyzer.passes.jvm.validate/validate" id="var-tag">validate</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="clojure.tools.analyzer.passes.jvm.validate-loop-locals">clojure.tools.analyzer.passes.jvm.validate-loop-locals</h2>
+  
+  <a href="clojure.tools.analyzer.passes.jvm.validate-loop-locals-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="clojure.tools.analyzer.passes.jvm.validate-loop-locals-api.html#clojure.tools.analyzer.passes.jvm.validate-loop-locals/validate-loop-locals" id="var-tag">validate-loop-locals</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="clojure.tools.analyzer.passes.jvm.warn-on-reflection">clojure.tools.analyzer.passes.jvm.warn-on-reflection</h2>
+  
+  <a href="clojure.tools.analyzer.passes.jvm.warn-on-reflection-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <br />
+  
 </div>
-<div id="var-section">
-  <p></p>
-  <h2>Public Variables and Functions</h2>
-  <div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm/-&gt;ExceptionThrown">-&gt;ExceptionThrown</h2>
-    <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (-&gt;ExceptionThrown e)
-</pre>
-    <pre id="var-docstr">Positional factory function for class clojure.tools.analyzer.jvm.ExceptionThrown.</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/28f52ebe19705740531bbdf0eda9cdad408aa057/src/main/clojure/clojure/tools/analyzer/jvm.clj#L490" id="var-source">Source</a>
-  </div><div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm/analyze">analyze</h2>
-    <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (analyze form)
-       (analyze form env)
-       (analyze form env opts)
-</pre>
-    <pre id="var-docstr">Returns an AST for the form that's compatible with what tools.emitter.jvm requires.
-
-Binds tools.analyzer/{macroexpand-1,create-var,parse} to
-tools.analyzer.jvm/{macroexpand-1,create-var,parse} and calls
-tools.analyzer/analyzer on form.
-
-If provided, opts should be a map of options to analyze, currently the only valid option
-is :bindings.
-If provided, :bindings should be a map of Var-&gt;value pairs that will be merged into the
-default bindings for tools.analyzer, useful to provide custom extension points.
-
-E.g.
-(analyze form env {:bindings  {#'ana/macroexpand-1 my-mexpand-1}})
-
-Calls `run-passes` on the AST.</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/28f52ebe19705740531bbdf0eda9cdad408aa057/src/main/clojure/clojure/tools/analyzer/jvm.clj#L459" id="var-source">Source</a>
-  </div><div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm/analyze'">analyze'</h2>
-    <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (analyze' form)
-       (analyze' form env)
-       (analyze' form env opts)
-</pre>
-    <pre id="var-docstr">Like `analyze` but runs cleanup on the AST</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/28f52ebe19705740531bbdf0eda9cdad408aa057/src/main/clojure/clojure/tools/analyzer/jvm.clj#L550" id="var-source">Source</a>
-  </div><div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm/analyze+eval">analyze+eval</h2>
-    <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (analyze+eval form)
-       (analyze+eval form env)
-       (analyze+eval form env opts)
-</pre>
-    <pre id="var-docstr">Like analyze but evals the form after the analysis and attaches the
-returned value in the :result field of the AST node.
-If evaluating the form will cause an exception to be thrown, the exception
-will be caught and the :result field will hold an ExceptionThrown instance
-with the exception in the "e" field.
-
-Useful when analyzing whole files/namespaces.</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/28f52ebe19705740531bbdf0eda9cdad408aa057/src/main/clojure/clojure/tools/analyzer/jvm.clj#L503" id="var-source">Source</a>
-  </div><div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm/analyze+eval'">analyze+eval'</h2>
-    <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (analyze+eval' form)
-       (analyze+eval' form env)
-       (analyze+eval' form env opts)
-</pre>
-    <pre id="var-docstr">Like `analyze+eval` but runs cleanup on the AST</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/28f52ebe19705740531bbdf0eda9cdad408aa057/src/main/clojure/clojure/tools/analyzer/jvm.clj#L557" id="var-source">Source</a>
-  </div><div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm/analyze-ns">analyze-ns</h2>
-    <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (analyze-ns ns)
-</pre>
-    <pre id="var-docstr">Analyzes a whole namespace, returns a vector of the ASTs for all the
-top-level ASTs of that namespace.
-Evaluates all the forms.</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/28f52ebe19705740531bbdf0eda9cdad408aa057/src/main/clojure/clojure/tools/analyzer/jvm.clj#L564" id="var-source">Source</a>
-  </div><div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm/butlast+last">butlast+last</h2>
-    <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (butlast+last s)
-</pre>
-    <pre id="var-docstr">Returns same value as (juxt butlast last), but slightly more
-efficient since it only traverses the input sequence s once, not
-twice.</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/28f52ebe19705740531bbdf0eda9cdad408aa057/src/main/clojure/clojure/tools/analyzer/jvm.clj#L492" id="var-source">Source</a>
-  </div><div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm/create-var">create-var</h2>
-    <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (create-var sym {:keys [ns]})
-</pre>
-    <pre id="var-docstr">Creates a Var for sym and returns it.
-The Var gets interned in the env namespace.</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/28f52ebe19705740531bbdf0eda9cdad408aa057/src/main/clojure/clojure/tools/analyzer/jvm.clj#L181" id="var-source">Source</a>
-  </div><div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm/empty-env">empty-env</h2>
-    <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (empty-env)
-</pre>
-    <pre id="var-docstr">Returns an empty env map</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/28f52ebe19705740531bbdf0eda9cdad408aa057/src/main/clojure/clojure/tools/analyzer/jvm.clj#L86" id="var-source">Source</a>
-  </div><div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm/macroexpand-1">macroexpand-1</h2>
-    <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (macroexpand-1 form)
-       (macroexpand-1 form env)
-</pre>
-    <pre id="var-docstr">If form represents a macro form or an inlineable function,
-returns its expansion, else returns form.</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/28f52ebe19705740531bbdf0eda9cdad408aa057/src/main/clojure/clojure/tools/analyzer/jvm.clj#L139" id="var-source">Source</a>
-  </div><div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm/parse">parse</h2>
-    <span id="var-type">multimethod</span><br />
-    <pre id="var-usage">No usage documentation available</pre>
-    <pre id="var-docstr">Extension to tools.analyzer/-parse for JVM special forms</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/28f52ebe19705740531bbdf0eda9cdad408aa057/src/main/clojure/clojure/tools/analyzer/jvm.clj#L64" id="var-source">Source</a>
-  </div><div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm/run-passes">run-passes</h2>
-    <span id="var-type">dynamic function</span><br />
-    <pre id="var-usage">Usage: (run-passes ast)
-</pre>
-    <pre id="var-docstr">Applies the following passes in the correct order to the AST:
-* uniquify
-* add-binding-atom
-* cleanup
-* source-info
-* elide-meta
-* warn-earmuff
-* collect
-* jvm.box
-* jvm.constant-lifter
-* jvm.annotate-branch
-* jvm.annotate-loops
-* jvm.annotate-class-id
-* jvm.annotate-internal-name
-* jvm.annotate-methods
-* jvm.fix-case-test
-* jvm.clear-locals
-* jvm.classify-invoke
-* jvm.validate
-* jvm.infer-tag
-* jvm.annotate-tag
-* jvm.validate-loop-locals
-* jvm.analyze-host-expr</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/28f52ebe19705740531bbdf0eda9cdad408aa057/src/main/clojure/clojure/tools/analyzer/jvm.clj#L385" id="var-source">Source</a>
-  </div><div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm/specials">specials</h2>
-    <span id="var-type">var</span><br />
-    <pre id="var-usage"></pre>
-    <pre id="var-docstr">Set of the special forms for clojure in the JVM</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/28f52ebe19705740531bbdf0eda9cdad408aa057/src/main/clojure/clojure/tools/analyzer/jvm.clj#L59" id="var-source">Source</a>
-  </div>
-</div>
-<br />
-<h2 id="clojure.tools.analyzer.jvm.utils">clojure.tools.analyzer.jvm.utils</h2>
-<pre id="namespace-docstr"></pre>
-
-
-<br />
-
-
-<div id="var-section">
-  <p></p>
-  <h2>Public Variables and Functions</h2>
-  <div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm.utils/box">box</h2>
-    <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (box c)
-</pre>
-    <pre id="var-docstr">If the argument is a primitive Class, returns its boxed equivalent,
-otherwise returns the argument</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/341f9b4a0bc5ac055283551039c32a042ade04e2/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L118" id="var-source">Source</a>
-  </div><div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm.utils/convertible?">convertible?</h2>
-    <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (convertible? c1 c2)
-</pre>
-    <pre id="var-docstr">Returns true if it's possible to convert from c1 to c2</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/341f9b4a0bc5ac055283551039c32a042ade04e2/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L164" id="var-source">Source</a>
-  </div><div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm.utils/maybe-class">maybe-class</h2>
-    <span id="var-type">var</span><br />
-    <pre id="var-usage"></pre>
-    <pre id="var-docstr">Takes a Symbol, String or Class and tires to resolve to a matching Class</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/341f9b4a0bc5ac055283551039c32a042ade04e2/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L54" id="var-source">Source</a>
-  </div><div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm.utils/numeric?">numeric?</h2>
-    <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (numeric? c)
-</pre>
-    <pre id="var-docstr">Returns true if the given class is numeric</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/341f9b4a0bc5ac055283551039c32a042ade04e2/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L148" id="var-source">Source</a>
-  </div><div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm.utils/prim-or-obj">prim-or-obj</h2>
-    <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (prim-or-obj tag)
-</pre>
-    <pre id="var-docstr">If the given Class is a primitive, returns that Class, otherwise returns Object</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/341f9b4a0bc5ac055283551039c32a042ade04e2/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L302" id="var-source">Source</a>
-  </div><div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm.utils/primitive?">primitive?</h2>
-    <span id="var-type">var</span><br />
-    <pre id="var-usage"></pre>
-    <pre id="var-docstr">Returns non-nil if the argument represents a primitive Class other than Void</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/341f9b4a0bc5ac055283551039c32a042ade04e2/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L100" id="var-source">Source</a>
-  </div><div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm.utils/subsumes?">subsumes?</h2>
-    <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (subsumes? c1 c2)
-</pre>
-    <pre id="var-docstr">Returns true if c2 is subsumed by c1</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/341f9b4a0bc5ac055283551039c32a042ade04e2/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L154" id="var-source">Source</a>
-  </div><div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm.utils/try-best-match">try-best-match</h2>
-    <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (try-best-match tags methods)
-</pre>
-    <pre id="var-docstr">Given a vector of arg tags and a collection of methods, tries to return the
-subset of methods that match best the given tags</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/341f9b4a0bc5ac055283551039c32a042ade04e2/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L317" id="var-source">Source</a>
-  </div><div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm.utils/unbox">unbox</h2>
-    <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (unbox c)
-</pre>
-    <pre id="var-docstr">If the argument is a Class with a primitive equivalent, returns that,
-otherwise returns the argument</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/341f9b4a0bc5ac055283551039c32a042ade04e2/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L133" id="var-source">Source</a>
-  </div><div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm.utils/wider-primitive">wider-primitive</h2>
-    <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (wider-primitive from to)
-</pre>
-    <pre id="var-docstr">Given two numeric primitive Classes, returns the wider one</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/341f9b4a0bc5ac055283551039c32a042ade04e2/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L187" id="var-source">Source</a>
-  </div><div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm.utils/wider-tag">wider-tag</h2>
-    <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (wider-tag tags)
-</pre>
-    <pre id="var-docstr">Given a collection of Classes returns the wider one</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/341f9b4a0bc5ac055283551039c32a042ade04e2/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L216" id="var-source">Source</a>
-  </div><div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm.utils/wider-tag*">wider-tag*</h2>
-    <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (wider-tag* from to)
-</pre>
-    <pre id="var-docstr">Given two Classes returns the wider one</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/341f9b4a0bc5ac055283551039c32a042ade04e2/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L194" id="var-source">Source</a>
-  </div><div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.jvm.utils/wider-than">wider-than</h2>
-    <span id="var-type">var</span><br />
-    <pre id="var-usage"></pre>
-    <pre id="var-docstr">If the argument is a numeric primitive Class, returns a set of primitive Classes
-that are narrower than the given one</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/341f9b4a0bc5ac055283551039c32a042ade04e2/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L177" id="var-source">Source</a>
-  </div>
-</div>
-
-
 </div>
               </div>
             </div>
