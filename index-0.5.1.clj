@@ -6,36 +6,6 @@
    :name "clojure.tools.analyzer.jvm",
    :doc
    "Analyzer for clojure code, extends tools.analyzer with JVM specific passes/forms"}
-  {:source-url nil,
-   :wiki-url
-   "http://clojure.github.com/tools.analyzer.jvm/passes.add-binding-atom-api.html",
-   :name "clojure.tools.analyzer.passes.add-binding-atom",
-   :doc nil}
-  {:source-url nil,
-   :wiki-url
-   "http://clojure.github.com/tools.analyzer.jvm/passes.cleanup-api.html",
-   :name "clojure.tools.analyzer.passes.cleanup",
-   :doc nil}
-  {:source-url nil,
-   :wiki-url
-   "http://clojure.github.com/tools.analyzer.jvm/passes.collect-api.html",
-   :name "clojure.tools.analyzer.passes.collect",
-   :doc nil}
-  {:source-url nil,
-   :wiki-url
-   "http://clojure.github.com/tools.analyzer.jvm/passes.constant-lifter-api.html",
-   :name "clojure.tools.analyzer.passes.constant-lifter",
-   :doc nil}
-  {:source-url nil,
-   :wiki-url
-   "http://clojure.github.com/tools.analyzer.jvm/passes.elide-meta-api.html",
-   :name "clojure.tools.analyzer.passes.elide-meta",
-   :doc nil}
-  {:source-url nil,
-   :wiki-url
-   "http://clojure.github.com/tools.analyzer.jvm/passes.emit-form-api.html",
-   :name "clojure.tools.analyzer.passes.emit-form",
-   :doc nil}
   {:source-url
    "https://github.com/clojure/tools.analyzer.jvm/blob/b8d76333c3d8201347b37d43b927452f3c88758f/src/main/clojure/clojure/tools/analyzer/passes/jvm/analyze_host_expr.clj",
    :wiki-url
@@ -137,21 +107,6 @@
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm/passes.jvm.warn-on-reflection-api.html",
    :name "clojure.tools.analyzer.passes.jvm.warn-on-reflection",
-   :doc nil}
-  {:source-url nil,
-   :wiki-url
-   "http://clojure.github.com/tools.analyzer.jvm/passes.source-info-api.html",
-   :name "clojure.tools.analyzer.passes.source-info",
-   :doc nil}
-  {:source-url nil,
-   :wiki-url
-   "http://clojure.github.com/tools.analyzer.jvm/passes.uniquify-api.html",
-   :name "clojure.tools.analyzer.passes.uniquify",
-   :doc nil}
-  {:source-url nil,
-   :wiki-url
-   "http://clojure.github.com/tools.analyzer.jvm/passes.warn-earmuff-api.html",
-   :name "clojure.tools.analyzer.passes.warn-earmuff",
    :doc nil}
   {:source-url
    "https://github.com/clojure/tools.analyzer.jvm/blob/341f9b4a0bc5ac055283551039c32a042ade04e2/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
@@ -344,120 +299,6 @@
    :namespace "clojure.tools.analyzer.jvm",
    :var-type "type",
    :name "ExceptionThrown"}
-  {:arglists ([ast]),
-   :name "add-binding-atom",
-   :namespace "clojure.tools.analyzer.passes.add-binding-atom",
-   :source-url nil,
-   :raw-source-url nil,
-   :wiki-url
-   "http://clojure.github.com/tools.analyzer.jvm//passes.add-binding-atom-api.html#clojure.tools.analyzer.passes.add-binding-atom/add-binding-atom",
-   :doc
-   "Walks the AST and adds an atom-backed-map to every local binding,\nthe same atom will be shared between all occurences of that local.\n\nThe atom is put in the :atom field of the node.",
-   :var-type "function",
-   :line 26,
-   :file
-   "src/main/clojure/clojure/tools/analyzer/passes/add_binding_atom.clj"}
-  {:arglists ([{:keys [what top-level?], :as opts}]),
-   :name "collect",
-   :namespace "clojure.tools.analyzer.passes.collect",
-   :source-url nil,
-   :raw-source-url nil,
-   :wiki-url
-   "http://clojure.github.com/tools.analyzer.jvm//passes.collect-api.html#clojure.tools.analyzer.passes.collect/collect",
-   :doc
-   "Takes a map with:\n* :what        set of keywords describing what to collect, some of:\n  ** :constants     constant expressions\n  ** :closed-overs  closed over local bindings\n  ** :callsites     keyword and protocol callsites\n* :where       set of :op nodes where to attach collected info\n* :top-level?  if true attach collected info to the top-level node\n\nReturns a function that does the takes an AST and returns an AST with the\ncollected info.",
-   :var-type "function",
-   :line 153,
-   :file "src/main/clojure/clojure/tools/analyzer/passes/collect.clj"}
-  {:arglists ([ast opts]),
-   :name "collect-closed-overs",
-   :namespace "clojure.tools.analyzer.passes.collect",
-   :source-url nil,
-   :raw-source-url nil,
-   :wiki-url
-   "http://clojure.github.com/tools.analyzer.jvm//passes.collect-api.html#clojure.tools.analyzer.passes.collect/collect-closed-overs",
-   :doc
-   "Takes an AST and an opts map that takes the same options as collect,\nbut only collects closed-overs on the AST.",
-   :var-type "function",
-   :line 135,
-   :file "src/main/clojure/clojure/tools/analyzer/passes/collect.clj"}
-  {:file
-   "src/main/clojure/clojure/tools/analyzer/passes/constant_lifter.clj",
-   :raw-source-url nil,
-   :source-url nil,
-   :wiki-url
-   "http://clojure.github.com/tools.analyzer.jvm//passes.constant-lifter-api.html#clojure.tools.analyzer.passes.constant-lifter/constant-lift",
-   :namespace "clojure.tools.analyzer.passes.constant-lifter",
-   :line 12,
-   :var-type "multimethod",
-   :doc
-   "If the node represents a collection with no metadata, and every item of that\ncollection is a literal, transform the node to an equivalent :const node.",
-   :name "constant-lift"}
-  {:arglists ([ast]),
-   :name "elide-meta",
-   :namespace "clojure.tools.analyzer.passes.elide-meta",
-   :source-url nil,
-   :raw-source-url nil,
-   :wiki-url
-   "http://clojure.github.com/tools.analyzer.jvm//passes.elide-meta-api.html#clojure.tools.analyzer.passes.elide-meta/elide-meta",
-   :doc
-   "If elides is not empty and the AST node contains metadata,\ndissoc all the keys in elides from the metadata.",
-   :var-type "function",
-   :line 79,
-   :file
-   "src/main/clojure/clojure/tools/analyzer/passes/elide_meta.clj"}
-  {:name "elides",
-   :namespace "clojure.tools.analyzer.passes.elide-meta",
-   :source-url nil,
-   :dynamic true,
-   :raw-source-url nil,
-   :wiki-url
-   "http://clojure.github.com/tools.analyzer.jvm//passes.elide-meta-api.html#clojure.tools.analyzer.passes.elide-meta/elides",
-   :doc
-   "A map of op keywords to predicate IFns.\nThe predicate will be used to indicate what map keys should be elided on\nmetadata of nodes for that op.\n:all can be used to indicate what should be elided for every node with\nmetadata.\nDefaults to {:all (set (:elide-meta *compiler-options*))}",
-   :var-type "var",
-   :line 11,
-   :file
-   "src/main/clojure/clojure/tools/analyzer/passes/elide_meta.clj"}
-  {:arglists ([{:keys [form], :as ast} opts]),
-   :name "-emit-form*",
-   :namespace "clojure.tools.analyzer.passes.emit-form",
-   :source-url nil,
-   :dynamic true,
-   :raw-source-url nil,
-   :wiki-url
-   "http://clojure.github.com/tools.analyzer.jvm//passes.emit-form-api.html#clojure.tools.analyzer.passes.emit-form/-emit-form*",
-   :doc
-   "Extension point for custom emit-form implementations, should be rebound\nto a multimethod with custom emit-form :opts.",
-   :var-type "function",
-   :line 13,
-   :file
-   "src/main/clojure/clojure/tools/analyzer/passes/emit_form.clj"}
-  {:arglists ([ast] [ast opts]),
-   :name "emit-form",
-   :namespace "clojure.tools.analyzer.passes.emit-form",
-   :source-url nil,
-   :raw-source-url nil,
-   :wiki-url
-   "http://clojure.github.com/tools.analyzer.jvm//passes.emit-form-api.html#clojure.tools.analyzer.passes.emit-form/emit-form",
-   :doc
-   "Return the form represented by the given AST.\nOpts is a set of options, valid options are:\n * :hygienic",
-   :var-type "function",
-   :line 23,
-   :file
-   "src/main/clojure/clojure/tools/analyzer/passes/emit_form.clj"}
-  {:arglists ([ast]),
-   :name "emit-hygienic-form",
-   :namespace "clojure.tools.analyzer.passes.emit-form",
-   :source-url nil,
-   :raw-source-url nil,
-   :wiki-url
-   "http://clojure.github.com/tools.analyzer.jvm//passes.emit-form-api.html#clojure.tools.analyzer.passes.emit-form/emit-hygienic-form",
-   :doc "Return an hygienic form represented by the given AST",
-   :var-type "function",
-   :line 30,
-   :file
-   "src/main/clojure/clojure/tools/analyzer/passes/emit_form.clj"}
   {:arglists ([{:keys [op target form tag env class], :as ast}]),
    :name "analyze-host-expr",
    :namespace "clojure.tools.analyzer.passes.jvm.analyze-host-expr",
@@ -691,44 +532,6 @@
    :line 142,
    :file
    "src/main/clojure/clojure/tools/analyzer/passes/jvm/validate_loop_locals.clj"}
-  {:arglists ([ast]),
-   :name "source-info",
-   :namespace "clojure.tools.analyzer.passes.source-info",
-   :source-url nil,
-   :raw-source-url nil,
-   :wiki-url
-   "http://clojure.github.com/tools.analyzer.jvm//passes.source-info-api.html#clojure.tools.analyzer.passes.source-info/source-info",
-   :doc
-   "Adds (when avaliable) :line, :column, :end-line, :end-column and :file info to the AST :env",
-   :var-type "function",
-   :line 17,
-   :file
-   "src/main/clojure/clojure/tools/analyzer/passes/source_info.clj"}
-  {:arglists ([ast]),
-   :name "uniquify-locals",
-   :namespace "clojure.tools.analyzer.passes.uniquify",
-   :source-url nil,
-   :raw-source-url nil,
-   :wiki-url
-   "http://clojure.github.com/tools.analyzer.jvm//passes.uniquify-api.html#clojure.tools.analyzer.passes.uniquify/uniquify-locals",
-   :doc
-   "Walks the AST performing alpha-conversion on the :name field\nof :local/:binding nodes, invalidates :local map in :env field",
-   :var-type "function",
-   :line 81,
-   :file "src/main/clojure/clojure/tools/analyzer/passes/uniquify.clj"}
-  {:arglists ([ast]),
-   :name "warn-earmuff",
-   :namespace "clojure.tools.analyzer.passes.warn-earmuff",
-   :source-url nil,
-   :raw-source-url nil,
-   :wiki-url
-   "http://clojure.github.com/tools.analyzer.jvm//passes.warn-earmuff-api.html#clojure.tools.analyzer.passes.warn-earmuff/warn-earmuff",
-   :doc
-   "Prints a warning to *err* if the AST node is a :def node and the\nvar name contains earmuffs but the var is not marked dynamic",
-   :var-type "function",
-   :line 12,
-   :file
-   "src/main/clojure/clojure/tools/analyzer/passes/warn_earmuff.clj"}
   {:arglists ([c]),
    :name "box",
    :namespace "clojure.tools.analyzer.jvm.utils",
