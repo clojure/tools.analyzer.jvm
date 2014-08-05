@@ -7,7 +7,7 @@
    :doc
    "Analyzer for clojure code, extends tools.analyzer with JVM specific passes/forms"}
   {:source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/b8d76333c3d8201347b37d43b927452f3c88758f/src/main/clojure/clojure/tools/analyzer/passes/jvm/analyze_host_expr.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/996dbf3855bd46e742c6e67ab3e9ff972aaa069a/src/main/clojure/clojure/tools/analyzer/passes/jvm/analyze_host_expr.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm/passes.jvm.analyze-host-expr-api.html",
    :name "clojure.tools.analyzer.passes.jvm.analyze-host-expr",
@@ -55,7 +55,7 @@
    :name "clojure.tools.analyzer.passes.jvm.box",
    :doc nil}
   {:source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/44ebdf6959995ec9c730179c4188a7587a99ed4e/src/main/clojure/clojure/tools/analyzer/passes/jvm/classify_invoke.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/996dbf3855bd46e742c6e67ab3e9ff972aaa069a/src/main/clojure/clojure/tools/analyzer/passes/jvm/classify_invoke.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm/passes.jvm.classify-invoke-api.html",
    :name "clojure.tools.analyzer.passes.jvm.classify-invoke",
@@ -303,9 +303,9 @@
    :name "analyze-host-expr",
    :namespace "clojure.tools.analyzer.passes.jvm.analyze-host-expr",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/b8d76333c3d8201347b37d43b927452f3c88758f/src/main/clojure/clojure/tools/analyzer/passes/jvm/analyze_host_expr.clj#L142",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/996dbf3855bd46e742c6e67ab3e9ff972aaa069a/src/main/clojure/clojure/tools/analyzer/passes/jvm/analyze_host_expr.clj#L142",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/b8d76333c3d8201347b37d43b927452f3c88758f/src/main/clojure/clojure/tools/analyzer/passes/jvm/analyze_host_expr.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/996dbf3855bd46e742c6e67ab3e9ff972aaa069a/src/main/clojure/clojure/tools/analyzer/passes/jvm/analyze_host_expr.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//passes.jvm.analyze-host-expr-api.html#clojure.tools.analyzer.passes.jvm.analyze-host-expr/analyze-host-expr",
    :doc
@@ -417,9 +417,9 @@
    :name "classify-invoke",
    :namespace "clojure.tools.analyzer.passes.jvm.classify-invoke",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/44ebdf6959995ec9c730179c4188a7587a99ed4e/src/main/clojure/clojure/tools/analyzer/passes/jvm/classify_invoke.clj#L14",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/996dbf3855bd46e742c6e67ab3e9ff972aaa069a/src/main/clojure/clojure/tools/analyzer/passes/jvm/classify_invoke.clj#L14",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/44ebdf6959995ec9c730179c4188a7587a99ed4e/src/main/clojure/clojure/tools/analyzer/passes/jvm/classify_invoke.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/996dbf3855bd46e742c6e67ab3e9ff972aaa069a/src/main/clojure/clojure/tools/analyzer/passes/jvm/classify_invoke.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//passes.jvm.classify-invoke-api.html#clojure.tools.analyzer.passes.jvm.classify-invoke/classify-invoke",
    :doc
