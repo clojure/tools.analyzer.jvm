@@ -196,7 +196,12 @@
     (is (= Boolean/TYPE (-> d-ast :tag)))
     (is (= Double/TYPE (->> d-ast :args first :tag)))))
 
-
 ;; checks for specific bugs that have surfaced
 (deftest annotate-case-loop
   (is (ast1 (loop [] (case 1 :a (recur) :b 42)))))
+
+(deftest var-tag-inference
+  (let [ast (ana.jvm/analyze '(def a "foo")
+                             (ana.jvm/empty-env)
+                             {:passes-opts {:infer-tag {:level :global}}})]
+    (is (= String (-> ast :var meta :tag)))))
