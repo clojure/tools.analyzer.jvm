@@ -463,10 +463,12 @@
    tools.analyzer.jvm/{macroexpand-1,create-var,parse} and calls
    tools.analyzer/analyzer on form.
 
-   If provided, opts should be a map of options to analyze, currently the only valid option
-   is :bindings.
+   If provided, opts should be a map of options to analyze, currently the only valid
+   options are :bindings and :passes-opts.
    If provided, :bindings should be a map of Var->value pairs that will be merged into the
    default bindings for tools.analyzer, useful to provide custom extension points.
+   If provided, :passes-opts should be a map of pass-name-kw->pass-config-map pairs that
+   can be used to configure the behaviour of each pass.
 
    E.g.
    (analyze form env {:bindings  {#'ana/macroexpand-1 my-mexpand-1}})
@@ -485,7 +487,9 @@
                                                                 elides)}
                            (:bindings opts))
        (env/ensure (global-env)
-         (run-passes (-analyze form env))))))
+         (binding [env/*env* (merge env/*env*
+                                    {:passes-opts (:passes-opts opts)})]
+           (run-passes (-analyze form env)))))))
 
 (deftype ExceptionThrown [e])
 
