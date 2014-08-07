@@ -487,9 +487,9 @@
                                                                 elides)}
                            (:bindings opts))
        (env/ensure (global-env)
-         (binding [env/*env* (merge env/*env*
-                                    {:passes-opts (:passes-opts opts)})]
-           (run-passes (-analyze form env)))))))
+         (env/with-env (swap! env/*env* merge
+                              {:passes-opts (:passes-opts opts)})
+             (run-passes (-analyze form env)))))))
 
 (deftype ExceptionThrown [e])
 
