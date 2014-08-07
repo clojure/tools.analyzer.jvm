@@ -52,6 +52,7 @@
   (let [info (merge (select-keys init [:return-tag :arglists :tag])
                     (select-keys (meta name) [:tag :arglists]))]
     (when (and (seq info)
+               (not (:dynamic (meta name)))
                (= :global (-> (env/deref-env) :passes-opts :infer-tag :level)))
       (alter-meta! var merge (rename-keys info {:return-tag :tag})))
     (merge (assoc ast :tag clojure.lang.Var :o-tag clojure.lang.Var) info)))
