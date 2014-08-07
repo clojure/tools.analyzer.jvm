@@ -85,7 +85,7 @@
    :name "clojure.tools.analyzer.passes.jvm.fix-case-test",
    :doc nil}
   {:source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/c1926e14f651fd2717be9944a21e0282b01ed5f6/src/main/clojure/clojure/tools/analyzer/passes/jvm/infer_tag.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/5b6591e930fc162b23a79f03d2715c0ca7b2e8f8/src/main/clojure/clojure/tools/analyzer/passes/jvm/infer_tag.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm/passes.jvm.infer-tag-api.html",
    :name "clojure.tools.analyzer.passes.jvm.infer-tag",
@@ -491,15 +491,15 @@
    :name "infer-tag",
    :namespace "clojure.tools.analyzer.passes.jvm.infer-tag",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/c1926e14f651fd2717be9944a21e0282b01ed5f6/src/main/clojure/clojure/tools/analyzer/passes/jvm/infer_tag.clj#L240",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/5b6591e930fc162b23a79f03d2715c0ca7b2e8f8/src/main/clojure/clojure/tools/analyzer/passes/jvm/infer_tag.clj#L248",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/c1926e14f651fd2717be9944a21e0282b01ed5f6/src/main/clojure/clojure/tools/analyzer/passes/jvm/infer_tag.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/5b6591e930fc162b23a79f03d2715c0ca7b2e8f8/src/main/clojure/clojure/tools/analyzer/passes/jvm/infer_tag.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//passes.jvm.infer-tag-api.html#clojure.tools.analyzer.passes.jvm.infer-tag/infer-tag",
    :doc
    "Performs local type inference on the AST adds, when possible,\none or more of the following keys to the AST:\n* :o-tag      represents the dynamic type of the node\n* :tag        represents the static type of the node\n* :return-tag implies that the node will return a function whose\n              invocation will result in a object of this type\n* :arglists   implies that the node will return a function with\n              this arglists\n* :ignore-tag true when the node is untyped, does not imply that\n              all untyped node will have this",
    :var-type "function",
-   :line 240,
+   :line 248,
    :file
    "src/main/clojure/clojure/tools/analyzer/passes/jvm/infer_tag.clj"}
   {:arglists ([{:keys [tag form env], :as ast}]),
