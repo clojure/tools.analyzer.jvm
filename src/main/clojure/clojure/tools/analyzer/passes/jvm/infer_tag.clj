@@ -8,7 +8,9 @@
 
 (ns clojure.tools.analyzer.passes.jvm.infer-tag
   (:require [clojure.tools.analyzer.utils :refer [arglist-for-arity]]
-            [clojure.tools.analyzer.jvm.utils :as u]))
+            [clojure.tools.analyzer.jvm.utils :as u]
+            [clojure.tools.analyzer.env :as env]
+            [clojure.set :refer [rename-keys]]))
 
 (defmulti -infer-tag :op)
 (defmethod -infer-tag :default [ast] ast)
@@ -46,9 +48,13 @@
              {:arglists arglists}))))
 
 (defmethod -infer-tag :def
-  [ast]
-  (merge (assoc ast :tag clojure.lang.Var :o-tag clojure.lang.Var)
-         (select-keys (:init ast) [:return-tag :arglists])))
+  [{:keys [var init name] :as ast}]
+  (let [info (merge (select-keys init [:return-tag :arglists :tag])
+                    (select-keys (meta name) [:tag :arglists]))]
+    (when (and (seq info)
+               (= :global (-> (env/deref-env) :passes-opts :infer-tag :level)))
+      (alter-meta! var merge (rename-keys info {:return-tag :tag})))
+    (merge (assoc ast :tag clojure.lang.Var :o-tag clojure.lang.Var) info)))
 
 (defmethod -infer-tag :quote
   [ast]
@@ -201,7 +207,9 @@
          {:arglists (seq (mapv :arglist methods))
           :tag      clojure.lang.AFunction
           :o-tag    clojure.lang.AFunction}
-         (when-let [tag (:tag (meta (:form local)))]
+         (when-let [tag (or (:tag (meta (:form local)))
+                            (and (apply = (mapv :tag methods))
+                                 (:tag (first methods))))]
            {:return-tag tag})))
 
 (defmethod -infer-tag :invoke
