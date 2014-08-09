@@ -76,7 +76,7 @@
 
 (defmethod -emit-form :catch
   [{:keys [class local body]} opts]
-  `(catch ~(class->sym class) ~(-emit-form* local opts)
+  `(catch ~(class->sym (:val class)) ~(-emit-form* local opts)
      ~(-emit-form* body opts)))
 
 (defmethod -emit-form :deftype
@@ -129,14 +129,15 @@
     ~@(mapv #(-emit-form* % opts) args)))
 
 (defmethod -emit-form :protocol-invoke
-  [{:keys [fn args]} opts]
-  `(~(-emit-form* fn opts)
+  [{:keys [protocol-fn target args]} opts]
+  `(~(-emit-form* protocol-fn opts)
+    ~(-emit-form* target opts)
     ~@(mapv #(-emit-form* % opts) args)))
 
 (defmethod -emit-form :keyword-invoke
-  [{:keys [fn args]} opts]
-  `(~(-emit-form* fn opts)
-    ~@(mapv #(-emit-form* % opts) args)))
+  [{:keys [target keyword]} opts]
+  (list (-emit-form* keyword opts)
+        (-emit-form* target opts)))
 
 (defmethod -emit-form :instance?
   [{:keys [class target]} opts]

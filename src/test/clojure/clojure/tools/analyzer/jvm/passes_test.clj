@@ -33,7 +33,10 @@
   (is (= '(monitor-exit 1) (emit-form (ast (monitor-exit 1)))))
   (is (= '(clojure.core/import* "java.lang.String")
          (emit-form (validate (ast (clojure.core/import* "java.lang.String"))))))
-  (is (= '(var clojure.core/+) (emit-form (ast #'+)))))
+  (is (= '(var clojure.core/+) (emit-form (ast #'+))))
+  (is (= '(:foo {}) (emit-form (ast (:foo {})))))
+  (is (= '(try 1 (catch java.lang.Exception e nil))
+         (emit-form (ana.jvm/analyze '(try 1 (catch Exception e)))))))
 
 (deftest annotate-branch-test
   (let [i-ast (annotate-branch (ast (if 1 2 3)))]
