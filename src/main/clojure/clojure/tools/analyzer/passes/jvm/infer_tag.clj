@@ -55,7 +55,7 @@
                (not (:dynamic (meta name)))
                (= :global (-> (env/deref-env) :passes-opts :infer-tag/level)))
       (alter-meta! var merge (rename-keys info {:return-tag :tag})))
-    (merge (assoc ast :tag clojure.lang.Var :o-tag clojure.lang.Var) info)))
+    (merge ast info {:tag clojure.lang.Var :o-tag clojure.lang.Var})))
 
 (defmethod -infer-tag :quote
   [ast]
