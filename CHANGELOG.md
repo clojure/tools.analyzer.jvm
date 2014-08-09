@@ -2,6 +2,9 @@ Changelog
 ========================================
 Since tools.analyzer.jvm version are usually cut simultaneously with a tools.analyzer version, check also the tools.analyzer [CHANGELOG](https://github.com/clojure/tools.analyzer/blob/master/CHANGELOG.md) for changes on the corresponding version, since changes in that library will reflect on this one.
 - - -
+* Release 0.5.2 on ???
+  * Fixed emit-form
+  * Imported collect pass from tools.analyzer
 * Release 0.5.1 on 09 Aug 2014
   * Allow ^:const values to be unboxed
   * Made :keyword a children in :keyword-invoke

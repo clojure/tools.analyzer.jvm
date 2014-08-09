@@ -26,12 +26,13 @@
              [cleanup :refer [cleanup]]
              [elide-meta :refer [elide-meta elides]]
              [warn-earmuff :refer [warn-earmuff]]
-             [collect :refer [collect collect-closed-overs]]
+             [collect-closed-overs :refer [collect-closed-overs]]
              [add-binding-atom :refer [add-binding-atom]]
              [uniquify :refer [uniquify-locals]]]
 
             [clojure.tools.analyzer.passes.jvm
              [box :refer [box]]
+             [collect :refer [collect]]
              [constant-lifter :refer [constant-lift]]
              [annotate-branch :refer [annotate-branch]]
              [annotate-loops :refer [annotate-loops]]

@@ -6,7 +6,7 @@
             [clojure.test :refer [deftest is]]
             [clojure.set :as set]
             [clojure.tools.analyzer.passes.add-binding-atom :refer [add-binding-atom]]
-            [clojure.tools.analyzer.passes.collect :refer [collect-closed-overs]]
+            [clojure.tools.analyzer.passes.collect-closed-overs :refer [collect-closed-overs]]
             [clojure.tools.analyzer.jvm.core-test :refer [ast ast1 e f f1]]
             [clojure.tools.analyzer.passes.jvm.emit-form
              :refer [emit-form emit-hygienic-form]]
