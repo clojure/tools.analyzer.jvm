@@ -67,6 +67,7 @@
           ^:children
           [:body "Synthetic :do AST node (with :body? `true`)  representing the body of the catch clause"]]}
   {:op   :const
+   :doc   "Node for a constant literal or a quoted collection literal"
    :keys [[:form "A constant literal or a quoted collection literal"]
           [:literal? "`true`"]
           [:type "one of :nil, :bool, :keyword, :symbol, :string, :number, :type, :record, :map, :vector, :set, :seq, :char, :regex, :class, :var, or :unknown"]
@@ -141,7 +142,8 @@
    :keys [[:form "`(. target m-or-f)`"]
           ^:children
           [:target "An AST node representing the target object"]
-          [:m-or-f "Symbol naming the no-arg method or field to lookup in the target"]]}
+          [:m-or-f "Symbol naming the no-arg method or field to lookup in the target"]
+          [:assignable? "`true`"]]}
   {:op   :if
    :doc  "Node for an if special-form expression"
    :keys [[:form "`(if test then else?)`"]
@@ -157,7 +159,7 @@
           [:class "String representing the qualified class to import"]]}
   {:op   :instance-call
    :doc  "Node for an instance method call"
-   :keys [[:form "`(.method instance args*)`"]
+   :keys [[:form "`(.method instance arg*)`"]
           [:method "Symbol naming the invoked method"]
           ^:children
           [:instance "An AST node representing the instance to call the method on"]
@@ -193,7 +195,8 @@
   {:op   :keyword-invoke
    :doc  "Node for an invoke expression where the fn is a not-namespaced keyword and thus a keyword callsite can be emitted"
    :keys [[:form "`(:k instance)`"]
-          [:keyword "The keyword to lookup in the instance"]
+          ^:children
+          [:keyword "An AST node representing the keyword to lookup in the instance"]
           ^:children
           [:target "An AST node representing the instance to lookup the keyword in"]]}
   {:op   :let
@@ -213,7 +216,7 @@
   {:op   :local
    :doc  "Node for a local symbol"
    :keys [[:form "The local symbol"]
-          [:assignable? "`true` if the coresponding :binding AST node is :local :field and is declared either ^:volatile-mutable or ^:unsynchronized-mutable"]
+          [:assignable? "`true` if the corresponding :binding AST node is :local :field and is declared either ^:volatile-mutable or ^:unsynchronized-mutable"]
           [:name "The uniquified local symbol"]
           [:local "One of :arg, :catch, :fn, :let, :letfn, :loop, :field or :this"]
           ^:optional

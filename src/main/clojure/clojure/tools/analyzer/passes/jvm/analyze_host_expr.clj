@@ -151,7 +151,7 @@
                       (= :class (:type target))
                       (:form target))
           target-type (if class? :static :instance)]
-      (merge (dissoc ast :assignable?)
+      (merge (dissoc ast :assignable? :target :args :children)
              (case op
 
                :host-call
