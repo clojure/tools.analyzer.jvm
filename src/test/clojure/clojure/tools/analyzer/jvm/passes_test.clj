@@ -35,8 +35,12 @@
          (emit-form (validate (ast (clojure.core/import* "java.lang.String"))))))
   (is (= '(var clojure.core/+) (emit-form (ast #'+))))
   (is (= '(:foo {}) (emit-form (ast (:foo {})))))
-  (is (= '(try 1 (catch java.lang.Exception e nil))
-         (emit-form (ana.jvm/analyze '(try 1 (catch Exception e)))))))
+  (is (= '(try 1 (catch Exception e nil))
+         (emit-form (ana.jvm/analyze '(try 1 (catch Exception e))))))
+  (is (= '(try 1 (catch Exception e nil))
+         (emit-form (ana.jvm/analyze '(try 1 (catch Exception e)))
+                    {:qualifed-symbols true})))
+  (is (= '(f [] 1) (emit-form (ast (f [] 1))))))
 
 (deftest annotate-branch-test
   (let [i-ast (annotate-branch (ast (if 1 2 3)))]
