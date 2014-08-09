@@ -91,18 +91,22 @@ namespace.
     <pre id="var-usage">Usage: (infer-tag {:keys [tag form], :as ast})
 </pre>
     <pre id="var-docstr">Performs local type inference on the AST adds, when possible,
-one or more of the following keys to the AST:
-* :o-tag      represents the dynamic type of the node
-* :tag        represents the static type of the node
-* :return-tag implies that the node will return a function whose
-              invocation will result in a object of this type
-* :arglists   implies that the node will return a function with
-              this arglists
-* :ignore-tag true when the node is untyped, does not imply that
-              all untyped node will have this</pre>
+ one or more of the following keys to the AST:
+ * :o-tag      represents the dynamic type of the node
+ * :tag        represents the static type of the node
+ * :return-tag implies that the node will return a function whose
+               invocation will result in a object of this type
+ * :arglists   implies that the node will return a function with
+               this arglists
+ * :ignore-tag true when the node is untyped, does not imply that
+               all untyped node will have this
+
+Passes opts:
+* :infer-tag/level  If :global, infer-tag will perform Var tag
+                    inference</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/62228ecd2271627f2b088b6d0ad5fdf8e1e164be/src/main/clojure/clojure/tools/analyzer/passes/jvm/infer_tag.clj#L249" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/bbf9a8f9ab239f6f3a12cb366e981b78b68d9e3e/src/main/clojure/clojure/tools/analyzer/passes/jvm/infer_tag.clj#L249" id="var-source">Source</a>
   </div>
 </div>
 

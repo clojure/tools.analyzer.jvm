@@ -85,13 +85,13 @@
    :name "clojure.tools.analyzer.passes.jvm.fix-case-test",
    :doc nil}
   {:source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/62228ecd2271627f2b088b6d0ad5fdf8e1e164be/src/main/clojure/clojure/tools/analyzer/passes/jvm/infer_tag.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/bbf9a8f9ab239f6f3a12cb366e981b78b68d9e3e/src/main/clojure/clojure/tools/analyzer/passes/jvm/infer_tag.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm/passes.jvm.infer-tag-api.html",
    :name "clojure.tools.analyzer.passes.jvm.infer-tag",
    :doc nil}
   {:source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/d68dc818ae53a32631472c20ca7f235b3dd65bce/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/bbf9a8f9ab239f6f3a12cb366e981b78b68d9e3e/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm/passes.jvm.validate-api.html",
    :name "clojure.tools.analyzer.passes.jvm.validate",
@@ -491,13 +491,13 @@
    :name "infer-tag",
    :namespace "clojure.tools.analyzer.passes.jvm.infer-tag",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/62228ecd2271627f2b088b6d0ad5fdf8e1e164be/src/main/clojure/clojure/tools/analyzer/passes/jvm/infer_tag.clj#L249",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/bbf9a8f9ab239f6f3a12cb366e981b78b68d9e3e/src/main/clojure/clojure/tools/analyzer/passes/jvm/infer_tag.clj#L249",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/62228ecd2271627f2b088b6d0ad5fdf8e1e164be/src/main/clojure/clojure/tools/analyzer/passes/jvm/infer_tag.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/bbf9a8f9ab239f6f3a12cb366e981b78b68d9e3e/src/main/clojure/clojure/tools/analyzer/passes/jvm/infer_tag.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//passes.jvm.infer-tag-api.html#clojure.tools.analyzer.passes.jvm.infer-tag/infer-tag",
    :doc
-   "Performs local type inference on the AST adds, when possible,\none or more of the following keys to the AST:\n* :o-tag      represents the dynamic type of the node\n* :tag        represents the static type of the node\n* :return-tag implies that the node will return a function whose\n              invocation will result in a object of this type\n* :arglists   implies that the node will return a function with\n              this arglists\n* :ignore-tag true when the node is untyped, does not imply that\n              all untyped node will have this",
+   "Performs local type inference on the AST adds, when possible,\n one or more of the following keys to the AST:\n * :o-tag      represents the dynamic type of the node\n * :tag        represents the static type of the node\n * :return-tag implies that the node will return a function whose\n               invocation will result in a object of this type\n * :arglists   implies that the node will return a function with\n               this arglists\n * :ignore-tag true when the node is untyped, does not imply that\n               all untyped node will have this\n\nPasses opts:\n* :infer-tag/level  If :global, infer-tag will perform Var tag\n                    inference",
    :var-type "function",
    :line 249,
    :file
@@ -506,13 +506,13 @@
    :name "validate",
    :namespace "clojure.tools.analyzer.passes.jvm.validate",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/d68dc818ae53a32631472c20ca7f235b3dd65bce/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj#L229",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/bbf9a8f9ab239f6f3a12cb366e981b78b68d9e3e/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj#L229",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/d68dc818ae53a32631472c20ca7f235b3dd65bce/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/bbf9a8f9ab239f6f3a12cb366e981b78b68d9e3e/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//passes.jvm.validate-api.html#clojure.tools.analyzer.passes.jvm.validate/validate",
    :doc
-   "Validate tags, classes, method calls.\nThrows exceptions when invalid forms are encountered, replaces\nclass symbols with class objects.",
+   "Validate tags, classes, method calls.\nThrows exceptions when invalid forms are encountered, replaces\nclass symbols with class objects.\n\nPasses opts:\n* :validate/throw-on-arity-mismatch\n   If true, validate will throw on potential arity mismatch\n* :validate/wrong-tag-handler\n   If bound to a function, will invoke that function instead of\n   throwing on invalid tag.\n   The function takes the tag key and the AST and must return\n   a map of tag key -> valid tag value (or nil)",
    :var-type "function",
    :line 229,
    :file

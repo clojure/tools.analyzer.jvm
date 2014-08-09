@@ -92,10 +92,19 @@ namespace.
 </pre>
     <pre id="var-docstr">Validate tags, classes, method calls.
 Throws exceptions when invalid forms are encountered, replaces
-class symbols with class objects.</pre>
+class symbols with class objects.
+
+Passes opts:
+* :validate/throw-on-arity-mismatch
+   If true, validate will throw on potential arity mismatch
+* :validate/wrong-tag-handler
+   If bound to a function, will invoke that function instead of
+   throwing on invalid tag.
+   The function takes the tag key and the AST and must return
+   a map of tag key -&gt; valid tag value (or nil)</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/d68dc818ae53a32631472c20ca7f235b3dd65bce/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj#L229" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/bbf9a8f9ab239f6f3a12cb366e981b78b68d9e3e/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj#L229" id="var-source">Source</a>
   </div>
 </div>
 
