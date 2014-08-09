@@ -96,4 +96,4 @@ Since tools.analyzer.jvm version are usually cut simultaneously with a tools.ana
 * Release 0.1.0-beta2 on 14 Feb 2014
   * Memoize only maybe-class and member*, a new deftype invalidates the cache
 * Release 0.1.0-beta1 on 11 Feb 2014
-  * First beta releas
+  * First beta release
