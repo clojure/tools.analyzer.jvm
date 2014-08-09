@@ -73,7 +73,7 @@
    :name "clojure.tools.analyzer.passes.jvm.constant-lifter",
    :doc nil}
   {:source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/62bbd366fa1228967573485c2209ae24985959a5/src/main/clojure/clojure/tools/analyzer/passes/jvm/emit_form.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/96601a0fb83fad940c4f8136d9139ff86c1a8922/src/main/clojure/clojure/tools/analyzer/passes/jvm/emit_form.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm/passes.jvm.emit-form-api.html",
    :name "clojure.tools.analyzer.passes.jvm.emit-form",
@@ -447,9 +447,9 @@
    :name "emit-form",
    :namespace "clojure.tools.analyzer.passes.jvm.emit-form",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/62bbd366fa1228967573485c2209ae24985959a5/src/main/clojure/clojure/tools/analyzer/passes/jvm/emit_form.clj#L22",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/96601a0fb83fad940c4f8136d9139ff86c1a8922/src/main/clojure/clojure/tools/analyzer/passes/jvm/emit_form.clj#L22",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/62bbd366fa1228967573485c2209ae24985959a5/src/main/clojure/clojure/tools/analyzer/passes/jvm/emit_form.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/96601a0fb83fad940c4f8136d9139ff86c1a8922/src/main/clojure/clojure/tools/analyzer/passes/jvm/emit_form.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//passes.jvm.emit-form-api.html#clojure.tools.analyzer.passes.jvm.emit-form/emit-form",
    :doc
@@ -462,9 +462,9 @@
    :name "emit-hygienic-form",
    :namespace "clojure.tools.analyzer.passes.jvm.emit-form",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/62bbd366fa1228967573485c2209ae24985959a5/src/main/clojure/clojure/tools/analyzer/passes/jvm/emit_form.clj#L33",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/96601a0fb83fad940c4f8136d9139ff86c1a8922/src/main/clojure/clojure/tools/analyzer/passes/jvm/emit_form.clj#L33",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/62bbd366fa1228967573485c2209ae24985959a5/src/main/clojure/clojure/tools/analyzer/passes/jvm/emit_form.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/96601a0fb83fad940c4f8136d9139ff86c1a8922/src/main/clojure/clojure/tools/analyzer/passes/jvm/emit_form.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//passes.jvm.emit-form-api.html#clojure.tools.analyzer.passes.jvm.emit-form/emit-hygienic-form",
    :doc "Return an hygienic form represented by the given AST",
