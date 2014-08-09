@@ -148,6 +148,8 @@ Developer Information
 
 * [GitHub project](https://github.com/clojure/tools.analyzer.jvm)
 
+* [API index](http://clojure.github.io/tools.analyzer.jvm)
+
 * [Bug Tracker](http://dev.clojure.org/jira/browse/TANAL)
 
 * [Continuous Integration](http://build.clojure.org/job/tools.analyzer.jvm/)
