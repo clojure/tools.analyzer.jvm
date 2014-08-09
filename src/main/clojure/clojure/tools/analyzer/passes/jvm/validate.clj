@@ -189,10 +189,11 @@
                              (source-info env)))))
     (if (and (:arglists fn)
              (not (arglist-for-arity fn argc)))
-      (assoc ast :maybe-mismatch-arity true)
-      #_(throw (ex-info (str "No matching arity found for function: " (:name fn))
+      (if (-> (env/deref-env) :passes-opts :validate/throw-on-arity-mismatch)
+        (throw (ex-info (str "No matching arity found for function: " (:name fn))
                         {:arity (count args)
                          :fn    fn}))
+        (assoc ast :maybe-arity-mismatch true))
       ast)))
 
 (defn validate-interfaces [{:keys [env form interfaces]}]
