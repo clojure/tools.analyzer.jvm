@@ -203,5 +203,5 @@
 (deftest var-tag-inference
   (let [ast (ana.jvm/analyze '(def a "foo")
                              (ana.jvm/empty-env)
-                             {:passes-opts {:infer-tag {:level :global}}})]
+                             {:passes-opts {:infer-tag/level :global}})]
     (is (= String (-> ast :var meta :tag)))))
