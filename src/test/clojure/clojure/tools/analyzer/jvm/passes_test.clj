@@ -205,3 +205,12 @@
                              (ana.jvm/empty-env)
                              {:passes-opts {:infer-tag/level :global}})]
     (is (= String (-> ast :var meta :tag)))))
+
+(deftest validate-handlers
+  ;; test for tanal-24, without the handler analysis would throw
+  ;; with an handler that ignores the tag, we can simulate the current behaviour
+  ;; of the clojure compiler
+  (is (ana.jvm/analyze '(defn ^long a [] 1)
+                       (ana.jvm/empty-env)
+                       {:passes-opts {:validate/wrong-tag-handler (fn [t ast]
+                                                                    {t nil})}})))
