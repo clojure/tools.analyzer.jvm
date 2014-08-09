@@ -28,6 +28,22 @@
   (env/with-env (ana.jvm/global-env)
     (v/validate ast)))
 
+(deftest collect-test
+  (let [c-test (-> (ast1 (let [a 1 b 2] (fn [x] (fn [] [+ (:foo {}) x a]))))
+                 :body :ret)]
+    (is (= '#{a__#0} (-> c-test :closed-overs keys set)))
+    (is (set/subset? #{{:form :foo
+                        :tag  Keyword
+                        :meta nil}
+                       {:form #'+
+                        :meta (meta #'+)
+                        :tag  clojure.lang.Var}
+                       {:form {}
+                        :tag  PersistentArrayMap
+                        :meta nil}}
+                     (-> c-test :methods first :body :ret :constants keys set))) ;; it registers metadata too (line+col info)
+    (is (= '#{a__#0 x__#0} (-> c-test :methods first :body :ret :closed-overs keys set)))))
+
 (deftest emit-form-test
   (is (= '(monitor-enter 1) (emit-form (ast (monitor-enter 1)))))
   (is (= '(monitor-exit 1) (emit-form (ast (monitor-exit 1)))))
