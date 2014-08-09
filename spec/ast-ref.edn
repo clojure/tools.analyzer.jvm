@@ -55,7 +55,7 @@
   {:op   :case-then
    :doc  "Node for a then expression in a case* expression"
    :keys [^:children
-          [:test "An AST node representing the expression the case will evaluate to when the :test expression matches this node's corresponding :case-test value"]
+          [:then "An AST node representing the expression the case will evaluate to when the :test expression matches this node's corresponding :case-test value"]
           [:hash]]}
   {:op   :catch
    :doc  "Node for a catch expression"
