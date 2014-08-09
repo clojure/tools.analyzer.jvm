@@ -172,15 +172,11 @@
     (let [c (u/maybe-class tag)
           s (if (symbol? tag) (name tag) tag)]
       (when-not (and c (not (or (u/specials s) (u/special-arrays s))))
-        (throw (ex-info (str "Wrong tag: " (eval tag) " in def: " (:name ast))
-                        (merge {:ast      (prewalk ast cleanup)}
-                               (source-info (:env ast))))))))
-
-  #_(let [init (:init ast)]
-      (when-let [tag (:tag init)]
-        (alter-meta! var assoc :tag tag))
-      (when-let [arglists (:arglists init)]
-        (alter-meta! var assoc :arg-lists arglists)))
+        (if-let [handle (-> (env/deref-env) :passes-opts :validate/wrong-tag-handler)]
+          (handle nil ast)
+          (throw (ex-info (str "Wrong tag: " (eval tag) " in def: " (:name ast))
+                          (merge {:ast      (prewalk ast cleanup)}
+                                 (source-info (:env ast)))))))))
   ast)
 
 (defmethod -validate :invoke
@@ -222,7 +218,7 @@
   (let [tag (ast t)]
     (if-let [the-class (u/maybe-class tag)]
       {t the-class}
-      (if-let [handle (:validate/wrong-tag-handler (env/deref-env))]
+      (if-let [handle (-> (env/deref-env) :passes-opts :validate/wrong-tag-handler)]
         (handle t ast)
         (throw (ex-info (str "Class not found: " tag)
                         (merge {:class    tag
