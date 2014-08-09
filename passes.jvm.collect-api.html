@@ -1,7 +1,7 @@
 <html>
   <head>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-    <title>passes.jvm.classify-invoke - JVM-specific passes for tools.analyzer 0.5.2 API documentation</title>
+    <title>passes.jvm.collect - JVM-specific passes for tools.analyzer 0.5.2 API documentation</title>
     <link href="static/favicon.png" rel="icon" />
     <link href="static/favicon.png" rel="shortcut icon" />
     <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
@@ -59,17 +59,17 @@ namespace.
   </div><div style="margin-left: 1em;" class="toc-section">
     <a href="#var-section" style="margin-top: 3px;">Vars and Functions</a>
     <div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.passes.jvm.classify-invoke/classify-invoke">classify-invoke</a>
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.passes.jvm.collect/collect">collect</a>
       
     </div>
   </div>
 </div>
 </div>
-                <div id="content-tag"><h1 id="overview">API for <span id="passes.jvm.classify-invoke">passes.jvm.classify-invoke</span>
+                <div id="content-tag"><h1 id="overview">API for <span id="passes.jvm.collect">passes.jvm.collect</span>
   - <span id="header-project">JVM-specific passes for tools.analyzer</span> <span id="header-version">0.5.2</span><span id="header-status-block"> (<span id="header-status">in development</span>)</span>
   </h1>
 
-<br />Full namespace name: <span id="long-name">clojure.tools.analyzer.passes.jvm.classify-invoke</span>
+<br />Full namespace name: <span id="long-name">clojure.tools.analyzer.passes.jvm.collect</span>
 <p></p>
 <h2>Overview</h2>
 
@@ -86,23 +86,22 @@ namespace.
   <div id="var-entry">
     <br />
     <hr />
-    <h2 id="clojure.tools.analyzer.passes.jvm.classify-invoke/classify-invoke">classify-invoke</h2>
+    <h2 id="clojure.tools.analyzer.passes.jvm.collect/collect">collect</h2>
     <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (classify-invoke {:keys [op args tag env form], :as ast})
+    <pre id="var-usage">Usage: (collect {:keys [what top-level?], :as opts})
 </pre>
-    <pre id="var-docstr">If the AST node is an :invoke, check the node in function position,
-* if it is a keyword, transform the node in a :keyword-invoke node;
-* if it is the clojure.core/instance? var and the first argument is a
-  literal class, transform the node in a :instance? node to be inlined by
-  the emitter
-* if it is a protocol function var, transform the node in a :protocol-invoke
-  node
-* if it is a regular function with primitive type hints that match a
-  clojure.lang.IFn$[primitive interface], transform the node in a :prim-invoke
-  node</pre>
+    <pre id="var-docstr">Takes a map with:
+* :what        set of keywords describing what to collect, some of:
+  ** :constants     constant expressions
+  ** :callsites     keyword and protocol callsites
+* :where       set of :op nodes where to attach collected info
+* :top-level?  if true attach collected info to the top-level node
+
+Returns a function that does the takes an AST and returns an AST with the
+collected info.</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/996dbf3855bd46e742c6e67ab3e9ff972aaa069a/src/main/clojure/clojure/tools/analyzer/passes/jvm/classify_invoke.clj#L14" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/7d75a03e021d5a754367f9a92deddd4be790a767/src/main/clojure/clojure/tools/analyzer/passes/jvm/collect.clj#L98" id="var-source">Source</a>
   </div>
 </div>
 
