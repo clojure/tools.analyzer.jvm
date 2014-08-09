@@ -45,7 +45,7 @@
 
 (defn maybe-clear-this
   [{:keys [env] :as ast}]
-  (-> (if (and (= :ctx/return (:context env))
+  (-> (if (and (isa? (:context env) :ctx/return)
               (not (:in-try env)))
        (assoc ast :to-clear? true)
        ast)
