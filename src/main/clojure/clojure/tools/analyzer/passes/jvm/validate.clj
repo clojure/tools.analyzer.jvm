@@ -229,7 +229,16 @@
 (defn validate
   "Validate tags, classes, method calls.
    Throws exceptions when invalid forms are encountered, replaces
-   class symbols with class objects."
+   class symbols with class objects.
+
+   Passes opts:
+   * :validate/throw-on-arity-mismatch
+      If true, validate will throw on potential arity mismatch
+   * :validate/wrong-tag-handler
+      If bound to a function, will invoke that function instead of
+      throwing on invalid tag.
+      The function takes the tag key and the AST and must return
+      a map of tag key -> valid tag value (or nil)"
   [{:keys [tag form env] :as ast}]
   (when-let [t (:tag (meta form))]
     (when-not (u/maybe-class t)

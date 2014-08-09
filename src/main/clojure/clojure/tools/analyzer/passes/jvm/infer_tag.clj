@@ -256,7 +256,11 @@
    * :arglists   implies that the node will return a function with
                  this arglists
    * :ignore-tag true when the node is untyped, does not imply that
-                 all untyped node will have this"
+                 all untyped node will have this
+
+  Passes opts:
+  * :infer-tag/level  If :global, infer-tag will perform Var tag
+                      inference"
   [{:keys [tag form] :as ast}]
   (let [tag (or tag (:tag (meta form)))
         ast (-infer-tag ast)]
