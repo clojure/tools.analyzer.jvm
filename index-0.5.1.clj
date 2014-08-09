@@ -91,7 +91,7 @@
    :name "clojure.tools.analyzer.passes.jvm.infer-tag",
    :doc nil}
   {:source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/94fd8e1759819d5547870bde14950d7ecd842f40/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/d68dc818ae53a32631472c20ca7f235b3dd65bce/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm/passes.jvm.validate-api.html",
    :name "clojure.tools.analyzer.passes.jvm.validate",
@@ -506,15 +506,15 @@
    :name "validate",
    :namespace "clojure.tools.analyzer.passes.jvm.validate",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/94fd8e1759819d5547870bde14950d7ecd842f40/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj#L232",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/d68dc818ae53a32631472c20ca7f235b3dd65bce/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj#L229",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/94fd8e1759819d5547870bde14950d7ecd842f40/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/d68dc818ae53a32631472c20ca7f235b3dd65bce/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//passes.jvm.validate-api.html#clojure.tools.analyzer.passes.jvm.validate/validate",
    :doc
    "Validate tags, classes, method calls.\nThrows exceptions when invalid forms are encountered, replaces\nclass symbols with class objects.",
    :var-type "function",
-   :line 232,
+   :line 229,
    :file
    "src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj"}
   {:arglists ([ast analyze]),
