@@ -91,7 +91,7 @@
    :name "clojure.tools.analyzer.passes.jvm.fix-case-test",
    :doc nil}
   {:source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/bbf9a8f9ab239f6f3a12cb366e981b78b68d9e3e/src/main/clojure/clojure/tools/analyzer/passes/jvm/infer_tag.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/3ec319935068f33927b11d24ab0ab394e8d8e762/src/main/clojure/clojure/tools/analyzer/passes/jvm/infer_tag.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm/passes.jvm.infer-tag-api.html",
    :name "clojure.tools.analyzer.passes.jvm.infer-tag",
@@ -328,9 +328,9 @@
    :name "infer-tag",
    :namespace "clojure.tools.analyzer.passes.jvm.infer-tag",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/bbf9a8f9ab239f6f3a12cb366e981b78b68d9e3e/src/main/clojure/clojure/tools/analyzer/passes/jvm/infer_tag.clj#L249",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/3ec319935068f33927b11d24ab0ab394e8d8e762/src/main/clojure/clojure/tools/analyzer/passes/jvm/infer_tag.clj#L249",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/bbf9a8f9ab239f6f3a12cb366e981b78b68d9e3e/src/main/clojure/clojure/tools/analyzer/passes/jvm/infer_tag.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/3ec319935068f33927b11d24ab0ab394e8d8e762/src/main/clojure/clojure/tools/analyzer/passes/jvm/infer_tag.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//passes.jvm.infer-tag-api.html#clojure.tools.analyzer.passes.jvm.infer-tag/infer-tag",
    :doc
