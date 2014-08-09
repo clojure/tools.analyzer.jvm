@@ -5,6 +5,7 @@ Since tools.analyzer.jvm version are usually cut simultaneously with a tools.ana
 * Release 0.5.2 on ???
   * Fixed emit-form
   * Imported collect pass from tools.analyzer
+  * Fixed infer-tag for :def
 * Release 0.5.1 on 09 Aug 2014
   * Allow ^:const values to be unboxed
   * Made :keyword a children in :keyword-invoke
