@@ -20,7 +20,10 @@
                       (str column " "))
                     "- " what)))))
 
-(defmulti warn-on-reflection :op)
+(defmulti warn-on-reflection
+  "Prints a warning to *err* when *warn-on-reflection* is true
+   and a node requires runtime reflection"
+  :op)
 
 (defmethod warn-on-reflection :instance-call
   [ast]
