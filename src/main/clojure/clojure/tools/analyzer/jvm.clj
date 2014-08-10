@@ -461,8 +461,7 @@
   "Returns an AST for the form that's compatible with what tools.emitter.jvm requires.
 
    Binds tools.analyzer/{macroexpand-1,create-var,parse} to
-   tools.analyzer.jvm/{macroexpand-1,create-var,parse} and calls
-   tools.analyzer/analyzer on form.
+   tools.analyzer.jvm/{macroexpand-1,create-var,parse} and analyzes the form.
 
    If provided, opts should be a map of options to analyze, currently the only valid
    options are :bindings and :passes-opts.
