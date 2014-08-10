@@ -1,7 +1,7 @@
 <html>
   <head>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-    <title>passes.jvm.infer-tag - JVM-specific passes for tools.analyzer 0.5.2 API documentation</title>
+    <title>passes.jvm.infer-tag - JVM-specific passes for tools.analyzer 0.5.3 API documentation</title>
     <link href="static/favicon.png" rel="icon" />
     <link href="static/favicon.png" rel="shortcut icon" />
     <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
@@ -25,7 +25,7 @@ namespace.
       <div id="leftcolumn"><div style="text-align: center;"></div>
 <div class="menu">
   <div class="WikiCustomNav WikiElement wiki">
-    <span class="toc-header"><span id="project-name">JVM-specific passes for tools.analyzer</span> <span id="version">0.5.2</span> API</span><br />
+    <span class="toc-header"><span id="project-name">JVM-specific passes for tools.analyzer</span> <span id="version">0.5.3</span> API</span><br />
     <ul>
       <li><a class="wiki_link" href="index.html">Overview</a></li>
       <li><a class="wiki_link" href="api-index.html">API Index</a></li>
@@ -66,7 +66,7 @@ namespace.
 </div>
 </div>
                 <div id="content-tag"><h1 id="overview">API for <span id="passes.jvm.infer-tag">passes.jvm.infer-tag</span>
-  - <span id="header-project">JVM-specific passes for tools.analyzer</span> <span id="header-version">0.5.2</span><span id="header-status-block"> (<span id="header-status">in development</span>)</span>
+  - <span id="header-project">JVM-specific passes for tools.analyzer</span> <span id="header-version">0.5.3</span><span id="header-status-block"> (<span id="header-status">in development</span>)</span>
   </h1>
 
 <br />Full namespace name: <span id="long-name">clojure.tools.analyzer.passes.jvm.infer-tag</span>
@@ -92,8 +92,10 @@ namespace.
 </pre>
     <pre id="var-docstr">Performs local type inference on the AST adds, when possible,
  one or more of the following keys to the AST:
- * :o-tag      represents the dynamic type of the node
- * :tag        represents the static type of the node
+ * :o-tag      represents the current type of the
+               expression represented by the node
+ * :tag        represents the type the expression represented by the
+               node is required to have, possibly the same as :o-tag
  * :return-tag implies that the node will return a function whose
                invocation will result in a object of this type
  * :arglists   implies that the node will return a function with
@@ -106,7 +108,7 @@ Passes opts:
                     inference</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/3ec319935068f33927b11d24ab0ab394e8d8e762/src/main/clojure/clojure/tools/analyzer/passes/jvm/infer_tag.clj#L249" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/bb8a2e3bf388054f9c5d093841cec316c2377c46/src/main/clojure/clojure/tools/analyzer/passes/jvm/infer_tag.clj#L249" id="var-source">Source</a>
   </div>
 </div>
 
