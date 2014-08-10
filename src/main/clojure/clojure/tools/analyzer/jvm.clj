@@ -387,11 +387,11 @@
   "Applies the following passes in the correct order to the AST:
    * uniquify
    * add-binding-atom
-   * cleanup
    * source-info
    * elide-meta
    * warn-earmuff
-   * collect
+   * collect-closed-overs
+   * jvm.collect
    * jvm.box
    * jvm.constant-lifter
    * jvm.annotate-branch
@@ -489,7 +489,7 @@
        (env/ensure (global-env)
          (env/with-env (swap! env/*env* merge
                               {:passes-opts (:passes-opts opts)})
-             (run-passes (-analyze form env)))))))
+           (run-passes (-analyze form env)))))))
 
 (deftype ExceptionThrown [e])
 
