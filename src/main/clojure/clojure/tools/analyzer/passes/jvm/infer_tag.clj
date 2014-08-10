@@ -249,8 +249,10 @@
 (defn infer-tag
   "Performs local type inference on the AST adds, when possible,
    one or more of the following keys to the AST:
-   * :o-tag      represents the dynamic type of the node
-   * :tag        represents the static type of the node
+   * :o-tag      represents the current type of the
+                 expression represented by the node
+   * :tag        represents the type the expression represented by the
+                 node is required to have, possibly the same as :o-tag
    * :return-tag implies that the node will return a function whose
                  invocation will result in a object of this type
    * :arglists   implies that the node will return a function with
