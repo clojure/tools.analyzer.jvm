@@ -109,7 +109,7 @@
    :name "clojure.tools.analyzer.passes.jvm.validate-loop-locals",
    :doc nil}
   {:source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/c47bf79f49e60943e24f3cd04f583f267d8593fd/src/main/clojure/clojure/tools/analyzer/passes/jvm/warn_on_reflection.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/0f361a8431724bf84ab85cd16da6de8bce94b5bd/src/main/clojure/clojure/tools/analyzer/passes/jvm/warn_on_reflection.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm/passes.jvm.warn-on-reflection-api.html",
    :name "clojure.tools.analyzer.passes.jvm.warn-on-reflection",
@@ -571,9 +571,9 @@
   {:file
    "src/main/clojure/clojure/tools/analyzer/passes/jvm/warn_on_reflection.clj",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/c47bf79f49e60943e24f3cd04f583f267d8593fd/src/main/clojure/clojure/tools/analyzer/passes/jvm/warn_on_reflection.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/0f361a8431724bf84ab85cd16da6de8bce94b5bd/src/main/clojure/clojure/tools/analyzer/passes/jvm/warn_on_reflection.clj",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/c47bf79f49e60943e24f3cd04f583f267d8593fd/src/main/clojure/clojure/tools/analyzer/passes/jvm/warn_on_reflection.clj#L23",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/0f361a8431724bf84ab85cd16da6de8bce94b5bd/src/main/clojure/clojure/tools/analyzer/passes/jvm/warn_on_reflection.clj#L23",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//passes.jvm.warn-on-reflection-api.html#clojure.tools.analyzer.passes.jvm.warn-on-reflection/warn-on-reflection",
    :namespace "clojure.tools.analyzer.passes.jvm.warn-on-reflection",
