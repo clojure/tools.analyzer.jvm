@@ -71,7 +71,7 @@
                 {:op          :protocol-invoke
                  :protocol-fn the-fn
                  :target      (first args)
-                 :args        (rest args)
+                 :args        (vec (rest args))
                  :children    [:protocol-fn :target :args]})
          (throw (ex-info "Cannot invoke protocol method with no args"
                          (merge {:form form}
