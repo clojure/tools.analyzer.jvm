@@ -88,15 +88,6 @@
           ret
           (maybe-class-from-string sname))))))
 
-(defmacro case-class [c & clauses]
-  (let [pairs (partition 2 clauses)
-        default (when (odd? (count clauses))
-                   [(last clauses)])]
-     `(case ~c
-       ~@(mapcat (fn [[test then]]
-                   [(eval test) then]) pairs)
-       ~@default)))
-
 (def primitive?
   "Returns non-nil if the argument represents a primitive Class other than Void"
   #{Double/TYPE Character/TYPE Byte/TYPE Boolean/TYPE
