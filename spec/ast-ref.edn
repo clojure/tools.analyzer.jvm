@@ -12,7 +12,9 @@
   [:tag "The tag this expression is required to have"]
   [:o-tag "The tag of this expression, based on the node's children"]
   ^:optional
-  [:ignore-tag "`true` if this node returns a statement rather than an expression"]]
+  [:ignore-tag "`true` if this node returns a statement rather than an expression"]
+  ^:optional
+  [:loops "A set of the loop-ids that might cause this node to recur"]]
 
  :node-keys
  [{:op   :binding
