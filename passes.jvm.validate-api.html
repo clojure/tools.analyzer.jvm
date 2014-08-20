@@ -57,8 +57,11 @@ namespace.
     <a href="#" style="margin-top: 3px;"></a>
     
   </div><div style="margin-left: 1em;" class="toc-section">
-    <a href="#" style="margin-top: 3px;"></a>
-    
+    <a href="#var-section" style="margin-top: 3px;">Vars and Functions</a>
+    <div style="margin-left: 1em;" class="toc-entry">
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.passes.jvm.validate/validate">validate</a>
+      
+    </div>
   </div>
 </div>
 </div>
@@ -77,7 +80,41 @@ namespace.
 
 
 
+<div id="var-section">
+  <p></p>
+  <h2>Public Variables and Functions</h2>
+  <div id="var-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.passes.jvm.validate/validate">validate</h2>
+    <span id="var-type">function</span><br />
+    <pre id="var-usage">Usage: (validate {:keys [tag form env], :as ast})
+</pre>
+    <pre id="var-docstr">Validate tags, classes, method calls.
+Throws exceptions when invalid forms are encountered, replaces
+class symbols with class objects.
 
+Passes opts:
+* :validate/throw-on-arity-mismatch
+   If true, validate will throw on potential arity mismatch
+* :validate/wrong-tag-handler
+   If bound to a function, will invoke that function instead of
+   throwing on invalid tag.
+   The function takes the tag key and the AST and must return
+   a map of tag key -&gt; valid tag value (or nil)
+* :validate/unresolvable-symbol-handler
+   If bound to a function, will invoke that function instead of
+   throwing on unresolvable symbol.
+   The function takes three arguments: the namespace (possibly nil)
+   and name part of the symbol, as symbols and the originating
+   AST node which can be either a :maybe-class or a :maybe-host-form,
+   those nodes are documented in the tools.analyzer quickref.
+   The function must return a valid tools.analyzer.jvm AST node.</pre>
+    
+    
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/72ed7451892872f37838da293a7c7523898313c9/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj#L224" id="var-source">Source</a>
+  </div>
+</div>
 
 
 </div>
