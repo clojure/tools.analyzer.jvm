@@ -93,10 +93,14 @@ namespace.
 might be visited more than once because of a recur.
 
 The field is a set of loop-ids representing the loops that might
-recur into that path</pre>
+recur into that path
+
+Note that because (recur expr) is equivalent to (let [e expr] (recur e))
+the node corresponting to expr will have the same :loops field
+as the nodes in the same code path of the recur</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/18ca53a933cfec7b64aface00e56440c4fe30b13/src/main/clojure/clojure/tools/analyzer/passes/jvm/annotate_loops.clj#L12" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/53560df0f04249c4a6b2202bceeafdebf47ffeb1/src/main/clojure/clojure/tools/analyzer/passes/jvm/annotate_loops.clj#L12" id="var-source">Source</a>
   </div>
 </div>
 

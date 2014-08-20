@@ -57,11 +57,8 @@ namespace.
     <a href="#" style="margin-top: 3px;"></a>
     
   </div><div style="margin-left: 1em;" class="toc-section">
-    <a href="#var-section" style="margin-top: 3px;">Vars and Functions</a>
-    <div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.passes.jvm.validate/validate">validate</a>
-      
-    </div>
+    <a href="#" style="margin-top: 3px;"></a>
+    
   </div>
 </div>
 </div>
@@ -80,33 +77,7 @@ namespace.
 
 
 
-<div id="var-section">
-  <p></p>
-  <h2>Public Variables and Functions</h2>
-  <div id="var-entry">
-    <br />
-    <hr />
-    <h2 id="clojure.tools.analyzer.passes.jvm.validate/validate">validate</h2>
-    <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (validate {:keys [tag form env], :as ast})
-</pre>
-    <pre id="var-docstr">Validate tags, classes, method calls.
-Throws exceptions when invalid forms are encountered, replaces
-class symbols with class objects.
 
-Passes opts:
-* :validate/throw-on-arity-mismatch
-   If true, validate will throw on potential arity mismatch
-* :validate/wrong-tag-handler
-   If bound to a function, will invoke that function instead of
-   throwing on invalid tag.
-   The function takes the tag key and the AST and must return
-   a map of tag key -&gt; valid tag value (or nil)</pre>
-    
-    
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/bbf9a8f9ab239f6f3a12cb366e981b78b68d9e3e/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj#L229" id="var-source">Source</a>
-  </div>
-</div>
 
 
 </div>
