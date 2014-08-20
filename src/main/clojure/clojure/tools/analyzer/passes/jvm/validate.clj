@@ -30,7 +30,7 @@
                              (source-info env)))))))
 
 (defmethod -validate :maybe-host-form
-  [{:keys [class field form env]}]
+  [{:keys [class field form env] :as ast}]
   (if-let [handle (-> (env/deref-env) :passes-opts :validate/unresolvable-symbol-handler)]
     (handle class field ast)
     (if (resolve-ns class env)
