@@ -15,7 +15,7 @@
              :rename {analyze -analyze}]
 
             [clojure.tools.analyzer
-             [utils :refer [ctx resolve-var -source-info resolve-ns obj? dissoc-env]]
+             [utils :refer [ctx resolve-var -source-info resolve-ns obj? dissoc-env butlast+last]]
              [ast :refer [walk prewalk postwalk]]
              [env :as env :refer [*env*]]]
 
@@ -492,17 +492,6 @@
            (run-passes (-analyze form env)))))))
 
 (deftype ExceptionThrown [e])
-
-(defn butlast+last
-  "Returns same value as (juxt butlast last), but slightly more
-efficient since it only traverses the input sequence s once, not
-twice."
-  [s]
-  (loop [butlast (transient [])
-         s s]
-    (if-let [xs (next s)]
-      (recur (conj! butlast (first s)) xs)
-      [(seq (persistent! butlast)) (first s)])))
 
 (defn analyze+eval
   "Like analyze but evals the form after the analysis and attaches the
