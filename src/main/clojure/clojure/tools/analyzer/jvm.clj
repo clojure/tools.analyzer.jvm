@@ -564,7 +564,7 @@
       (assert res (str "Can't find " ns " in classpath"))
       (let [filename (source-path res)
             path (res-path res)]
-        (when-not (get-in *env* [::analyzed-clj path])
+        (when-not (get-in (env/deref-env) [::analyzed-clj path])
           (binding [*ns* *ns*]
             (with-open [rdr (io/reader res)]
               (let [pbr (readers/indexing-push-back-reader
