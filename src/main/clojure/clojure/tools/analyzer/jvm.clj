@@ -19,7 +19,7 @@
              [ast :refer [walk prewalk postwalk]]
              [env :as env :refer [*env*]]]
 
-            [clojure.tools.analyzer.jvm.utils :refer :all :exclude [box specials]]
+            [clojure.tools.analyzer.jvm.utils :refer :all :as u :exclude [box specials]]
 
             [clojure.tools.analyzer.passes
              [source-info :refer [source-info]]
@@ -179,14 +179,33 @@
                 (desugar-host-expr form env)))))
          (desugar-host-expr form env)))))
 
+(defn qualify-argvec [arglist]
+  (letfn [(fix-tag [x] (vary-meta x merge
+                                  (when-let [t (:tag (meta x))]
+                                    {:tag (if (or (string? t)
+                                                  (u/specials (str t))
+                                                  (u/special-arrays (str t)))
+                                            t
+                                            (if-let [c (maybe-class t)]
+                                              (let [new-t (-> c .getName symbol)]
+                                                (if (= new-t t)
+                                                  t
+                                                  (with-meta new-t {::qualified? true})))
+                                              t))})))]
+    (with-meta (mapv fix-tag arglist)
+      (meta (fix-tag arglist)))))
+
 (defn create-var
   "Creates a Var for sym and returns it.
    The Var gets interned in the env namespace."
   [sym {:keys [ns]}]
   (or (find-var (symbol (str ns) (name sym)))
       (intern ns (vary-meta sym merge
-                            (let [{:keys [inline inline-arities]} (meta sym)]
+                            (let [{:keys [inline inline-arities arglists]} (meta sym)]
                               (merge {}
+                                     (when arglists
+                                       {:arglists (seq (for [arglist arglists]
+                                                         (qualify-argvec arglist)))})
                                      (when inline
                                        {:inline (eval inline)})
                                      (when inline-arities
