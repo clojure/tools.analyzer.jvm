@@ -103,10 +103,6 @@
       (update-in [:o-tag] u/box))
     ast))
 
-(defmethod box :keyword-invoke
-  [ast]
-  (assoc ast :args (mapv -box (:args ast))))
-
 (defmethod box :protocol-invoke
   [ast]
   (assoc ast :args (mapv -box (:args ast))))
