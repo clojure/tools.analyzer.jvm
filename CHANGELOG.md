@@ -2,6 +2,8 @@ Changelog
 ========================================
 Since tools.analyzer.jvm version are usually cut simultaneously with a tools.analyzer version, check also the tools.analyzer [CHANGELOG](https://github.com/clojure/tools.analyzer/blob/master/CHANGELOG.md) for changes on the corresponding version, since changes in that library will reflect on this one.
 - - -
+* Release 0.5.6 on 02 Aug 2014
+  * Fixed a bug in classify-invoke that caused default-exprs in keyword invoke expressions to be lost
 * Release 0.5.5 on 31 Aug 2014
   * Fixed analyze-ns analysis caching
   * Qualify :arglists class names
