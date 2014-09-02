@@ -49,7 +49,7 @@
    :name "clojure.tools.analyzer.passes.jvm.annotate-tag",
    :doc nil}
   {:source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/37e2a96fff7675606e3b318de3bfefaccd86c64f/src/main/clojure/clojure/tools/analyzer/passes/jvm/box.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/a3812f0828d88738c20a5cb7e1dfe39dc0cfeb00/src/main/clojure/clojure/tools/analyzer/passes/jvm/box.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm/passes.jvm.box-api.html",
    :name "clojure.tools.analyzer.passes.jvm.box",
@@ -395,9 +395,9 @@
    "src/main/clojure/clojure/tools/analyzer/passes/jvm/annotate_tag.clj"}
   {:file "src/main/clojure/clojure/tools/analyzer/passes/jvm/box.clj",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/37e2a96fff7675606e3b318de3bfefaccd86c64f/src/main/clojure/clojure/tools/analyzer/passes/jvm/box.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/a3812f0828d88738c20a5cb7e1dfe39dc0cfeb00/src/main/clojure/clojure/tools/analyzer/passes/jvm/box.clj",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/37e2a96fff7675606e3b318de3bfefaccd86c64f/src/main/clojure/clojure/tools/analyzer/passes/jvm/box.clj#L13",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/a3812f0828d88738c20a5cb7e1dfe39dc0cfeb00/src/main/clojure/clojure/tools/analyzer/passes/jvm/box.clj#L13",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//passes.jvm.box-api.html#clojure.tools.analyzer.passes.jvm.box/box",
    :namespace "clojure.tools.analyzer.passes.jvm.box",
