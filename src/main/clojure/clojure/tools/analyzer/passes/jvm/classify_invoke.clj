@@ -40,7 +40,8 @@
        (and (= :const op)
             (= :keyword (:type the-fn)))
        (if (<= 1 argc 2)
-         (if (not (namespace (:val the-fn)))
+         (if (and (not (namespace (:val the-fn)))
+                  (= 1 argc))
            (merge (dissoc ast :fn :args)
                   {:op       :keyword-invoke
                    :target   (first args)
