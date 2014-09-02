@@ -164,6 +164,7 @@
 
 (deftest classify-invoke-test
   (is (= :keyword-invoke (-> (ast (:foo {})) classify-invoke :op)))
+  (is (= :invoke (-> (ast (:foo {} 1)) classify-invoke :op)))
   (is (= :protocol-invoke (-> (ast (f nil)) classify-invoke :op)))
   (is (= :instance? (-> (ast (instance? String ""))
                       (prewalk analyze-host-expr) classify-invoke :op)))
