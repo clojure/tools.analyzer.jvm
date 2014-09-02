@@ -55,7 +55,7 @@
    :name "clojure.tools.analyzer.passes.jvm.box",
    :doc nil}
   {:source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/326334024d744e4dc87231671ce90496f0ba951f/src/main/clojure/clojure/tools/analyzer/passes/jvm/classify_invoke.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/788a2bb93efce32a3681750d0b9efa95fe9f76c7/src/main/clojure/clojure/tools/analyzer/passes/jvm/classify_invoke.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm/passes.jvm.classify-invoke-api.html",
    :name "clojure.tools.analyzer.passes.jvm.classify-invoke",
@@ -409,9 +409,9 @@
    :name "classify-invoke",
    :namespace "clojure.tools.analyzer.passes.jvm.classify-invoke",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/326334024d744e4dc87231671ce90496f0ba951f/src/main/clojure/clojure/tools/analyzer/passes/jvm/classify_invoke.clj#L14",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/788a2bb93efce32a3681750d0b9efa95fe9f76c7/src/main/clojure/clojure/tools/analyzer/passes/jvm/classify_invoke.clj#L14",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/326334024d744e4dc87231671ce90496f0ba951f/src/main/clojure/clojure/tools/analyzer/passes/jvm/classify_invoke.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/788a2bb93efce32a3681750d0b9efa95fe9f76c7/src/main/clojure/clojure/tools/analyzer/passes/jvm/classify_invoke.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//passes.jvm.classify-invoke-api.html#clojure.tools.analyzer.passes.jvm.classify-invoke/classify-invoke",
    :doc
