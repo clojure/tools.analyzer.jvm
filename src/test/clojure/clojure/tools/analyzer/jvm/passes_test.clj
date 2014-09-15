@@ -78,9 +78,8 @@
     (is (every? :path? (-> c-ast :thens)))))
 
 (deftest clear-locals-test
-  (let [f-expr (-> (ast (fn [x] (if x x x) x (if x (do x x) (if x x x))))
-                 (prewalk (comp annotate-branch add-binding-atom))
-                 clear-locals :methods first :body)]
+  (let [f-expr (-> (ast1 (fn [x] (if x x x) x (if x (do x x) (if x x x))))
+                 :methods first :body)]
     (is (= true (-> f-expr :statements first :then :to-clear? nil?)))
     (is (= true (-> f-expr :statements first :else :to-clear? nil?)))
     (is (= true (-> f-expr :statements second :to-clear? nil?)))
@@ -88,55 +87,26 @@
     (is (= true (-> f-expr :ret :then :ret :to-clear?)))
     (is (= true (-> f-expr :ret :else :then :to-clear?)))
     (is (= true (-> f-expr :ret :else :else :to-clear?))))
-  (let [f-expr (-> (ast (fn [x] (loop [a x] (if 1 x (do x (recur x))))))
-                 (prewalk (comp annotate-branch annotate-loops add-binding-atom))
-                 (collect-closed-overs {:what  #{:closed-overs}
-                                        :where #{:fn :loop}
-                                        :top-level? false})
-                 clear-locals :methods first :body :ret)]
+  (let [f-expr (-> (ast1 (fn [x] (loop [a x] (if 1 x (do x (recur x))))))
+                 :methods first :body :ret)]
     (is (= true (-> f-expr :bindings first :init :to-clear? nil?)))
     (is (= true (-> f-expr :body :ret :then :to-clear?)))
     (is (= true (-> f-expr :body :ret :else :statements first :to-clear? nil?)))
     (is (= true (-> f-expr :body :ret :else :ret :exprs first :to-clear? nil?))))
-  (let [f-expr (-> (ast (loop [] (let [a 1] (loop [] a)) (recur)))
-                 (prewalk (comp annotate-branch annotate-loops add-binding-atom))
-                 (collect-closed-overs {:what  #{:closed-overs}
-                                        :where #{:loop}
-                                        :top-level? false})
-                 clear-locals
+  (let [f-expr (-> (ast1 (loop [] (let [a 1] (loop [] a)) (recur)))
                  :body :statements first :body :ret :body :ret)]
     (is (= true (-> f-expr :to-clear?))))
-  (let [f-expr (-> (ast (loop [] (let [a 1] (loop [] (if 1 a (recur)))) (recur)))
-                 (prewalk (comp annotate-branch annotate-loops add-binding-atom))
-                 (collect-closed-overs {:what  #{:closed-overs}
-                                        :where #{:loop}
-                                        :top-level? false})
-                 clear-locals
+  (let [f-expr (-> (ast1 (loop [] (let [a 1] (loop [] (if 1 a (recur)))) (recur)))
                  :body :statements first :body :ret :body :ret :then)]
     (is (= true (-> f-expr :to-clear?))))
-  (let [f-expr (-> (ast (let [a 1] (loop [] (let [b 2] (loop [] (if 1 [a b] (recur)))) (recur))))
-                 (prewalk (comp annotate-branch annotate-loops add-binding-atom))
-                 (collect-closed-overs {:what  #{:closed-overs}
-                                        :where #{:loop}
-                                        :top-level? false})
-                 clear-locals
+  (let [f-expr (-> (ast1 (let [a 1] (loop [] (let [b 2] (loop [] (if 1 [a b] (recur)))) (recur))))
                  :body :ret :body :statements first :body :ret :body :ret :then :items)]
     (is (= true (-> f-expr first :to-clear? nil?)))
     (is (= true (-> f-expr second :to-clear?))))
-  (let [f-expr (-> (ast (let [a 1] (loop [] (if 1 a) (recur))))
-                 (prewalk (comp annotate-branch annotate-loops add-binding-atom))
-                 (collect-closed-overs {:what  #{:closed-overs}
-                                        :where #{:loop}
-                                        :top-level? false})
-                 clear-locals
+  (let [f-expr (-> (ast1 (let [a 1] (loop [] (if 1 a) (recur))))
                  :body :ret :body :statements first :then)]
     (is (= true (-> f-expr :to-clear? nil?))))
-  (let [f-expr (-> (ast (let [a 1] (loop [] (let [x (if 1 a)]) (recur))))
-                 (prewalk (comp annotate-branch annotate-loops add-binding-atom))
-                 (collect-closed-overs {:what  #{:closed-overs}
-                                        :where #{:loop}
-                                        :top-level? false})
-                 clear-locals
+  (let [f-expr (-> (ast1 (let [a 1] (loop [] (let [x (if 1 a)]) (recur))))
                  :body :ret :body :statements first :bindings first :init :then)]
     (is (= true (-> f-expr :to-clear? nil?)))))
 

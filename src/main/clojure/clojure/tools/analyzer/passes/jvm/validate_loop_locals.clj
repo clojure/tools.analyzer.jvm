@@ -147,5 +147,5 @@
   "Returns a pass that validates the loop locals, calling analyze on the loop AST when
    a mismatched loop-local is found"
   {:pass-info {:walk :post :depends #{#'validate} :affects #{#'analyze-host-expr #'infer-tag #'validate}}}
-  [ast analyze]
-  (-validate-loop-locals analyze ast))
+  [analyze]
+  (fn [ast] (-validate-loop-locals analyze ast)))

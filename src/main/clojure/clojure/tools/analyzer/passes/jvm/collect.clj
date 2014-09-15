@@ -111,10 +111,10 @@
    * :collect/top-level?  if true attach collected info to the top-level node"
   {:pass-info {:walk :none :depends #{#'classify-invoke #'constant-lift #'annotate-tag}}}
   [ast]
-  (let [passes-opts                  (:passes-opts (env/deref-env))
-        {[what top-level?] :as opts} {:what       (:collect/what passes-opts)
-                                      :where      (:collect/where passes-opts)
-                                      :top-level? (:collect/top-level? passes-opts)}]
+  (let [passes-opts                        (:passes-opts (env/deref-env))
+        {:keys [what top-level?] :as opts} {:what       (:collect/what passes-opts)
+                                            :where      (:collect/where passes-opts)
+                                            :top-level? (:collect/top-level? passes-opts)}]
     (binding [*collects* (atom (merge {:constants           {}
                                        :protocol-callsites #{}
                                        :keyword-callsites  #{}
