@@ -402,79 +402,46 @@
   (let [etype (if (= etype :default) Throwable etype)] ;; catch-all
     (ana/-parse `(catch ~etype ~ename ~@body) env)))
 
-(defn ^:dynamic run-passes
-  "Applies the following passes in the correct order to the AST:
-   * uniquify
-   * add-binding-atom
-   * source-info
-   * elide-meta
-   * warn-earmuff
-   * collect-closed-overs
-   * jvm.collect
-   * jvm.box
-   * jvm.constant-lifter
-   * jvm.annotate-branch
-   * jvm.annotate-loops
-   * jvm.annotate-class-id
-   * jvm.annotate-internal-name
-   * jvm.annotate-methods
-   * jvm.fix-case-test
-   * jvm.clear-locals
-   * jvm.classify-invoke
-   * jvm.validate
-   * jvm.infer-tag
-   * jvm.annotate-tag
-   * jvm.validate-loop-locals
-   * jvm.analyze-host-expr"
-  [ast]
-  (-> ast
-
-    uniquify-locals
-    add-binding-atom
-
-    (prewalk (fn [ast]
-               (-> ast
-                 warn-earmuff
-                 source-info
-                 elide-meta
-                 annotate-methods
-                 fix-case-test
-                 annotate-class-id
-                 annotate-internal-name)))
-
-    ((fn analyze [ast]
-       (postwalk ast
-                 (fn [ast]
-                   (-> ast
-                     analyze-host-expr
-                     constant-lift
-                     annotate-tag
-                     infer-tag
-                     validate
-                     classify-invoke
-                     (validate-loop-locals analyze))))))
-
-    (prewalk (fn [ast]
-               (-> ast
-                 box
-                 warn-on-reflection
-                 annotate-loops  ;; needed for clear-locals to safely clear locals in a loop
-                 annotate-branch ;; needed for clear-locals
-                 ensure-tag)))
-
-    (collect {:what       #{:constants
-                            :callsites}
-              :where      #{:deftype :reify :fn}
-              :top-level? false})
-
-    ;; needs to be run in a separate pass to avoid collecting
-    ;; constants/callsites in :loop
-    (collect-closed-overs {:what  #{:closed-overs}
-                           :where #{:deftype :reify :fn :loop :try}
-                           :top-level? false})
-
-    ;; needs to be run after collect-closed-overs
-    clear-locals))
+(defn ^:dynamic run-passes [ast]
+  (env/with-env (swap! env/*env* mmerge
+                       {:passes-opts {:collect/what                    #{:constants :callsites}
+                                      :collect/where                   #{:deftype :reify :fn}
+                                      :collect/top-level?              false
+                                      :collect-closed-overs/where      #{:deftype :reify :fn :loop :try}
+                                      :collect-closed-overs/top-level? false}})
+    (-> ast
+      uniquify-locals
+      add-binding-atom
+      (prewalk (fn [ast]
+                 (-> ast
+                   warn-earmuff
+                   source-info
+                   elide-meta
+                   annotate-methods
+                   fix-case-test
+                   annotate-class-id
+                   annotate-internal-name)))
+      ((fn analyze [ast]
+         (postwalk ast
+                   (fn [ast]
+                     (-> ast
+                       analyze-host-expr
+                       constant-lift
+                       annotate-tag
+                       infer-tag
+                       validate
+                       classify-invoke
+                       ((validate-loop-locals analyze)))))))
+      (prewalk (fn [ast]
+                 (-> ast
+                   box
+                   warn-on-reflection
+                   annotate-loops  ;; needed for clear-locals to safely clear locals in a loop
+                   annotate-branch ;; needed for clear-locals
+                   ensure-tag)))
+      collect
+      collect-closed-overs
+      clear-locals)))
 
 (defn analyze
   "Returns an AST for the form that's compatible with what tools.emitter.jvm requires.
@@ -506,8 +473,7 @@
                                                                 elides)}
                            (:bindings opts))
        (env/ensure (global-env)
-         (env/with-env (swap! env/*env* merge
-                              {:passes-opts (:passes-opts opts)})
+         (env/with-env (swap! env/*env* mmerge {:passes-opts (:passes-opts opts)})
            (run-passes (-analyze form env)))))))
 
 (deftype ExceptionThrown [e])
