@@ -43,7 +43,7 @@
    :name "clojure.tools.analyzer.passes.jvm.annotate-methods",
    :doc nil}
   {:source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/afb17b6d233b620fc84291903e2a682879f84e4c/src/main/clojure/clojure/tools/analyzer/passes/jvm/annotate_tag.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/f690c7704c304b0ce579e3d2c3358a89b7006121/src/main/clojure/clojure/tools/analyzer/passes/jvm/annotate_tag.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm/passes.jvm.annotate-tag-api.html",
    :name "clojure.tools.analyzer.passes.jvm.annotate-tag",
@@ -367,9 +367,9 @@
    :name "annotate-tag",
    :namespace "clojure.tools.analyzer.passes.jvm.annotate-tag",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/afb17b6d233b620fc84291903e2a682879f84e4c/src/main/clojure/clojure/tools/analyzer/passes/jvm/annotate_tag.clj#L83",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/f690c7704c304b0ce579e3d2c3358a89b7006121/src/main/clojure/clojure/tools/analyzer/passes/jvm/annotate_tag.clj#L83",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/afb17b6d233b620fc84291903e2a682879f84e4c/src/main/clojure/clojure/tools/analyzer/passes/jvm/annotate_tag.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/f690c7704c304b0ce579e3d2c3358a89b7006121/src/main/clojure/clojure/tools/analyzer/passes/jvm/annotate_tag.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//passes.jvm.annotate-tag-api.html#clojure.tools.analyzer.passes.jvm.annotate-tag/annotate-tag",
    :doc
