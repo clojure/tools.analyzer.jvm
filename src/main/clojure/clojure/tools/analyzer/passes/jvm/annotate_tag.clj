@@ -8,7 +8,7 @@
 
 (ns clojure.tools.analyzer.passes.jvm.annotate-tag
   (:require [clojure.tools.analyzer.jvm.utils :refer [unbox maybe-class]]
-            [clojure.tools.analyzer.passes.constant-lifter :refer [constant-lift]])
+            [clojure.tools.analyzer.passes.jvm.constant-lifter :refer [constant-lift]])
   (:import (clojure.lang ISeq Var AFunction)))
 
 (defmulti -annotate-tag :op)
