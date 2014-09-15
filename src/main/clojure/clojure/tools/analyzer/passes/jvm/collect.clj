@@ -8,6 +8,7 @@
 
 (ns clojure.tools.analyzer.passes.jvm.collect
   (:require [clojure.tools.analyzer.ast :refer [update-children]]
+            [clojure.tools.analyzer.env :as env]
             [clojure.tools.analyzer.passes.jvm
              [constant-lifter :refer [constant-lift]]
              [annotate-tag :refer [annotate-tag]]
@@ -100,24 +101,28 @@
     nil))
 
 (defn collect
-  "Takes an AST and a map with:
-   * :what        set of keywords describing what to collect, some of:
-     ** :constants     constant expressions
-     ** :callsites     keyword and protocol callsites
-   * :where       set of :op nodes where to attach collected info
-   * :top-level?  if true attach collected info to the top-level node
+  "Takes an AST and returns it with the collected info, as specified by
+   the passes opts:
 
-   returns the AST with the collected info"
+   * :collect/what        set of keywords describing what to collect, some of:
+     ** :constants          constant expressions
+     ** :callsites          keyword and protocol callsites
+   * :collect/where       set of :op nodes where to attach collected info
+   * :collect/top-level?  if true attach collected info to the top-level node"
   {:pass-info {:walk :none :depends #{#'classify-invoke #'constant-lift #'annotate-tag}}}
-  [ast {:keys [what top-level?] :as opts}]
-  (binding [*collects* (atom (merge {:constants           {}
-                                     :protocol-callsites #{}
-                                     :keyword-callsites  #{}
-                                     :where              #{}
-                                     :what               #{}
-                                     :next-id             0}
-                                    opts))]
-    (let [ast (-collect ast (apply comp (keep collect-fns what)))]
-      (if top-level?
-        (merge-collects ast)
-        ast))))
+  [ast]
+  (let [passes-opts                  (:passes-opts (env/deref-env))
+        {[what top-level?] :as opts} {:what       (:collect/what passes-opts)
+                                      :where      (:collect/where passes-opts)
+                                      :top-level? (:collect/top-level? passes-opts)}]
+    (binding [*collects* (atom (merge {:constants           {}
+                                       :protocol-callsites #{}
+                                       :keyword-callsites  #{}
+                                       :where              #{}
+                                       :what               #{}
+                                       :next-id             0}
+                                      opts))]
+      (let [ast (-collect ast (apply comp (keep collect-fns what)))]
+        (if top-level?
+          (merge-collects ast)
+          ast)))))
