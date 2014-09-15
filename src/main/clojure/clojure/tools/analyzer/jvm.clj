@@ -15,7 +15,7 @@
              :rename {analyze -analyze}]
 
             [clojure.tools.analyzer
-             [utils :refer [ctx resolve-var -source-info resolve-ns obj? dissoc-env butlast+last]]
+             [utils :refer [ctx resolve-var -source-info resolve-ns obj? dissoc-env butlast+last mmerge]]
              [ast :refer [walk prewalk postwalk]]
              [env :as env :refer [*env*]]
              [passes :refer [schedule]]]
@@ -402,8 +402,6 @@
   [[_ etype ename & body :as form] env]
   (let [etype (if (= etype :default) Throwable etype)] ;; catch-all
     (ana/-parse `(catch ~etype ~ename ~@body) env)))
-
-(def ^:private mmerge #(merge-with merge %2 %1))
 
 (def default-passes
   "Set of passes that will be run by default on the AST by #'run-passes"
