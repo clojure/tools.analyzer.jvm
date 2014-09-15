@@ -402,6 +402,8 @@
   (let [etype (if (= etype :default) Throwable etype)] ;; catch-all
     (ana/-parse `(catch ~etype ~ename ~@body) env)))
 
+(def ^:private mmerge #(merge-with merge %2 %1))
+
 (defn ^:dynamic run-passes [ast]
   (env/with-env (swap! env/*env* mmerge
                        {:passes-opts {:collect/what                    #{:constants :callsites}
