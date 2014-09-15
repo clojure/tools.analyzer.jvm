@@ -462,10 +462,10 @@
                  annotate-branch ;; needed for clear-locals
                  ensure-tag)))
 
-    ((collect {:what       #{:constants
-                             :callsites}
-               :where      #{:deftype :reify :fn}
-               :top-level? false}))
+    (collect {:what       #{:constants
+                            :callsites}
+              :where      #{:deftype :reify :fn}
+              :top-level? false})
 
     ;; needs to be run in a separate pass to avoid collecting
     ;; constants/callsites in :loop

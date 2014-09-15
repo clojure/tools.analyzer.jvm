@@ -96,25 +96,23 @@
     nil))
 
 (defn collect
-  "Takes a map with:
+  "Takes an AST and a map with:
    * :what        set of keywords describing what to collect, some of:
      ** :constants     constant expressions
      ** :callsites     keyword and protocol callsites
    * :where       set of :op nodes where to attach collected info
    * :top-level?  if true attach collected info to the top-level node
 
-   Returns a function that does the takes an AST and returns an AST with the
-   collected info."
-  [{:keys [what top-level?] :as opts}]
-  (fn this [ast]
-    (binding [*collects* (atom (merge {:constants           {}
-                                       :protocol-callsites #{}
-                                       :keyword-callsites  #{}
-                                       :where              #{}
-                                       :what               #{}
-                                       :next-id             0}
-                                      opts))]
-      (let [ast (-collect ast (apply comp (keep collect-fns what)))]
-        (if top-level?
-          (merge-collects ast)
-          ast)))))
+   returns the AST with the collected info"
+  [ast {:keys [what top-level?] :as opts}]
+  (binding [*collects* (atom (merge {:constants           {}
+                                     :protocol-callsites #{}
+                                     :keyword-callsites  #{}
+                                     :where              #{}
+                                     :what               #{}
+                                     :next-id             0}
+                                    opts))]
+    (let [ast (-collect ast (apply comp (keep collect-fns what)))]
+      (if top-level?
+        (merge-collects ast)
+        ast))))
