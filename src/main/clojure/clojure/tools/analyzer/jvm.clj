@@ -28,26 +28,19 @@
              [elide-meta :refer [elide-meta elides]]
              [warn-earmuff :refer [warn-earmuff]]
              [collect-closed-overs :refer [collect-closed-overs]]
-             [add-binding-atom :refer [add-binding-atom]]
              [uniquify :refer [uniquify-locals]]]
 
             [clojure.tools.analyzer.passes.jvm
              [box :refer [box]]
              [collect :refer [collect]]
              [constant-lifter :refer [constant-lift]]
-             [annotate-branch :refer [annotate-branch]]
-             [annotate-loops :refer [annotate-loops]]
-             [annotate-methods :refer [annotate-methods]]
              [annotate-class-id :refer [annotate-class-id]]
              [annotate-internal-name :refer [annotate-internal-name]]
-             [fix-case-test :refer [fix-case-test]]
              [clear-locals :refer [clear-locals]]
              [classify-invoke :refer [classify-invoke]]
              [validate :refer [validate]]
              [infer-tag :refer [infer-tag ensure-tag]]
-             [annotate-tag :refer [annotate-tag]]
              [validate-loop-locals :refer [validate-loop-locals]]
-             [analyze-host-expr :refer [analyze-host-expr]]
              [warn-on-reflection :refer [warn-on-reflection]]
              [emit-form :refer [emit-form]]]
 
@@ -412,6 +405,7 @@
 
     #'source-info
     #'elide-meta
+    #'constant-lift
 
     #'clear-locals
     #'collect-closed-overs
