@@ -88,20 +88,19 @@ namespace.
     <hr />
     <h2 id="clojure.tools.analyzer.passes.jvm.collect/collect">collect</h2>
     <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (collect {:keys [what top-level?], :as opts})
+    <pre id="var-usage">Usage: (collect ast {:keys [what top-level?], :as opts})
 </pre>
-    <pre id="var-docstr">Takes a map with:
+    <pre id="var-docstr">Takes an AST and a map with:
 * :what        set of keywords describing what to collect, some of:
   ** :constants     constant expressions
   ** :callsites     keyword and protocol callsites
 * :where       set of :op nodes where to attach collected info
 * :top-level?  if true attach collected info to the top-level node
 
-Returns a function that does the takes an AST and returns an AST with the
-collected info.</pre>
+returns the AST with the collected info</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/7d75a03e021d5a754367f9a92deddd4be790a767/src/main/clojure/clojure/tools/analyzer/passes/jvm/collect.clj#L98" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/71fdaadbba54bbc45419d1c46ba5f30ef7efb6f7/src/main/clojure/clojure/tools/analyzer/passes/jvm/collect.clj#L98" id="var-source">Source</a>
   </div>
 </div>
 
