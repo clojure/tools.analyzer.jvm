@@ -245,7 +245,7 @@
       AST node which can be either a :maybe-class or a :maybe-host-form,
       those nodes are documented in the tools.analyzer quickref.
       The function must return a valid tools.analyzer.jvm AST node."
-  {:pass-info {:walk :pre :depends #{#'infer-tag #'analyze-host-expr}}}
+  {:pass-info {:walk :post :depends #{#'infer-tag #'analyze-host-expr}}}
   [{:keys [tag form env] :as ast}]
   (when-let [t (:tag (meta form))]
     (when-not (u/maybe-class t)
