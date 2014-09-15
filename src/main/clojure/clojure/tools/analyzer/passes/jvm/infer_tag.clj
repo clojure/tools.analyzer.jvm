@@ -10,7 +10,12 @@
   (:require [clojure.tools.analyzer.utils :refer [arglist-for-arity]]
             [clojure.tools.analyzer.jvm.utils :as u]
             [clojure.tools.analyzer.env :as env]
-            [clojure.set :refer [rename-keys]]))
+            [clojure.set :refer [rename-keys]]
+            [clojure.tools.analyzer.passes.jvm
+             [annotate-tag :refer [annotate-tag]]
+             [annotate-methods :refer [annotate-methods]]
+             [analyze-host-expr :refer [analyze-host-expr]]
+             [fix-case-test :refer [fix-case-test]]]))
 
 (defmulti -infer-tag :op)
 (defmethod -infer-tag :default [ast] ast)
@@ -263,6 +268,7 @@
   Passes opts:
   * :infer-tag/level  If :global, infer-tag will perform Var tag
                       inference"
+  {:pass-info {:walk :post :depends #{#'annotate-tag #'annotate-methods #'fix-case-test #'analyze-host-expr}}}
   [{:keys [tag form] :as ast}]
   (let [tag (or tag (:tag (meta form)))
         ast (-infer-tag ast)]

@@ -17,6 +17,7 @@
 (defn annotate-methods
   "Adds a :methods key to reify/deftype :methods info representing
    the reflected informations  for the required methods."
+  {:pass-info {:walk :pre :depends #{}}}
   [{:keys [op methods interfaces] :as ast}]
   (case op
     (:reify :deftype)

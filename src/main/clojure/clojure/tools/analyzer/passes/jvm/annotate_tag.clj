@@ -7,7 +7,8 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.annotate-tag
-  (:require [clojure.tools.analyzer.jvm.utils :refer [unbox maybe-class]])
+  (:require [clojure.tools.analyzer.jvm.utils :refer [unbox maybe-class]]
+            [clojure.tools.analyzer.passes.constant-lifter :refer [constant-lift]])
   (:import (clojure.lang ISeq Var AFunction)))
 
 (defmulti -annotate-tag :op)
@@ -78,9 +79,11 @@
   (let [o-tag (@atom :tag)]
     (assoc ast :o-tag o-tag :tag o-tag)))
 
+;; TODO: move binding/local logic to infer-tag
 (defn annotate-tag
   "If the AST node type is a constant object or contains :tag metadata,
    attach the appropriate :tag and :o-tag to the node."
+  {:pass-info {:walk :post :depends #{#'constant-lift}}}
   [{:keys [op tag o-tag atom] :as ast}]
   (let [ast (if (and atom (:case-test @atom))
               (update-in ast [:form] vary-meta dissoc :tag)

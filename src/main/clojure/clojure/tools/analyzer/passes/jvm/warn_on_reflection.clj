@@ -6,7 +6,8 @@
 ;;   the terms of this license.
 ;;   You must not remove this notice, or any other, from this software.
 
-(ns clojure.tools.analyzer.passes.jvm.warn-on-reflection)
+(ns clojure.tools.analyzer.passes.jvm.warn-on-reflection
+  (:require [clojure.tools.analyzer.passes.jvm.validate-loop-locals :refer [validate-loop-locals]]))
 
 (defn warn [what {:keys [file line column]}]
   (when *warn-on-reflection*
@@ -23,6 +24,7 @@
 (defmulti warn-on-reflection
   "Prints a warning to *err* when *warn-on-reflection* is true
    and a node requires runtime reflection"
+  {:pass-info {:walk :pre :depends #{#'validate-loop-locals}}}
   :op)
 
 (defmethod warn-on-reflection :instance-call

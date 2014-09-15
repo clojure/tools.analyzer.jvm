@@ -8,10 +8,12 @@
 
 (ns clojure.tools.analyzer.passes.jvm.box
   (:require [clojure.tools.analyzer.jvm.utils :as u]
-            [clojure.tools.analyzer.utils :refer [protocol-node? arglist-for-arity]]))
+            [clojure.tools.analyzer.utils :refer [protocol-node? arglist-for-arity]]
+            [clojure.tools.analyzer.passes.jvm.validate :refer [validate]]))
 
 (defmulti box
   "Box the AST node tag where necessary"
+  {:pass-info {:walk :pre :depends #{#'validate}}}
   :op)
 
 (defmacro if-let-box [class then else]

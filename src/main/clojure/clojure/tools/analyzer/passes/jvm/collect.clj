@@ -7,7 +7,11 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.collect
-  (:require [clojure.tools.analyzer.ast :refer [update-children]]))
+  (:require [clojure.tools.analyzer.ast :refer [update-children]]
+            [clojure.tools.analyzer.passes.jvm
+             [constant-lifter :refer [constant-lift]]
+             [annotate-tag :refer [annotate-tag]]
+             [classify-invoke :refer [classify-invoke]]]))
 
 (def ^:private ^:dynamic *collects*)
 
@@ -104,6 +108,7 @@
    * :top-level?  if true attach collected info to the top-level node
 
    returns the AST with the collected info"
+  {:pass-info {:walk :none :depends #{#'classify-invoke #'constant-lift #'annotate-tag}}}
   [ast {:keys [what top-level?] :as opts}]
   (binding [*collects* (atom (merge {:constants           {}
                                      :protocol-callsites #{}

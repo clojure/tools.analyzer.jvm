@@ -8,7 +8,11 @@
 
 (ns clojure.tools.analyzer.passes.jvm.clear-locals
   (:require [clojure.tools.analyzer.ast :refer [update-children]]
-            [clojure.tools.analyzer.utils :refer [ctx rseqv]]))
+            [clojure.tools.analyzer.utils :refer [ctx rseqv]]
+            [clojure.tools.analyzer.passes.jvm
+             [annotate-branch :refer [annotate-branch]]
+             [annotate-loops :refer [annotate-loops]]]
+            [clojure.tools.analyzer.passes.collect-closed-overs :refer [collect-closed-overs]]))
 
 (def ^:dynamic *clears*)
 
@@ -142,6 +146,7 @@
    * :invoke/protocol-invoke/prim-invoke/static-call/instance-call nodes
       in return position, meaning that the \"this\" local is eligible for
       clearing"
+  {:pass-info {:walk :none :depends #{#'collect-closed-overs #'annotate-branch #'annotate-loops}}}
   [ast]
   (if (:disable-locals-clearing *compiler-options*)
     ast
