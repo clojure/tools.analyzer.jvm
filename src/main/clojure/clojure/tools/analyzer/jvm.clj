@@ -17,7 +17,8 @@
             [clojure.tools.analyzer
              [utils :refer [ctx resolve-var -source-info resolve-ns obj? dissoc-env butlast+last]]
              [ast :refer [walk prewalk postwalk]]
-             [env :as env :refer [*env*]]]
+             [env :as env :refer [*env*]]
+             [passes :refer [schedule]]]
 
             [clojure.tools.analyzer.jvm.utils :refer :all :as u :exclude [box specials]]
 
@@ -404,46 +405,46 @@
 
 (def ^:private mmerge #(merge-with merge %2 %1))
 
-(defn ^:dynamic run-passes [ast]
+(def default-passes
+  "Set of passes that will be run by default on the AST by #'run-passes"
+  #{#'warn-on-reflection
+    #'warn-earmuff
+
+    #'uniquify-locals
+
+    #'source-info
+    #'elide-meta
+
+    #'clear-locals
+    #'collect-closed-overs
+    #'collect
+
+    #'ensure-tag
+    #'box
+
+    #'validate-loop-locals
+    #'validate
+    #'infer-tag
+
+    #'classify-invoke
+
+    #'annotate-class-id
+    #'annotate-internal-name})
+
+(def scheduled-default-passes
+  (schedule default-passes))
+
+(defn ^:dynamic run-passes
+  "Function that will be invoked on the AST tree immediately after it has been constructed,
+   by default set-ups and runs the default passes declared in #'default-passes"
+  [ast]
   (env/with-env (swap! env/*env* mmerge
                        {:passes-opts {:collect/what                    #{:constants :callsites}
                                       :collect/where                   #{:deftype :reify :fn}
                                       :collect/top-level?              false
                                       :collect-closed-overs/where      #{:deftype :reify :fn :loop :try}
                                       :collect-closed-overs/top-level? false}})
-    (-> ast
-      uniquify-locals
-      add-binding-atom
-      (prewalk (fn [ast]
-                 (-> ast
-                   warn-earmuff
-                   source-info
-                   elide-meta
-                   annotate-methods
-                   fix-case-test
-                   annotate-class-id
-                   annotate-internal-name)))
-      ((fn analyze [ast]
-         (postwalk ast
-                   (fn [ast]
-                     (-> ast
-                       analyze-host-expr
-                       constant-lift
-                       annotate-tag
-                       infer-tag
-                       validate
-                       classify-invoke
-                       ((validate-loop-locals analyze)))))))
-      (prewalk (fn [ast]
-                 (-> ast
-                   box
-                   warn-on-reflection
-                   annotate-loops  ;; needed for clear-locals to safely clear locals in a loop
-                   annotate-branch ;; needed for clear-locals
-                   ensure-tag)))
-      collect
-      collect-closed-overs
-      clear-locals)))
+    (scheduled-default-passes ast)))
 
 (defn analyze
   "Returns an AST for the form that's compatible with what tools.emitter.jvm requires.
