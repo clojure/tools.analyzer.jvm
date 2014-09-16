@@ -20,7 +20,7 @@
   "Like clojure.tools.analyzer.passes.constant-lifter/constant-lift but
    transforms also :var nodes where the var has :const in the metadata
    into :const nodes and preserves tag info"
-  {:pass-info {:walk :post :depends #{#'elide-meta #'analyze-host-expr}}}
+  {:pass-info {:walk :post :depends #{} :after #{#'elide-meta #'analyze-host-expr}}}
   [ast]
   (merge (constant-lift* ast)
          (select-keys ast [:tag :o-tag :return-tag :arglists])))

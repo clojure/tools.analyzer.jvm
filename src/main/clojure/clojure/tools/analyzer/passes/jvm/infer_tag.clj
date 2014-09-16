@@ -279,7 +279,7 @@
              {:o-tag o-tag}))))
 
 (defn ensure-tag
-  {:pass-info {:walk :any :depends #{#'infer-tag}}} ;; + validate
+  {:pass-info {:walk :any :depends #{#'infer-tag}}}
   [{:keys [o-tag tag] :as ast}]
   (assoc ast
     :tag   (or tag Object)

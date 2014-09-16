@@ -83,7 +83,7 @@
 (defn annotate-tag
   "If the AST node type is a constant object or contains :tag metadata,
    attach the appropriate :tag and :o-tag to the node."
-  {:pass-info {:walk :post :depends #{#'constant-lift}}}
+  {:pass-info {:walk :post :depends #{} :after #{#'constant-lift}}}
   [{:keys [op tag o-tag atom] :as ast}]
   (let [ast (if (and atom (:case-test @atom))
               (update-in ast [:form] vary-meta dissoc :tag)

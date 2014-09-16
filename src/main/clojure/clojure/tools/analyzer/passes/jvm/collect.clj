@@ -109,7 +109,7 @@
      ** :callsites          keyword and protocol callsites
    * :collect/where       set of :op nodes where to attach collected info
    * :collect/top-level?  if true attach collected info to the top-level node"
-  {:pass-info {:walk :none :depends #{#'classify-invoke #'constant-lift #'annotate-tag}}}
+  {:pass-info {:walk :none :depends #{#'classify-invoke #'annotate-tag} :after #{#'constant-lift}}}
   [ast]
   (let [passes-opts                        (:passes-opts (env/deref-env))
         {:keys [what top-level?] :as opts} {:what       (:collect/what passes-opts)
