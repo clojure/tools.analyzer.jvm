@@ -197,7 +197,8 @@
 (deftest var-tag-inference
   (let [ast (ana.jvm/analyze '(def a "foo")
                              (ana.jvm/empty-env)
-                             {:passes-opts {:infer-tag/level :global}})]
+                             {:passes-opts (merge ana.jvm/default-passes-opts
+                                                  {:infer-tag/level :global})})]
     (is (= String (-> ast :var meta :tag)))))
 
 (deftest validate-handlers
@@ -206,5 +207,6 @@
   ;; of the clojure compiler
   (is (ana.jvm/analyze '(defn ^long a [] 1)
                        (ana.jvm/empty-env)
-                       {:passes-opts {:validate/wrong-tag-handler (fn [t ast]
-                                                                    {t nil})}})))
+                       {:passes-opts (merge ana.jvm/default-passes-opts
+                                            {:validate/wrong-tag-handler (fn [t ast]
+                                                                           {t nil})})})))
