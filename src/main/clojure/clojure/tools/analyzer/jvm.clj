@@ -424,13 +424,14 @@
   "Function that will be invoked on the AST tree immediately after it has been constructed,
    by default set-ups and runs the default passes declared in #'default-passes"
   [ast]
-  (env/with-env (swap! env/*env* mmerge
-                       {:passes-opts {:collect/what                    #{:constants :callsites}
-                                      :collect/where                   #{:deftype :reify :fn}
-                                      :collect/top-level?              false
-                                      :collect-closed-overs/where      #{:deftype :reify :fn :loop :try}
-                                      :collect-closed-overs/top-level? false}})
-    (scheduled-default-passes ast)))
+  (scheduled-default-passes ast))
+
+(def default-passes-opts
+  {:collect/what                    #{:constants :callsites}
+   :collect/where                   #{:deftype :reify :fn}
+   :collect/top-level?              false
+   :collect-closed-overs/where      #{:deftype :reify :fn :loop :try}
+   :collect-closed-overs/top-level? false})
 
 (defn analyze
   "Returns an AST for the form that's compatible with what tools.emitter.jvm requires.
@@ -462,7 +463,8 @@
                                                                 elides)}
                            (:bindings opts))
        (env/ensure (global-env)
-         (env/with-env (swap! env/*env* mmerge {:passes-opts (:passes-opts opts)})
+         (env/with-env (swap! env/*env* mmerge
+                              {:passes-opts (or (:passes-opts opts) default-passes-opts)})
            (run-passes (-analyze form env)))))))
 
 (deftype ExceptionThrown [e])
