@@ -34,12 +34,10 @@
              [box :refer [box]]
              [collect :refer [collect]]
              [constant-lifter :refer [constant-lift]]
-             [annotate-class-id :refer [annotate-class-id]]
-             [annotate-internal-name :refer [annotate-internal-name]]
              [clear-locals :refer [clear-locals]]
              [classify-invoke :refer [classify-invoke]]
              [validate :refer [validate]]
-             [infer-tag :refer [infer-tag ensure-tag]]
+             [infer-tag :refer [infer-tag]]
              [validate-loop-locals :refer [validate-loop-locals]]
              [warn-on-reflection :refer [warn-on-reflection]]
              [emit-form :refer [emit-form]]]
@@ -411,17 +409,13 @@
     #'collect-closed-overs
     #'collect
 
-    #'ensure-tag
     #'box
 
     #'validate-loop-locals
     #'validate
     #'infer-tag
 
-    #'classify-invoke
-
-    #'annotate-class-id
-    #'annotate-internal-name})
+    #'classify-invoke})
 
 (def scheduled-default-passes
   (schedule default-passes))
