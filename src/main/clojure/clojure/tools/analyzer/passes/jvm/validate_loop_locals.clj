@@ -11,6 +11,7 @@
             [clojure.tools.analyzer.jvm.utils :refer [wider-tag maybe-class primitive?]]
             [clojure.tools.analyzer.passes.jvm
              [validate :refer [validate]]
+             [classify-invoke :refer [classify-invoke]]
              [infer-tag :refer [infer-tag]]
              [analyze-host-expr :refer [analyze-host-expr]]]))
 
