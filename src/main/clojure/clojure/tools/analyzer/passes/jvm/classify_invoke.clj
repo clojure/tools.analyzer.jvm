@@ -23,7 +23,7 @@
    * if it is a regular function with primitive type hints that match a
      clojure.lang.IFn$[primitive interface], transform the node in a :prim-invoke
      node"
-  {:pass-info {:walk :any :depends #{#'validate}}}
+  {:pass-info {:walk :post :depends #{#'validate}}}
   [{:keys [op args tag env form] :as ast}]
   (if-not (= op :invoke)
     ast
