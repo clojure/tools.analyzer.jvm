@@ -427,6 +427,7 @@
   (scheduled-default-passes ast))
 
 (def default-passes-opts
+  "Default :passes-opts for `analyze`"
   {:collect/what                    #{:constants :callsites}
    :collect/where                   #{:deftype :reify :fn}
    :collect/top-level?              false
@@ -440,7 +441,8 @@
    tools.analyzer.jvm/{macroexpand-1,create-var,parse} and analyzes the form.
 
    If provided, opts should be a map of options to analyze, currently the only valid
-   options are :bindings and :passes-opts.
+   options are :bindings and :passes-opts (if not provided, :passes-opts defaults to the
+   value of `default-passes-opts`).
    If provided, :bindings should be a map of Var->value pairs that will be merged into the
    default bindings for tools.analyzer, useful to provide custom extension points.
    If provided, :passes-opts should be a map of pass-name-kw->pass-config-map pairs that
