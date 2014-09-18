@@ -90,3 +90,6 @@
     (is (= :loop (:op tree)))
     (is (.startsWith (name (:name chunk)) "chunk"))
     (is (= clojure.lang.IChunk (:tag chunk)))))
+
+(deftest analyze-proxy
+  (is (ast1 (proxy [Object] []))))
