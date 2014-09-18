@@ -512,9 +512,8 @@
                  result (try (eval frm) ;; eval the emitted form rather than directly the form to avoid double macroexpansion
                              (catch Exception e
                                (ExceptionThrown. e)))]
-             (merge a
-                    {:result    result
-                     :raw-forms raw-forms})))))))
+             (merge a {:result    result
+                       :raw-forms raw-forms})))))))
 
 (defn analyze'
   "Like `analyze` but runs cleanup on the AST"
