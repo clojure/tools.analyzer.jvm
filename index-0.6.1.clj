@@ -7,7 +7,7 @@
    :doc
    "Analyzer for clojure code, extends tools.analyzer with JVM specific passes/forms"}
   {:source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/e0b686a33e89d7d74d5131e3f4356a0a9aea20ff/src/main/clojure/clojure/tools/analyzer/passes/jvm/analyze_host_expr.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/cef273d52876b4e76cf9f4c47c0d0c66aa2aabd2/src/main/clojure/clojure/tools/analyzer/passes/jvm/analyze_host_expr.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm/passes.jvm.analyze-host-expr-api.html",
    :name "clojure.tools.analyzer.passes.jvm.analyze-host-expr",
@@ -320,13 +320,13 @@
    :name "analyze-host-expr",
    :namespace "clojure.tools.analyzer.passes.jvm.analyze-host-expr",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/e0b686a33e89d7d74d5131e3f4356a0a9aea20ff/src/main/clojure/clojure/tools/analyzer/passes/jvm/analyze_host_expr.clj#L142",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/cef273d52876b4e76cf9f4c47c0d0c66aa2aabd2/src/main/clojure/clojure/tools/analyzer/passes/jvm/analyze_host_expr.clj#L142",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/e0b686a33e89d7d74d5131e3f4356a0a9aea20ff/src/main/clojure/clojure/tools/analyzer/passes/jvm/analyze_host_expr.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/cef273d52876b4e76cf9f4c47c0d0c66aa2aabd2/src/main/clojure/clojure/tools/analyzer/passes/jvm/analyze_host_expr.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//passes.jvm.analyze-host-expr-api.html#clojure.tools.analyzer.passes.jvm.analyze-host-expr/analyze-host-expr",
    :doc
-   "Performing some reflection, transforms :host-interop/:host-call/:host-field\nnodes in either: :static-field, :static-call, :instance-call, :instance-field\nor :host-interop nodes, and a :var or :maybe-class node in a :const :class node,\nif necessary (class literals shadow Vars).\n\nA :host-interop node represents either an instance-field or a no-arg instance-method.\n\n",
+   "Performing some reflection, transforms :host-interop/:host-call/:host-field\nnodes in either: :static-field, :static-call, :instance-call, :instance-field\nor :host-interop nodes, and a :var or :maybe-class node in a :const :class node,\nif necessary (class literals shadow Vars).\n\nA :host-interop node represents either an instance-field or a no-arg instance-method. ",
    :var-type "function",
    :line 142,
    :file
