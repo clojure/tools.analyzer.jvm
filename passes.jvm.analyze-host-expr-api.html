@@ -92,12 +92,15 @@ namespace.
 </pre>
     <pre id="var-docstr">Performing some reflection, transforms :host-interop/:host-call/:host-field
 nodes in either: :static-field, :static-call, :instance-call, :instance-field
-or :host-interop nodes.
+or :host-interop nodes, and a :var or :maybe-class node in a :const :class node,
+if necessary (class literals shadow Vars).
 
-A :host-interop node represents either an instance-field or a no-arg instance-method.</pre>
+A :host-interop node represents either an instance-field or a no-arg instance-method.
+
+</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/afb17b6d233b620fc84291903e2a682879f84e4c/src/main/clojure/clojure/tools/analyzer/passes/jvm/analyze_host_expr.clj#L142" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/e0b686a33e89d7d74d5131e3f4356a0a9aea20ff/src/main/clojure/clojure/tools/analyzer/passes/jvm/analyze_host_expr.clj#L142" id="var-source">Source</a>
   </div>
 </div>
 
