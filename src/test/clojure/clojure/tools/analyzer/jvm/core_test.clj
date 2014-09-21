@@ -91,5 +91,9 @@
     (is (.startsWith (name (:name chunk)) "chunk"))
     (is (= clojure.lang.IChunk (:tag chunk)))))
 
+(def ^:dynamic x)
+(deftest set!-dynamic-var
+  (is (ast1 (set! x 1))))
+
 (deftest analyze-proxy
   (is (ast1 (proxy [Object] []))))
