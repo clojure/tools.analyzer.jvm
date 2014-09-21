@@ -7,7 +7,7 @@
    :doc
    "Analyzer for clojure code, extends tools.analyzer with JVM specific passes/forms"}
   {:source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/cef273d52876b4e76cf9f4c47c0d0c66aa2aabd2/src/main/clojure/clojure/tools/analyzer/passes/jvm/analyze_host_expr.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/e54155a3c7aeacdcd7321ff57ddba4f0788161b0/src/main/clojure/clojure/tools/analyzer/passes/jvm/analyze_host_expr.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm/passes.jvm.analyze-host-expr-api.html",
    :name "clojure.tools.analyzer.passes.jvm.analyze-host-expr",
@@ -320,9 +320,9 @@
    :name "analyze-host-expr",
    :namespace "clojure.tools.analyzer.passes.jvm.analyze-host-expr",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/cef273d52876b4e76cf9f4c47c0d0c66aa2aabd2/src/main/clojure/clojure/tools/analyzer/passes/jvm/analyze_host_expr.clj#L142",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/e54155a3c7aeacdcd7321ff57ddba4f0788161b0/src/main/clojure/clojure/tools/analyzer/passes/jvm/analyze_host_expr.clj#L142",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/cef273d52876b4e76cf9f4c47c0d0c66aa2aabd2/src/main/clojure/clojure/tools/analyzer/passes/jvm/analyze_host_expr.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/e54155a3c7aeacdcd7321ff57ddba4f0788161b0/src/main/clojure/clojure/tools/analyzer/passes/jvm/analyze_host_expr.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//passes.jvm.analyze-host-expr-api.html#clojure.tools.analyzer.passes.jvm.analyze-host-expr/analyze-host-expr",
    :doc
