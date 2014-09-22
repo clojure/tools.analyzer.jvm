@@ -97,7 +97,7 @@
    :name "clojure.tools.analyzer.passes.jvm.infer-tag",
    :doc nil}
   {:source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/86e46d36a2a5a5e88100e8eaaaa47a18a2f34b5b/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/a674e2ae9d4c29f6f31c1c4162bc71104721c32e/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm/passes.jvm.validate-api.html",
    :name "clojure.tools.analyzer.passes.jvm.validate",
@@ -553,13 +553,13 @@
    :name "validate",
    :namespace "clojure.tools.analyzer.passes.jvm.validate",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/86e46d36a2a5a5e88100e8eaaaa47a18a2f34b5b/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj#L228",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/a674e2ae9d4c29f6f31c1c4162bc71104721c32e/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj#L228",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/86e46d36a2a5a5e88100e8eaaaa47a18a2f34b5b/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/a674e2ae9d4c29f6f31c1c4162bc71104721c32e/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//passes.jvm.validate-api.html#clojure.tools.analyzer.passes.jvm.validate/validate",
    :doc
-   "Validate tags, classes, method calls.\nThrows exceptions when invalid forms are encountered, replaces\nclass symbols with class objects.\n\nPasses opts:\n* :validate/throw-on-arity-mismatch\n   If true, validate will throw on potential arity mismatch\n* :validate/wrong-tag-handler\n   If bound to a function, will invoke that function instead of\n   throwing on invalid tag.\n   The function takes the tag key and the AST and must return\n   a map of tag key -> valid tag value (or nil)\n* :validate/unresolvable-symbol-handler\n   If bound to a function, will invoke that function instead of\n   throwing on unresolvable symbol.\n   The function takes three arguments: the namespace (possibly nil)\n   and name part of the symbol, as symbols and the originating\n   AST node which can be either a :maybe-class or a :maybe-host-form,\n   those nodes are documented in the tools.analyzer quickref.\n   The function must return a valid tools.analyzer.jvm AST node.",
+   "Validate tags, classes, method calls.\nThrows exceptions when invalid forms are encountered, replaces\nclass symbols with class objects.\n\nPasses opts:\n* :validate/throw-on-arity-mismatch\n   If true, validate will throw on potential arity mismatch\n* :validate/wrong-tag-handler\n   If bound to a function, will invoke that function instead of\n   throwing on invalid tag.\n   The function takes the tag key (or nil if the node is :def and\n   the wrong tag is the one on the :name field meta) and must return a\n   map that will be merged into the AST and should be used to replace\n   or remove (replacing with nil or Object) the wrong tags.\n* :validate/unresolvable-symbol-handler\n   If bound to a function, will invoke that function instead of\n   throwing on unresolvable symbol.\n   The function takes three arguments: the namespace (possibly nil)\n   and name part of the symbol, as symbols and the originating\n   AST node which can be either a :maybe-class or a :maybe-host-form,\n   those nodes are documented in the tools.analyzer quickref.\n   The function must return a valid tools.analyzer.jvm AST node.",
    :var-type "function",
    :line 228,
    :file
