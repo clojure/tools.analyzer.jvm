@@ -166,16 +166,17 @@
 
 (defmethod -validate :def
   [ast]
-  (when-let [tag (-> ast :name meta :tag)]
-    (let [c (u/maybe-class tag)
-          s (if (symbol? tag) (name tag) tag)]
-      (when-not (and c (not (or (u/specials s) (u/special-arrays s))))
-        (if-let [handle (-> (env/deref-env) :passes-opts :validate/wrong-tag-handler)]
-          (handle nil ast)
-          (throw (ex-info (str "Wrong tag: " (eval tag) " in def: " (:name ast))
-                          (merge {:ast      (prewalk ast cleanup)}
-                                 (source-info (:env ast)))))))))
-  ast)
+  (merge
+   ast
+   (when-let [tag (-> ast :name meta :tag)]
+     (let [c (u/maybe-class tag)
+           s (if (symbol? tag) (name tag) tag)]
+       (when-not (and c (not (or (u/specials s) (u/special-arrays s))))
+         (if-let [handle (-> (env/deref-env) :passes-opts :validate/wrong-tag-handler)]
+           (handle nil ast)
+           (throw (ex-info (str "Wrong tag: " (eval tag) " in def: " (:name ast))
+                           (merge {:ast      (prewalk ast cleanup)}
+                                  (source-info (:env ast)))))))))))
 
 (defmethod -validate :invoke
   [{:keys [args env fn form] :as ast}]
