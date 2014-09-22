@@ -173,7 +173,9 @@
                    :form  form))
 
                :var
-               (if-let [the-class (maybe-class form)]
+               (if-let [the-class (and (not (namespace form))
+                                       (pos? (.indexOf (str form) "."))
+                                       (maybe-class form))]
                  (assoc (ana/-analyze :const the-class env :class)
                    :tag   Class
                    :o-tag Class
