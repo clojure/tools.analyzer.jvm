@@ -236,8 +236,10 @@
    * :validate/wrong-tag-handler
       If bound to a function, will invoke that function instead of
       throwing on invalid tag.
-      The function takes the tag key and the AST and must return
-      a map of tag key -> valid tag value (or nil)
+      The function takes the tag key (or nil if the node is :def and
+      the wrong tag is the one on the :name field meta) and must return a
+      map that will be merged into the AST and should be used to replace
+      or remove (replacing with nil or Object) the wrong tags.
    * :validate/unresolvable-symbol-handler
       If bound to a function, will invoke that function instead of
       throwing on unresolvable symbol.
