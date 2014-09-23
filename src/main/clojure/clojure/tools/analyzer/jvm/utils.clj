@@ -49,11 +49,9 @@
     "objects" (Class/forName "[Ljava.lang.Object;")
     nil))
 
-(defmulti ^Class -maybe-class class)
-
-(def ^Class maybe-class
+(defmulti ^Class maybe-class
   "Takes a Symbol, String or Class and tires to resolve to a matching Class"
-  (lru (fn [x] (-maybe-class x))))
+  class)
 
 (defn array-class [element-type]
   (RT/classForName
@@ -63,20 +61,21 @@
               .getDescriptor
               (.replace \/ \.)))))
 
-(defn maybe-class-from-string [s]
-  (try
-    (RT/classForName s)
-    (catch Exception _
-      (if-let [maybe-class ((ns-map *ns*) (symbol s))]
-        (when (class? maybe-class)
-          maybe-class)))))
+(def maybe-class-from-string
+  (lru (fn maybe-class-from-string [s]
+         (try
+           (RT/classForName s)
+           (catch Exception _
+             (if-let [maybe-class ((ns-map *ns*) (symbol s))]
+               (when (class? maybe-class)
+                 maybe-class)))))))
 
-(defmethod -maybe-class :default [_] nil)
-(defmethod -maybe-class Class [c] c)
-(defmethod -maybe-class String [s]
+(defmethod maybe-class :default [_] nil)
+(defmethod maybe-class Class [c] c)
+(defmethod maybe-class String [s]
   (maybe-class (symbol s)))
 
-(defmethod -maybe-class Symbol [sym]
+(defmethod maybe-class Symbol [sym]
   (when-not (namespace sym)
     (let [sname (name sym)
           snamec (count sname)]

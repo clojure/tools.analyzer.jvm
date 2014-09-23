@@ -289,9 +289,10 @@
 ;; HACK
 (defn -deftype [name class-name args interfaces]
 
-  (doseq [arg [class-name (str class-name) name (str name)]
-          f   [maybe-class members*]]
-    (memo-clear! f [arg]))
+  (doseq [arg [class-name name]]
+    (memo-clear! maybe-class-from-string [(str arg)])
+    (memo-clear! members* [arg])
+    (memo-clear! members* [(str arg)]))
 
   (let [interfaces (mapv #(symbol (.getName ^Class %)) interfaces)]
     (eval (list 'let []
