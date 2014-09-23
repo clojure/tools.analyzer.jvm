@@ -32,7 +32,7 @@
   `(ana.jvm/macroexpand-1 '~form e))
 
 (deftest macroexpander-test
-  (is (= (list '. (list 'clojure.core/identity java.lang.Object) 'toString)
+  (is (= (list '. (list 'do java.lang.Object) 'toString)
          (mexpand (.toString Object))))
   (is (= (list '. java.lang.Integer '(parseInt "2")) (mexpand (Integer/parseInt "2")))))
 
