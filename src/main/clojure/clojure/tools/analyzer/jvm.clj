@@ -436,7 +436,8 @@
    :collect/where                   #{:deftype :reify :fn}
    :collect/top-level?              false
    :collect-closed-overs/where      #{:deftype :reify :fn :loop :try}
-   :collect-closed-overs/top-level? false})
+   :collect-closed-overs/top-level? false
+   :uniquify/uniquify-env           true})
 
 (defn analyze
   "Returns an AST for the form that's compatible with what tools.emitter.jvm requires.
