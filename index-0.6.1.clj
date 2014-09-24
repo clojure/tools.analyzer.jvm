@@ -97,7 +97,7 @@
    :name "clojure.tools.analyzer.passes.jvm.infer-tag",
    :doc nil}
   {:source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/a674e2ae9d4c29f6f31c1c4162bc71104721c32e/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/407273c64a8853c315d67f24999fd4cedd78268a/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm/passes.jvm.validate-api.html",
    :name "clojure.tools.analyzer.passes.jvm.validate",
@@ -553,9 +553,9 @@
    :name "validate",
    :namespace "clojure.tools.analyzer.passes.jvm.validate",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/a674e2ae9d4c29f6f31c1c4162bc71104721c32e/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj#L228",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/407273c64a8853c315d67f24999fd4cedd78268a/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj#L228",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/a674e2ae9d4c29f6f31c1c4162bc71104721c32e/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/407273c64a8853c315d67f24999fd4cedd78268a/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//passes.jvm.validate-api.html#clojure.tools.analyzer.passes.jvm.validate/validate",
    :doc
