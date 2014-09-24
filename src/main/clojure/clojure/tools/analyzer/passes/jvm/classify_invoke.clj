@@ -64,7 +64,7 @@
                :tag      (or tag Boolean/TYPE)
                :children [:target]})
 
-       (and var? (protocol-node? the-var))
+       (and var? (protocol-node? the-var (:meta the-fn)))
        (if (>= argc 1)
          (merge (dissoc ast :fn)
                 {:op          :protocol-invoke
