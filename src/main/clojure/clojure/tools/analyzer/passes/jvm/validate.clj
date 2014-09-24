@@ -13,7 +13,7 @@
             [clojure.tools.analyzer.passes.jvm
              [infer-tag :refer [infer-tag]]
              [analyze-host-expr :refer [analyze-host-expr]]]
-            [clojure.tools.analyzer.utils :refer [arglist-for-arity source-info resolve-var resolve-ns]]
+            [clojure.tools.analyzer.utils :refer [arglist-for-arity source-info resolve-var resolve-ns merge']]
             [clojure.tools.analyzer.jvm.utils :as u :refer [tag-match? try-best-match]])
   (:import (clojure.lang IFn ExceptionInfo)))
 
@@ -94,15 +94,15 @@
                    arg-tags (mapv u/maybe-class (:parameter-types m))
                    args (mapv (fn [arg tag] (assoc arg :tag tag)) args arg-tags)
                    class (u/maybe-class (:declaring-class m))]
-               (merge ast
-                      {:method     (:name m)
-                       :validated? true
-                       :class      class
-                       :o-tag      ret-tag
-                       :tag        (or tag ret-tag)
-                       :args       args}
-                      (if instance?
-                        {:instance (assoc instance :tag class)})))
+               (merge' ast
+                       {:method     (:name m)
+                        :validated? true
+                        :class      class
+                        :o-tag      ret-tag
+                        :tag        (or tag ret-tag)
+                        :args       args}
+                       (if instance?
+                         {:instance (assoc instance :tag class)})))
              (if all-ret-equals?
                (let [ret-tag (:return-type m)]
                  (assoc ast
