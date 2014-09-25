@@ -169,14 +169,15 @@
   (merge
    ast
    (when-let [tag (-> ast :name meta :tag)]
-     (let [c (u/maybe-class tag)
-           s (if (symbol? tag) (name tag) tag)]
-       (when-not (and c (not (or (u/specials s) (u/special-arrays s))))
-         (if-let [handle (-> (env/deref-env) :passes-opts :validate/wrong-tag-handler)]
-           (handle nil ast)
-           (throw (ex-info (str "Wrong tag: " (eval tag) " in def: " (:name ast))
-                           (merge {:ast      (prewalk ast cleanup)}
-                                  (source-info (:env ast)))))))))))
+     (when (and (symbol? tag) (or (u/specials tag) (u/special-arrays tag)))
+       ;; we cannot validate all tags since :tag might contain a function call that returns
+       ;; a valid tag at runtime, however if tag is one of u/specials or u/special-arrays
+       ;; we know that it's a wrong tag as it's going to be evaluated as a clojure.core function
+       (if-let [handle (-> (env/deref-env) :passes-opts :validate/wrong-tag-handler)]
+         (handle nil ast)
+         (throw (ex-info (str "Wrong tag: " (eval tag) " in def: " (:name ast))
+                         (merge {:ast      (prewalk ast cleanup)}
+                                (source-info (:env ast))))))))))
 
 (defmethod -validate :invoke
   [{:keys [args env fn form] :as ast}]
