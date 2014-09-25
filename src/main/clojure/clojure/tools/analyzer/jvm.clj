@@ -309,7 +309,7 @@
         methods (mapv #(assoc (analyze-method-impls % menv) :interfaces interfaces)
                       methods)]
 
-    (-deftype name class-name [] interfaces)
+    (-deftype name class-name '[__meta] interfaces)
 
     (wrapping-meta
      {:op         :reify
