@@ -169,7 +169,7 @@
   (merge
    ast
    (when-let [tag (-> ast :name meta :tag)]
-     (when (and (symbol? tag) (or (u/specials tag) (u/special-arrays tag)))
+     (when (and (symbol? tag) (or (u/specials (str tag)) (u/special-arrays (str tag))))
        ;; we cannot validate all tags since :tag might contain a function call that returns
        ;; a valid tag at runtime, however if tag is one of u/specials or u/special-arrays
        ;; we know that it's a wrong tag as it's going to be evaluated as a clojure.core function
