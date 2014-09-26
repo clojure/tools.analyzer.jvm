@@ -100,7 +100,7 @@ user> (ana.jvm/analyze-ns 'clojure.string)
 
 [AST Quickref](http://clojure.github.io/tools.analyzer.jvm/spec/quickref.html)
 ========================================
-Note that the quickref refers to the last stable release of t.a.jvm and might contain differences from the current SNAPSHOT version or previous ones.
+Note that the quickref refers to the last stable release of t.a.jvm and might not be valid for the current SNAPSHOT version or for previous ones.
 
 ## SPONSORSHIP
 
