@@ -190,7 +190,7 @@ namespace.
     <pre id="var-docstr">Positional factory function for class clojure.tools.analyzer.jvm.ExceptionThrown.</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/2f3499280dc2bb62d6f291738ecc04f91b0d7dbb/src/main/clojure/clojure/tools/analyzer/jvm.clj#L476" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/1e810c6558d55a68bf940c6529fd5bc9457a6de1/src/main/clojure/clojure/tools/analyzer/jvm.clj#L479" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -200,10 +200,11 @@ namespace.
        (analyze form env)
        (analyze form env opts)
 </pre>
-    <pre id="var-docstr">Returns an AST for the form that's compatible with what tools.emitter.jvm requires.
+    <pre id="var-docstr">Analyzes a clojure form using tools.analyzer augmented with the JVM specific special ops
+and returns its AST, after running #'run-passes on it.
 
-Binds tools.analyzer/{macroexpand-1,create-var,parse} to
-tools.analyzer.jvm/{macroexpand-1,create-var,parse} and analyzes the form.
+If no configuration option is provides, analyze will setup tools.analyzer using the extension
+points declared in this namespace.
 
 If provided, opts should be a map of options to analyze, currently the only valid
 options are :bindings and :passes-opts (if not provided, :passes-opts defaults to the
@@ -214,12 +215,10 @@ If provided, :passes-opts should be a map of pass-name-kw-&gt;pass-config-map pa
 can be used to configure the behaviour of each pass.
 
 E.g.
-(analyze form env {:bindings  {#'ana/macroexpand-1 my-mexpand-1}})
-
-Calls `run-passes` on the AST.</pre>
+(analyze form env {:bindings  {#'ana/macroexpand-1 my-mexpand-1}})</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/2f3499280dc2bb62d6f291738ecc04f91b0d7dbb/src/main/clojure/clojure/tools/analyzer/jvm.clj#L441" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/1e810c6558d55a68bf940c6529fd5bc9457a6de1/src/main/clojure/clojure/tools/analyzer/jvm.clj#L445" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -232,7 +231,7 @@ Calls `run-passes` on the AST.</pre>
     <pre id="var-docstr">Like `analyze` but runs cleanup on the AST</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/2f3499280dc2bb62d6f291738ecc04f91b0d7dbb/src/main/clojure/clojure/tools/analyzer/jvm.clj#L524" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/1e810c6558d55a68bf940c6529fd5bc9457a6de1/src/main/clojure/clojure/tools/analyzer/jvm.clj#L527" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -251,7 +250,7 @@ with the exception in the "e" field.
 Useful when analyzing whole files/namespaces.</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/2f3499280dc2bb62d6f291738ecc04f91b0d7dbb/src/main/clojure/clojure/tools/analyzer/jvm.clj#L478" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/1e810c6558d55a68bf940c6529fd5bc9457a6de1/src/main/clojure/clojure/tools/analyzer/jvm.clj#L481" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -264,7 +263,7 @@ Useful when analyzing whole files/namespaces.</pre>
     <pre id="var-docstr">Like `analyze+eval` but runs cleanup on the AST</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/2f3499280dc2bb62d6f291738ecc04f91b0d7dbb/src/main/clojure/clojure/tools/analyzer/jvm.clj#L531" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/1e810c6558d55a68bf940c6529fd5bc9457a6de1/src/main/clojure/clojure/tools/analyzer/jvm.clj#L534" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -277,7 +276,7 @@ top-level ASTs of that namespace.
 Evaluates all the forms.</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/2f3499280dc2bb62d6f291738ecc04f91b0d7dbb/src/main/clojure/clojure/tools/analyzer/jvm.clj#L538" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/1e810c6558d55a68bf940c6529fd5bc9457a6de1/src/main/clojure/clojure/tools/analyzer/jvm.clj#L541" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -289,7 +288,7 @@ Evaluates all the forms.</pre>
 The Var gets interned in the env namespace.</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/2f3499280dc2bb62d6f291738ecc04f91b0d7dbb/src/main/clojure/clojure/tools/analyzer/jvm.clj#L194" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/1e810c6558d55a68bf940c6529fd5bc9457a6de1/src/main/clojure/clojure/tools/analyzer/jvm.clj#L194" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -299,7 +298,7 @@ The Var gets interned in the env namespace.</pre>
     <pre id="var-docstr">Set of passes that will be run by default on the AST by #'run-passes</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/2f3499280dc2bb62d6f291738ecc04f91b0d7dbb/src/main/clojure/clojure/tools/analyzer/jvm.clj#L401" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/1e810c6558d55a68bf940c6529fd5bc9457a6de1/src/main/clojure/clojure/tools/analyzer/jvm.clj#L401" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -309,7 +308,7 @@ The Var gets interned in the env namespace.</pre>
     <pre id="var-docstr">Default :passes-opts for `analyze`</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/2f3499280dc2bb62d6f291738ecc04f91b0d7dbb/src/main/clojure/clojure/tools/analyzer/jvm.clj#L433" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/1e810c6558d55a68bf940c6529fd5bc9457a6de1/src/main/clojure/clojure/tools/analyzer/jvm.clj#L437" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -320,7 +319,7 @@ The Var gets interned in the env namespace.</pre>
     <pre id="var-docstr">Returns an empty env map</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/2f3499280dc2bb62d6f291738ecc04f91b0d7dbb/src/main/clojure/clojure/tools/analyzer/jvm.clj#L79" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/1e810c6558d55a68bf940c6529fd5bc9457a6de1/src/main/clojure/clojure/tools/analyzer/jvm.clj#L79" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -329,11 +328,11 @@ The Var gets interned in the env namespace.</pre>
     <pre id="var-usage">Usage: (macroexpand-1 form)
        (macroexpand-1 form env)
 </pre>
-    <pre id="var-docstr">If form represents a macro form or an inlineable function,
-returns its expansion, else returns form.</pre>
+    <pre id="var-docstr">If form represents a macro form or an inlineable function,returns its expansion,
+else returns form.</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/2f3499280dc2bb62d6f291738ecc04f91b0d7dbb/src/main/clojure/clojure/tools/analyzer/jvm.clj#L131" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/1e810c6558d55a68bf940c6529fd5bc9457a6de1/src/main/clojure/clojure/tools/analyzer/jvm.clj#L131" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -343,7 +342,7 @@ returns its expansion, else returns form.</pre>
     <pre id="var-docstr">Extension to tools.analyzer/-parse for JVM special forms</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/2f3499280dc2bb62d6f291738ecc04f91b0d7dbb/src/main/clojure/clojure/tools/analyzer/jvm.clj#L57" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/1e810c6558d55a68bf940c6529fd5bc9457a6de1/src/main/clojure/clojure/tools/analyzer/jvm.clj#L57" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -352,10 +351,14 @@ returns its expansion, else returns form.</pre>
     <pre id="var-usage">Usage: (run-passes ast)
 </pre>
     <pre id="var-docstr">Function that will be invoked on the AST tree immediately after it has been constructed,
-by default set-ups and runs the default passes declared in #'default-passes</pre>
+by default runs the passes declared in #'default-passes, should be rebound if a different
+set of passes is required.
+
+Use #'clojure.tools.analyzer.passes/schedule to get a function from a set of passes that
+run-passes can be bound to.</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/2f3499280dc2bb62d6f291738ecc04f91b0d7dbb/src/main/clojure/clojure/tools/analyzer/jvm.clj#L427" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/1e810c6558d55a68bf940c6529fd5bc9457a6de1/src/main/clojure/clojure/tools/analyzer/jvm.clj#L427" id="var-source">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -365,7 +368,7 @@ by default set-ups and runs the default passes declared in #'default-passes</pre
     <pre id="var-docstr">Set of the special forms for clojure in the JVM</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/2f3499280dc2bb62d6f291738ecc04f91b0d7dbb/src/main/clojure/clojure/tools/analyzer/jvm.clj#L52" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/1e810c6558d55a68bf940c6529fd5bc9457a6de1/src/main/clojure/clojure/tools/analyzer/jvm.clj#L52" id="var-source">Source</a>
   </div>
 </div>
 <br />
