@@ -129,8 +129,8 @@
       form)))
 
 (defn macroexpand-1
-  "If form represents a macro form or an inlineable function,
-   returns its expansion, else returns form."
+  "If form represents a macro form or an inlineable function,returns its expansion,
+   else returns form."
   ([form] (macroexpand-1 form (empty-env)))
   ([form env]
      (env/ensure (global-env)
@@ -426,7 +426,11 @@
 
 (defn ^:dynamic run-passes
   "Function that will be invoked on the AST tree immediately after it has been constructed,
-   by default set-ups and runs the default passes declared in #'default-passes"
+   by default runs the passes declared in #'default-passes, should be rebound if a different
+   set of passes is required.
+
+   Use #'clojure.tools.analyzer.passes/schedule to get a function from a set of passes that
+   run-passes can be bound to."
   [ast]
   (scheduled-default-passes ast))
 
@@ -439,10 +443,11 @@
    :collect-closed-overs/top-level? false})
 
 (defn analyze
-  "Returns an AST for the form that's compatible with what tools.emitter.jvm requires.
+  "Analyzes a clojure form using tools.analyzer augmented with the JVM specific special ops
+   and returns its AST, after running #'run-passes on it.
 
-   Binds tools.analyzer/{macroexpand-1,create-var,parse} to
-   tools.analyzer.jvm/{macroexpand-1,create-var,parse} and analyzes the form.
+   If no configuration option is provides, analyze will setup tools.analyzer using the extension
+   points declared in this namespace.
 
    If provided, opts should be a map of options to analyze, currently the only valid
    options are :bindings and :passes-opts (if not provided, :passes-opts defaults to the
@@ -453,9 +458,7 @@
    can be used to configure the behaviour of each pass.
 
    E.g.
-   (analyze form env {:bindings  {#'ana/macroexpand-1 my-mexpand-1}})
-
-   Calls `run-passes` on the AST."
+   (analyze form env {:bindings  {#'ana/macroexpand-1 my-mexpand-1}})"
   ([form] (analyze form (empty-env) {}))
   ([form env] (analyze form env {}))
   ([form env opts]
