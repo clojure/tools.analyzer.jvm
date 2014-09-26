@@ -97,3 +97,6 @@
 
 (deftest analyze-proxy
   (is (ast1 (proxy [Object] []))))
+
+(deftest analyze-record
+  (is (ast1 (defrecord TestRecord [x y]))))
