@@ -27,14 +27,11 @@
              [cleanup :refer [cleanup]]
              [elide-meta :refer [elide-meta elides]]
              [warn-earmuff :refer [warn-earmuff]]
-             [collect-closed-overs :refer [collect-closed-overs]]
              [uniquify :refer [uniquify-locals]]]
 
             [clojure.tools.analyzer.passes.jvm
              [box :refer [box]]
-             [collect :refer [collect]]
              [constant-lifter :refer [constant-lift]]
-             [clear-locals :refer [clear-locals]]
              [classify-invoke :refer [classify-invoke]]
              [validate :refer [validate]]
              [infer-tag :refer [infer-tag]]
@@ -408,10 +405,6 @@
     #'source-info
     #'elide-meta
     #'constant-lift
-
-    #'clear-locals
-    #'collect-closed-overs
-    #'collect
 
     #'box
 
