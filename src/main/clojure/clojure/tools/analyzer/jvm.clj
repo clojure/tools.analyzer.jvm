@@ -30,6 +30,7 @@
              [uniquify :refer [uniquify-locals]]]
 
             [clojure.tools.analyzer.passes.jvm
+             [analyze-host-expr :refer [analyze-host-expr]]
              [box :refer [box]]
              [constant-lifter :refer [constant-lift]]
              [classify-invoke :refer [classify-invoke]]
@@ -357,7 +358,7 @@
         e (ctx env :ctx/expr)
         test-expr (-analyze expr e)
         [tests thens] (reduce (fn [[te th] [min-hash [test then]]]
-                                (let [test-expr (ana/-analyze :const test e)
+                                (let [test-expr (ana/analyze-const test e)
                                       then-expr (-analyze then env)]
                                   [(conj te {:op       :case-test
                                              :form     test
@@ -408,6 +409,7 @@
 
     #'box
 
+    #'analyze-host-expr
     #'validate-loop-locals
     #'validate
     #'infer-tag

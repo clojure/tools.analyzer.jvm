@@ -1,6 +1,6 @@
 (ns clojure.tools.analyzer.passes.jvm.constant-lifter
   (:require [clojure.tools.analyzer.passes.constant-lifter :as orig]
-            [clojure.tools.analyzer :refer [-analyze]]
+            [clojure.tools.analyzer :refer [analyze-const]]
             [clojure.tools.analyzer.utils :refer [constant? classify]]
             [clojure.tools.analyzer.passes.jvm.analyze-host-expr :refer [analyze-host-expr]]
             [clojure.tools.analyzer.passes.elide-meta :refer [elide-meta]]))
@@ -11,7 +11,7 @@
     (let [{:keys [var env form meta]} ast]
      (if (constant? var meta)
        (let [val @var]
-         (assoc (-analyze :const val env (classify val))
+         (assoc (analyze-const val env (classify val))
            :form form))
        ast))
     (orig/constant-lift ast)))
