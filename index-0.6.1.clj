@@ -49,18 +49,6 @@
    :name "clojure.tools.analyzer.passes.jvm.classify-invoke",
    :doc nil}
   {:source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/afb17b6d233b620fc84291903e2a682879f84e4c/src/main/clojure/clojure/tools/analyzer/passes/jvm/clear_locals.clj",
-   :wiki-url
-   "http://clojure.github.com/tools.analyzer.jvm/passes.jvm.clear-locals-api.html",
-   :name "clojure.tools.analyzer.passes.jvm.clear-locals",
-   :doc nil}
-  {:source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/89fcbaa7237da39c2861f2c1940980113ec87bdb/src/main/clojure/clojure/tools/analyzer/passes/jvm/collect.clj",
-   :wiki-url
-   "http://clojure.github.com/tools.analyzer.jvm/passes.jvm.collect-api.html",
-   :name "clojure.tools.analyzer.passes.jvm.collect",
-   :doc nil}
-  {:source-url
    "https://github.com/clojure/tools.analyzer.jvm/blob/cf56623d15e7beda2f42073745ad2ba75b2e8de8/src/main/clojure/clojure/tools/analyzer/passes/jvm/constant_lifter.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm/passes.jvm.constant-lifter-api.html",
@@ -404,36 +392,6 @@
    :line 15,
    :file
    "src/main/clojure/clojure/tools/analyzer/passes/jvm/classify_invoke.clj"}
-  {:arglists ([ast]),
-   :name "clear-locals",
-   :namespace "clojure.tools.analyzer.passes.jvm.clear-locals",
-   :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/afb17b6d233b620fc84291903e2a682879f84e4c/src/main/clojure/clojure/tools/analyzer/passes/jvm/clear_locals.clj#L141",
-   :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/afb17b6d233b620fc84291903e2a682879f84e4c/src/main/clojure/clojure/tools/analyzer/passes/jvm/clear_locals.clj",
-   :wiki-url
-   "http://clojure.github.com/tools.analyzer.jvm//passes.jvm.clear-locals-api.html#clojure.tools.analyzer.passes.jvm.clear-locals/clear-locals",
-   :doc
-   "Attached :to-clear? true to all the nodes that the compiler\ncan clear, those nodes can be:\n* :local nodes\n* :binding nodes\n* :invoke/protocol-invoke/prim-invoke/static-call/instance-call nodes\n   in return position, meaning that the \"this\" local is eligible for\n   clearing",
-   :var-type "function",
-   :line 141,
-   :file
-   "src/main/clojure/clojure/tools/analyzer/passes/jvm/clear_locals.clj"}
-  {:arglists ([ast]),
-   :name "collect",
-   :namespace "clojure.tools.analyzer.passes.jvm.collect",
-   :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/89fcbaa7237da39c2861f2c1940980113ec87bdb/src/main/clojure/clojure/tools/analyzer/passes/jvm/collect.clj#L105",
-   :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/89fcbaa7237da39c2861f2c1940980113ec87bdb/src/main/clojure/clojure/tools/analyzer/passes/jvm/collect.clj",
-   :wiki-url
-   "http://clojure.github.com/tools.analyzer.jvm//passes.jvm.collect-api.html#clojure.tools.analyzer.passes.jvm.collect/collect",
-   :doc
-   "Takes an AST and returns it with the collected info, as specified by\nthe passes opts:\n\n* :collect/what        set of keywords describing what to collect, some of:\n  ** :constants          constant expressions\n  ** :callsites          keyword and protocol callsites\n* :collect/where       set of :op nodes where to attach collected info\n* :collect/top-level?  if true attach collected info to the top-level node",
-   :var-type "function",
-   :line 105,
-   :file
-   "src/main/clojure/clojure/tools/analyzer/passes/jvm/collect.clj"}
   {:arglists ([ast]),
    :name "constant-lift",
    :namespace "clojure.tools.analyzer.passes.jvm.constant-lifter",
