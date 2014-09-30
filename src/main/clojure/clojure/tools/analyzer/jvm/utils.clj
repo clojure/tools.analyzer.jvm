@@ -95,15 +95,15 @@
 (def ^:private convertible-primitives
   "If the argument is a primitive Class, returns a set of Classes
    to which the primitive Class can be casted"
-  {Integer/TYPE   #{Integer Long/TYPE Long Short/TYPE Byte/TYPE}
-   Float/TYPE     #{Float Double/TYPE}
-   Double/TYPE    #{Double Float/TYPE}
-   Long/TYPE      #{Long Integer/TYPE Short/TYPE Byte/TYPE}
-   Character/TYPE #{Character}
-   Short/TYPE     #{Short}
-   Byte/TYPE      #{Byte}
-   Boolean/TYPE   #{Boolean}
-   Void/TYPE      #{Void}})
+  {Integer/TYPE   #{Integer Long/TYPE Long Short/TYPE Byte/TYPE Object Number}
+   Float/TYPE     #{Float Double/TYPE Object Number}
+   Double/TYPE    #{Double Float/TYPE Object Number}
+   Long/TYPE      #{Long Integer/TYPE Short/TYPE Byte/TYPE Object Number}
+   Character/TYPE #{Character Object Number}
+   Short/TYPE     #{Short Object Number}
+   Byte/TYPE      #{Byte Object Number}
+   Boolean/TYPE   #{Boolean Object Number}
+   Void/TYPE      #{Void Object Number}})
 
 (defn ^Class box
   "If the argument is a primitive Class, returns its boxed equivalent,
