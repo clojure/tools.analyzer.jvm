@@ -13,8 +13,6 @@
              :refer [emit-form emit-hygienic-form]]
             [clojure.tools.analyzer.passes.jvm.validate :as v]
             [clojure.tools.analyzer.passes.jvm.annotate-tag :refer [annotate-tag]]
-            [clojure.tools.analyzer.passes.jvm.clear-locals :refer [clear-locals]]
-            [clojure.tools.analyzer.passes.jvm.collect :refer [collect]]
             [clojure.tools.analyzer.passes.jvm.infer-tag :refer [infer-tag]]
             [clojure.tools.analyzer.passes.jvm.annotate-branch :refer [annotate-branch]]
             [clojure.tools.analyzer.passes.jvm.annotate-methods :refer [annotate-methods]]
