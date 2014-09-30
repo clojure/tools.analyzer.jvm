@@ -6,9 +6,9 @@ An analyzer for Clojure code, written on top of [tools.analyzer](https://github.
 * [AST Quickref](#ast-quickref)
 * [Releases and Dependency Information](#releases-and-dependency-information)
 * [Changelog](#changelog)
+* [API Index](#api-index)
 * [Developer Information](#developer-information)
 * [License](#license)
-
 
 ## Note for REPL usage
 
@@ -143,12 +143,16 @@ Latest stable release: 0.6.0
 [Changelog](CHANGELOG.md)
 ========================================
 
+API Index
+========================================
+
+* [CrossClj Documentation](http://crossclj.info/doc/org.clojure/tools.analyzer.jvm/0.6.0/index.html)
+* [API index](http://clojure.github.io/tools.analyzer.jvm)
+
 Developer Information
 ========================================
 
 * [GitHub project](https://github.com/clojure/tools.analyzer.jvm)
-
-* [API index](http://clojure.github.io/tools.analyzer.jvm)
 
 * [Bug Tracker](http://dev.clojure.org/jira/browse/TANAL)
 
