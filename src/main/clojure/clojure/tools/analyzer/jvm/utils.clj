@@ -99,11 +99,11 @@
    Float/TYPE     #{Float Double/TYPE Object Number}
    Double/TYPE    #{Double Float/TYPE Object Number}
    Long/TYPE      #{Long Integer/TYPE Short/TYPE Byte/TYPE Object Number}
-   Character/TYPE #{Character Object Number}
+   Character/TYPE #{Character Object}
    Short/TYPE     #{Short Object Number}
    Byte/TYPE      #{Byte Object Number}
-   Boolean/TYPE   #{Boolean Object Number}
-   Void/TYPE      #{Void Object Number}})
+   Boolean/TYPE   #{Boolean Object}
+   Void/TYPE      #{Void}})
 
 (defn ^Class box
   "If the argument is a primitive Class, returns its boxed equivalent,
