@@ -100,10 +100,10 @@ Passes opts:
 * :validate/wrong-tag-handler
    If bound to a function, will invoke that function instead of
    throwing on invalid tag.
-   The function takes the tag key (or nil if the node is :def and
+   The function takes the tag key (or :name/tag if the node is :def and
    the wrong tag is the one on the :name field meta) and must return a
-   map that will be merged into the AST and should be used to replace
-   or remove (replacing with nil or Object) the wrong tags.
+   map (or nil) that will be merged into the AST, possibly shadowing the
+   wrong tag with Object or nil.
 * :validate/unresolvable-symbol-handler
    If bound to a function, will invoke that function instead of
    throwing on unresolvable symbol.
@@ -114,7 +114,7 @@ Passes opts:
    The function must return a valid tools.analyzer.jvm AST node.</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/8cb32cd069515fc3f6e0fc7e9715690d63eca4e4/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj#L229" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/34b56f82ec4b78b92c26f83eb5db003b094512df/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate.clj#L229" id="var-source">Source</a>
   </div>
 </div>
 
