@@ -174,7 +174,7 @@
        ;; a valid tag at runtime, however if tag is one of u/specials or u/special-arrays
        ;; we know that it's a wrong tag as it's going to be evaluated as a clojure.core function
        (if-let [handle (-> (env/deref-env) :passes-opts :validate/wrong-tag-handler)]
-         (handle nil ast)
+         (handle :name/tag ast)
          (throw (ex-info (str "Wrong tag: " (eval tag) " in def: " (:name ast))
                          (merge {:ast      (prewalk ast cleanup)}
                                 (source-info (:env ast))))))))))
@@ -253,10 +253,12 @@
   [{:keys [tag form env] :as ast}]
   (when-let [t (:tag (meta form))]
     (when-not (u/maybe-class t)
-      (throw (ex-info (str "Class not found: " t)
-                      (merge {:class    t
-                              :ast      (prewalk ast cleanup)}
-                             (source-info env))))))
+      (if-let [handle (-> (env/deref-env) :passes-opts :validate/wrong-tag-handler)]
+        (handle :form/tag ast)
+        (throw (ex-info (str "Class not found: " tag)
+                        (merge {:class    t
+                                :ast      (prewalk ast cleanup)}
+                               (source-info env)))))))
   (let [ast (merge (-validate ast)
                    (when tag
                      {:tag tag}))]
