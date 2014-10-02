@@ -237,10 +237,10 @@
    * :validate/wrong-tag-handler
       If bound to a function, will invoke that function instead of
       throwing on invalid tag.
-      The function takes the tag key (or nil if the node is :def and
+      The function takes the tag key (or :name/tag if the node is :def and
       the wrong tag is the one on the :name field meta) and must return a
-      map that will be merged into the AST and should be used to replace
-      or remove (replacing with nil or Object) the wrong tags.
+      map (or nil) that will be merged into the AST, possibly shadowing the
+      wrong tag with Object or nil.
    * :validate/unresolvable-symbol-handler
       If bound to a function, will invoke that function instead of
       throwing on unresolvable symbol.
@@ -251,16 +251,7 @@
       The function must return a valid tools.analyzer.jvm AST node."
   {:pass-info {:walk :post :depends #{#'infer-tag #'analyze-host-expr}}}
   [{:keys [tag form env] :as ast}]
-  (let [ast (merge ast
-                   (when-let [t (:tag (meta form))]
-                     (when-not (u/maybe-class t)
-                       (if-let [handle (-> (env/deref-env) :passes-opts :validate/wrong-tag-handler)]
-                         (handle :form/tag ast)
-                         (throw (ex-info (str "Class not found: " tag)
-                                         (merge {:class    t
-                                                 :ast      (prewalk ast cleanup)}
-                                                (source-info env))))))))
-        ast (merge (-validate ast)
+  (let [ast (merge (-validate ast)
                    (when tag
                      {:tag tag}))]
     (merge ast
