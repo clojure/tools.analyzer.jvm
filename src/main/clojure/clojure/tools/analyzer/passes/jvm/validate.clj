@@ -251,15 +251,16 @@
       The function must return a valid tools.analyzer.jvm AST node."
   {:pass-info {:walk :post :depends #{#'infer-tag #'analyze-host-expr}}}
   [{:keys [tag form env] :as ast}]
-  (when-let [t (:tag (meta form))]
-    (when-not (u/maybe-class t)
-      (if-let [handle (-> (env/deref-env) :passes-opts :validate/wrong-tag-handler)]
-        (handle :form/tag ast)
-        (throw (ex-info (str "Class not found: " tag)
-                        (merge {:class    t
-                                :ast      (prewalk ast cleanup)}
-                               (source-info env)))))))
-  (let [ast (merge (-validate ast)
+  (let [ast (merge ast
+                   (when-let [t (:tag (meta form))]
+                     (when-not (u/maybe-class t)
+                       (if-let [handle (-> (env/deref-env) :passes-opts :validate/wrong-tag-handler)]
+                         (handle :form/tag ast)
+                         (throw (ex-info (str "Class not found: " tag)
+                                         (merge {:class    t
+                                                 :ast      (prewalk ast cleanup)}
+                                                (source-info env))))))))
+        ast (merge (-validate ast)
                    (when tag
                      {:tag tag}))]
     (merge ast
