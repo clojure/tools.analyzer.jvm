@@ -11,6 +11,7 @@ Since tools.analyzer.jvm version are usually cut simultaneously with a tools.ana
   * Removed annotate-class-id, annotate-internal-name, ensure-tag, collect, collect-closed-overs and clear-locals, moved to tools.emiter.jvm
   * Fixed a bug in the method resolution code, caused some unnecessary reflection
   * Added opts and env args to analyze-ns, consistent with the other analyze functions
+  * Made emit-form with :qualified-symbols qualify def symbol
 * Release 0.6.0 on 18 Sep 2014
   * Started using clojure.tools.analyzer.passes/schedule to schedule the default passes and configured all the passes
   * Reduced the set of default passes, removed: annotate-class-id, annotate-internal-name, ensure-tag
