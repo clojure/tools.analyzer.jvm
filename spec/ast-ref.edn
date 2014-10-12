@@ -29,6 +29,7 @@
           ^:optional ^:children
           [:init "When :local is :let, :letfn or :loop, an AST node representing the bound value"]
           [:atom "An atom shared by this :binding node and all the :local nodes that refer to this binding"]
+          #_
           ^:optional
           [:to-clear? "When :local is :let, :loop, :catch or :arg, a boolean indicating whether this binding is never used and this is immediately eligible for clearing"]]}
   {:op   :case
@@ -76,6 +77,7 @@
           [:val "The value of the constant node"]
           ^:optional ^:children
           [:meta "An AST node representing the metadata of the constant value, if present. The node will be either a :map node or a :const node with :type :map"]
+          #_
           ^:optional
           [:id "A numeric id for the constant value, will be the same for every instance of this constant inside the same compilation unit, not present if :type is :nil or :bool"]]}
   {:op   :def
@@ -89,6 +91,7 @@
           [:init "An AST node representing the initial value of the var"]
           ^:optional
           [:doc "The docstring for this var"]
+          #_
           [:id "A numeric id for this var, will be the same for every instance of this var inside the same compilation unit"]]}
   {:op   :deftype
    :doc  "Node for a deftype* special-form expression"
@@ -100,6 +103,7 @@
           [:fields "A vector of :binding AST nodes with :local :field representing the deftype fields"]
           ^:children
           [:methods "A vector :method AST nodes representing the deftype methods"]
+          #_#_#_#_
           [:closed-overs "A map of field name -> :binding AST node of the field"]
           [:protocol-callsites "A map of protocol Vars that appear in the bodies of the deftype methods"]
           [:keyword-callsites "A map of keywords that appear in keyword-invoke position in the bodies of the deftype methods"]
@@ -118,6 +122,7 @@
    :keys [[:form "`(fn* name? [arg*] body*)` or `(fn* name? method*)`"]
           [:variadic? "`true` if this function contains a variadic arity method"]
           [:max-fixed-arity "The number of arguments taken by the fixed-arity method taking the most arguments"]
+          #_#_
           [:internal-name "The internal name symbol used for the fn"]
           [:class-id "A unique id representing this function"]
           ^:optional ^:children
@@ -125,6 +130,7 @@
           ^:children
           [:methods "A vector of :fn-method AST nodes representing the fn method arities"]
           [:once "`true` if the fn is marked as `^:once fn*`, meaning it will only be executed once and thus allowing for the clearing of closed-over locals"]
+          #_#_#_#_
           [:closed-overs "A map of uniquified local name -> :binding AST node of the local, containing all the locals closed-over by this fn"]
           [:protocol-callsites "A map of protocol Vars that appear in the bodies of the fn methods"]
           [:keyword-callsites "A map of keywords that appear in keyword-invoke position in the bodies of the fn methods"]
@@ -226,6 +232,7 @@
           ^:optional
           [:variadic? "When :local is :arg, a boolean indicating whether this parameter binds to a variable number of arguments"]
           [:atom "An atom shared by this :local node, the :binding node this local refers to and all the other :local nodes that refer to this same local"]
+          #_
           ^:optional
           [:to-clear? "When :local is :let, :loop, :catch or :arg, a boolean indicating whether this local is eligible for locals clearing"]]}
   {:op   :loop
@@ -236,6 +243,7 @@
           ^:children
           [:body "Synthetic :do node (with :body? `true`) representing the body of the loop expression"]
           [:loop-id "Unique symbol identifying this loop as a target for recursion"]
+          #_
           [:closed-overs "A map of uniquified local name -> :binding AST node of the local, containing all the locals closed-over by this loop"]]}
   {:op   :map
    :doc  "Node for a map literal with attached metadata and/or non literal elements"
@@ -311,6 +319,7 @@
           [:class-name "The generated class for the reify, should *never* be instantiated or used on instance? checks"]
           ^:children
           [:methods "A vector :method AST nodes representing the reify methods"]
+          #_#_#_#_#_
           [:class-id "A unique id representing this reify"]
           [:closed-overs "A map of uniquified local name -> :binding AST node of the local, containing all the locals closed-over by this reify"]
           [:protocol-callsites "A map of protocol Vars that appear in the bodies of the reify methods"]
@@ -347,6 +356,7 @@
    :doc  "Node for a var special-form expression"
    :keys [[:form "`(var var-name)`"]
           [:var "The Var object this expression refers to"]
+          #_
           [:id "A numeric id for this var, will be the same for every instance of this var inside the same compilation unit"]]}
   {:op   :throw
    :doc  "Node for a throw special-form statement"
@@ -366,6 +376,7 @@
           [:var "The Var object this symbol refers to"]
           ^:optional
           [:assignable? "`true` if the Var is :dynamic"]
+          #_
           [:id "A numeric id for this var, will be the same for every instance of this var inside the same compilation unit"]]}
   {:op   :vector
    :doc  "Node for a vector literal with attached metadata and/or non literal elements"
