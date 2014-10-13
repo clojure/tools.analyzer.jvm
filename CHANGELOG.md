@@ -2,7 +2,7 @@ Changelog
 ========================================
 Since tools.analyzer.jvm version are usually cut simultaneously with a tools.analyzer version, check also the tools.analyzer [CHANGELOG](https://github.com/clojure/tools.analyzer/blob/master/CHANGELOG.md) for changes on the corresponding version, since changes in that library will reflect on this one.
 - - -
-* Release 0.6.1 on ???
+* Release 0.6.1 on 13 Oct 2014
   * Significant performance enhancements
   * Made Class literals shadow Vars
   * Fixed a bug in :arglists automatic tag qualification
