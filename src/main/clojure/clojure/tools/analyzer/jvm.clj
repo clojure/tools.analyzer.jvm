@@ -541,21 +541,21 @@
   ([ns env] (analyze-ns ns env {}))
   ([ns env opts]
      (env/ensure (global-env)
-                 (let [res (ns-resource ns)]
-                   (assert res (str "Can't find " ns " in classpath"))
-                   (let [filename (source-path res)
-                         path (res-path res)]
-                     (when-not (get-in (env/deref-env) [::analyzed-clj path])
-                       (binding [*ns* *ns*]
-                         (with-open [rdr (io/reader res)]
-                           (let [pbr (readers/indexing-push-back-reader
-                                      (java.io.PushbackReader. rdr) 1 filename)
-                                 eof (Object.)]
-                             (loop []
-                               (let [form (reader/read pbr nil eof)]
-                                 (when-not (identical? form eof)
-                                   (swap! *env* update-in [::analyzed-clj path]
-                                          (fnil conj [])
-                                          (analyze+eval form (assoc env :ns (ns-name *ns*)) opts))
-                                   (recur))))))))
-                     (get-in @*env* [::analyzed-clj path]))))))
+       (let [res (ns-resource ns)]
+         (assert res (str "Can't find " ns " in classpath"))
+         (let [filename (source-path res)
+               path (res-path res)]
+           (when-not (get-in (env/deref-env) [::analyzed-clj path])
+             (binding [*ns* *ns*]
+               (with-open [rdr (io/reader res)]
+                 (let [pbr (readers/indexing-push-back-reader
+                            (java.io.PushbackReader. rdr) 1 filename)
+                       eof (Object.)]
+                   (loop []
+                     (let [form (reader/read pbr nil eof)]
+                       (when-not (identical? form eof)
+                         (swap! *env* update-in [::analyzed-clj path]
+                                (fnil conj [])
+                                (analyze+eval form (assoc env :ns (ns-name *ns*)) opts))
+                         (recur))))))))
+           (get-in @*env* [::analyzed-clj path]))))))
