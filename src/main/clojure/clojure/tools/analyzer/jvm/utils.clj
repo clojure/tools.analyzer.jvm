@@ -162,7 +162,9 @@
        (= c1 c2)
        (.isAssignableFrom c2 c1)
        (and (primitive? c2)
-            ((convertible-primitives c2) c1))))))
+            ((convertible-primitives c2) c1))
+       (and (primitive? c1)
+            (.isAssignableFrom (box c1) c2))))))
 
 (def wider-than
   "If the argument is a numeric primitive Class, returns a set of primitive Classes
