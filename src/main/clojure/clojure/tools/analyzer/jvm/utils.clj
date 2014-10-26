@@ -321,29 +321,29 @@
                       prev-decl   (maybe-class (:declaring-class prev))
                       next-decl   (maybe-class (:declaring-class next))]
                   (cond
-                  (not prev)
-                  [next]
-                  (= prev-params next-params)
-                  (cond
-                   (= prev-ret next-ret)
+                   (not prev)
+                   [next]
+                   (= prev-params next-params)
                    (cond
-                    (.isAssignableFrom prev-decl next-decl)
+                    (= prev-ret next-ret)
+                    (cond
+                     (.isAssignableFrom prev-decl next-decl)
+                     [next]
+                     (.isAssignableFrom next-decl prev-decl)
+                     p
+                     :else
+                     (conj p next))
+                    (.isAssignableFrom prev-ret next-ret)
                     [next]
-                    (.isAssignableFrom next-decl prev-decl)
+                    (.isAssignableFrom next-ret prev-ret)
                     p
                     :else
                     (conj p next))
-                   (.isAssignableFrom prev-ret next-ret)
+                   (and (some true? (map subsumes? next-params prev-params))
+                        (not-any? true? (map subsumes? prev-params next-params)))
                    [next]
-                   (.isAssignableFrom next-ret prev-ret)
-                   p
                    :else
-                   (conj p next))
-                  (and (some true? (map subsumes? next-params prev-params))
-                       (not-any? true? (map subsumes? prev-params next-params)))
-                  [next]
-                  :else
-                  (conj p next)))) [] methods)
+                   (conj p next)))) [] methods)
       methods)))
 
 (defn source-path [x]
@@ -356,11 +356,11 @@
 
 (defn ns-resource [ns]
   (let [f (ns->relpath ns)]
-   (cond
-    (instance? File f) f
-    (instance? URL f) f
-    (re-find #"^file://" f) (URL. f)
-    :else (io/resource f))))
+    (cond
+     (instance? File f) f
+     (instance? URL f) f
+     (re-find #"^file://" f) (URL. f)
+     :else (io/resource f))))
 
 (defn res-path [res]
   (if (instance? File res)
