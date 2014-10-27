@@ -486,8 +486,8 @@
   ([form env opts]
      (env/ensure (global-env)
        (update-ns-map!)
-       (let [[mform raw-forms] (with-bindings {Compiler/LOADER   (RT/makeClassLoader)
-                                               ana/macroexpand-1 (get-in opts [:bindings #'ana/macroexpand-1] macroexpand-1)}
+       (let [[mform raw-forms] (with-bindings {Compiler/LOADER     (RT/makeClassLoader)
+                                               #'ana/macroexpand-1 (get-in opts [:bindings #'ana/macroexpand-1] macroexpand-1)}
                                  (loop [form form raw-forms []]
                                    (let [mform (ana/macroexpand-1 form env)]
                                      (if (= mform form)
