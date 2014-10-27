@@ -45,7 +45,7 @@
             [clojure.tools.reader.reader-types :as readers]
 
             [clojure.core.memoize :refer [memo-clear!]])
-  (:import clojure.lang.IObj))
+  (:import (clojure.lang IObj RT Compiler)))
 
 (def specials
   "Set of the special forms for clojure in the JVM"
@@ -457,18 +457,18 @@
   ([form] (analyze form (empty-env) {}))
   ([form env] (analyze form env {}))
   ([form env opts]
-     (with-bindings (merge {clojure.lang.Compiler/LOADER (clojure.lang.RT/makeClassLoader)
-                            #'ana/macroexpand-1          macroexpand-1
-                            #'ana/create-var             create-var
-                            #'ana/parse                  parse
-                            #'ana/var?                   var?
-                            #'elides                     (merge {:fn    #{:line :column :end-line :end-column :file :source}
-                                                                 :reify #{:line :column :end-line :end-column :file :source}}
-                                                                elides)}
+     (with-bindings (merge {Compiler/LOADER     (RT/makeClassLoader)
+                            #'ana/macroexpand-1 macroexpand-1
+                            #'ana/create-var    create-var
+                            #'ana/parse         parse
+                            #'ana/var?          var?
+                            #'elides            (merge {:fn    #{:line :column :end-line :end-column :file :source}
+                                                        :reify #{:line :column :end-line :end-column :file :source}}
+                                                       elides)}
                            (:bindings opts))
        (env/ensure (global-env)
          (env/with-env (swap! env/*env* mmerge
-                              {:passes-opts (or (:passes-opts opts) default-passes-opts)})
+                              {:passes-opts (get opts :passes-opts default-passes-opts)})
            (run-passes (-analyze form env)))))))
 
 (deftype ExceptionThrown [e])
@@ -486,7 +486,8 @@
   ([form env opts]
      (env/ensure (global-env)
        (update-ns-map!)
-       (let [[mform raw-forms] (binding [ana/macroexpand-1 (get-in opts [:bindings #'ana/macroexpand-1] macroexpand-1)]
+       (let [[mform raw-forms] (with-bindings {Compiler/LOADER   (RT/makeClassLoader)
+                                               ana/macroexpand-1 (get-in opts [:bindings #'ana/macroexpand-1] macroexpand-1)}
                                  (loop [form form raw-forms []]
                                    (let [mform (ana/macroexpand-1 form env)]
                                      (if (= mform form)
