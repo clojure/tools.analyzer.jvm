@@ -45,7 +45,7 @@
             [clojure.tools.reader.reader-types :as readers]
 
             [clojure.core.memoize :refer [memo-clear!]])
-  (:import (clojure.lang IObj RT Compiler)))
+  (:import (clojure.lang IObj RT Compiler Var)))
 
 (def specials
   "Set of the special forms for clojure in the JVM"
@@ -193,7 +193,10 @@
   "Creates a Var for sym and returns it.
    The Var gets interned in the env namespace."
   [sym {:keys [ns]}]
-  (or (find-var (symbol (str ns) (name sym)))
+  (let [v (get-in (env/deref-env) [:namespaces ns :mappings (symbol (name sym))])]
+    (if (and v (or (class? v)
+                   (= ns (ns-name (.ns ^Var v) ))))
+      v
       (intern ns (vary-meta sym merge
                             (let [{:keys [inline inline-arities arglists]} (meta sym)]
                               (merge {}
@@ -202,7 +205,7 @@
                                      (when inline
                                        {:inline (eval inline)})
                                      (when inline-arities
-                                       {:inline-arities (eval inline-arities)})))))))
+                                       {:inline-arities (eval inline-arities)}))))))))
 
 (defmethod parse 'var
   [[_ var :as form] env]
