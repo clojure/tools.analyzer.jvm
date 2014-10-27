@@ -62,13 +62,14 @@
               (.replace \/ \.)))))
 
 (def maybe-class-from-string
-  (lru (fn maybe-class-from-string [s]
-         (try
-           (RT/classForName s)
-           (catch Exception _
-             (if-let [maybe-class ((ns-map *ns*) (symbol s))]
-               (when (class? maybe-class)
-                 maybe-class)))))))
+  (lru (fn maybe-class-from-string [^String s]
+         (if (or (pos? (.indexOf s "."))
+                 (= \[ (first s)))
+           (try (RT/classForName s)
+                (catch ClassNotFoundException _))
+           (when-let [maybe-class ((ns-map *ns*) (symbol s))]
+             (when (class? maybe-class)
+               maybe-class))))))
 
 (defmethod maybe-class :default [_] nil)
 (defmethod maybe-class Class [c] c)
