@@ -88,6 +88,12 @@
           ret
           (maybe-class-from-string sname))))))
 
+(defn maybe-class-literal [x]
+  (and (maybe-class x)
+       (let [x (if (symbol? x) (name x) x)]
+         (and (not (specials x))
+              (not (special-arrays x))))))
+
 (def primitive?
   "Returns non-nil if the argument represents a primitive Class other than Void"
   #{Double/TYPE Character/TYPE Byte/TYPE Boolean/TYPE
