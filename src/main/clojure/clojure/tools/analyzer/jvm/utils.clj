@@ -89,11 +89,11 @@
           (maybe-class-from-string sname))))))
 
 (defn maybe-class-literal [x]
-  (when-let [c (maybe-class x)]
-    (let [x (if (symbol? x) (name x) x)]
-      (and (not (specials x))
-           (not (special-arrays x))
-           c))))
+  (cond
+   (class? x) x
+   (symbol? x) (and (not (namespace x))
+                    (maybe-class-from-string (name x)))
+   (str x) (maybe-class-from-string x)))
 
 (def primitive?
   "Returns non-nil if the argument represents a primitive Class other than Void"
