@@ -172,7 +172,7 @@
        (and (primitive? c2)
             ((convertible-primitives c2) c1))
        (and (primitive? c1)
-            (.isAssignableFrom (box c1) c2))))))
+            (.isAssignableFrom c2 (box c1)))))))
 
 (def wider-than
   "If the argument is a numeric primitive Class, returns a set of primitive Classes
@@ -349,8 +349,8 @@
                     p
                     :else
                     (conj p next))
-                   (and (some true? (map subsumes? next-params prev-params))
-                        (not-any? true? (map subsumes? prev-params next-params)))
+                   (and (some identity (map subsumes? next-params prev-params))
+                        (not-any? identity (map subsumes? prev-params next-params)))
                    [next]
                    :else
                    (conj p next)))) [] methods)

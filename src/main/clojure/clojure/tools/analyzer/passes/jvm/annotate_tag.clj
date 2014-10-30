@@ -62,8 +62,7 @@
   (let [o-tag (or (:tag init) ;; should defer to infer-tag?
                   (and (= :fn local) AFunction)
                   (and (= :arg local) variadic? ISeq)
-                  o-tag
-                  Object)
+                  o-tag)
         o-tag (if (#{Void Void/TYPE} o-tag)
                 Object
                 o-tag)]

@@ -17,13 +17,11 @@
      :assignable? (not (:final flags))
      :class       class
      :field       name
-     :o-tag       type
-     :tag         type}))
+     :o-tag       type}))
 
 (defn maybe-static-method [[_ class sym]]
   (when-let [{:keys [name return-type]} (static-method class sym)]
     {:op      :static-call
-     :tag     return-type
      :o-tag   return-type
      :class   class
      :method  name}))
@@ -31,7 +29,6 @@
 (defn maybe-instance-method [target-expr class sym]
   (when-let [{:keys [return-type]} (instance-method class sym)]
     {:op       :instance-call
-     :tag      return-type
      :o-tag    return-type
      :instance target-expr
      :class    class
@@ -45,7 +42,6 @@
      :class       class
      :instance    target-expr
      :field       name
-     :tag         type
      :o-tag       type
      :children    [:instance]}))
 
@@ -175,7 +171,6 @@
                 (when-let [the-class (or (maybe-class-literal class)
                                          (maybe-class-literal (resolve-var class env)))]
                   (assoc (ana/analyze-const the-class env :class)
-                    :tag   Class
                     :o-tag Class
                     :form  form))
 
@@ -184,7 +179,6 @@
                                         (pos? (.indexOf (str form) "."))
                                         (maybe-class-literal form))]
                   (assoc (ana/analyze-const the-class env :class)
-                    :tag   Class
                     :o-tag Class
                     :form  form)
                   ast)

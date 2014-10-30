@@ -271,9 +271,10 @@
   {:pass-info {:walk :post :depends #{#'annotate-tag #'annotate-methods #'fix-case-test #'analyze-host-expr}}}
   [{:keys [tag form] :as ast}]
   (let [tag (or tag (:tag (meta form)))
-        ast (-infer-tag ast)]
+        ast (-infer-tag ast)
+        o-tag (:o-tag ast)]
     (merge ast
-           (when tag
+           (when-let [tag (or tag o-tag)]
              {:tag tag})
-           (when-let [o-tag (:o-tag ast)]
+           (when [o-tag]
              {:o-tag o-tag}))))
