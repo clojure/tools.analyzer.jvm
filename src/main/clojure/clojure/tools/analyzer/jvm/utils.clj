@@ -93,7 +93,7 @@
    (class? x) x
    (symbol? x) (and (not (namespace x))
                     (maybe-class-from-string (name x)))
-   (str x) (maybe-class-from-string x)))
+   (string? x) (maybe-class-from-string x)))
 
 (def primitive?
   "Returns non-nil if the argument represents a primitive Class other than Void"
