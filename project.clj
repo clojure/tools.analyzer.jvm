@@ -7,6 +7,6 @@
   :test-paths ["src/test/clojure"]
   :dependencies [[org.clojure/clojure "1.7.0-alpha3"]
                  [org.clojure/core.memoize "0.5.6"]
-                 [org.clojure/tools.reader "0.8.10"]
+                 [org.clojure/tools.reader "0.8.11"]
                  [org.clojure/tools.analyzer "0.6.3-SNAPSHOT"]
                  [org.ow2.asm/asm-all "4.2"]])
