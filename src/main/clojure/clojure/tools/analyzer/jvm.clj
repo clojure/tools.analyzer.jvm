@@ -68,8 +68,8 @@
                            :ns       (ns-name %)})
                  (all-ns))))
 
-(defn update-ns-map! [env]
-  ((get env :update-ns-map! #())))
+(defn update-ns-map! []
+  ((get (env/deref-env) :update-ns-map! #())))
 
 (defn global-env []
   (atom {:namespaces     (build-ns-map)
@@ -154,14 +154,14 @@
 
                macro?
                (let [res (apply v form (:locals env) (rest form))] ; (m &form &env & args)
-                 (update-ns-map! env)
+                 (update-ns-map!)
                  (if (obj? res)
                    (vary-meta res merge (meta form))
                    res))
 
                inline?
                (let [res (apply inline? args)]
-                 (update-ns-map! env)
+                 (update-ns-map!)
                  (if (obj? res)
                    (vary-meta res merge
                               (and t {:tag t})
@@ -490,7 +490,7 @@
   ([form env] (analyze+eval form env {}))
   ([form env opts]
      (env/ensure (global-env)
-       (update-ns-map! env)
+       (update-ns-map!)
        (let [[mform raw-forms] (with-bindings {Compiler/LOADER     (RT/makeClassLoader)
                                                #'ana/macroexpand-1 (get-in opts [:bindings #'ana/macroexpand-1] macroexpand-1)}
                                  (loop [form form raw-forms []]
