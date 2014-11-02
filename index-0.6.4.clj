@@ -91,7 +91,7 @@
    :name "clojure.tools.analyzer.passes.jvm.warn-on-reflection",
    :doc nil}
   {:source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm/jvm.utils-api.html",
    :name "clojure.tools.analyzer.jvm.utils",
@@ -514,38 +514,38 @@
    :name "box",
    :namespace "clojure.tools.analyzer.jvm.utils",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L116",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L131",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//jvm-api.html#clojure.tools.analyzer.jvm.utils/box",
    :doc
    "If the argument is a primitive Class, returns its boxed equivalent,\notherwise returns the argument",
    :var-type "function",
-   :line 116,
+   :line 131,
    :file "src/main/clojure/clojure/tools/analyzer/jvm/utils.clj"}
   {:arglists ([c1 c2]),
    :name "convertible?",
    :namespace "clojure.tools.analyzer.jvm.utils",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L162",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L177",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//jvm-api.html#clojure.tools.analyzer.jvm.utils/convertible?",
    :doc "Returns true if it's possible to convert from c1 to c2",
    :var-type "function",
-   :line 162,
+   :line 177,
    :file "src/main/clojure/clojure/tools/analyzer/jvm/utils.clj"}
   {:file "src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L52",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L67",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//jvm-api.html#clojure.tools.analyzer.jvm.utils/maybe-class",
    :namespace "clojure.tools.analyzer.jvm.utils",
-   :line 52,
+   :line 67,
    :var-type "multimethod",
    :doc
    "Takes a Symbol, String or Class and tires to resolve to a matching Class",
@@ -554,38 +554,38 @@
    :name "numeric?",
    :namespace "clojure.tools.analyzer.jvm.utils",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L146",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L161",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//jvm-api.html#clojure.tools.analyzer.jvm.utils/numeric?",
    :doc "Returns true if the given class is numeric",
    :var-type "function",
-   :line 146,
+   :line 161,
    :file "src/main/clojure/clojure/tools/analyzer/jvm/utils.clj"}
   {:arglists ([tag]),
    :name "prim-or-obj",
    :namespace "clojure.tools.analyzer.jvm.utils",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L303",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L318",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//jvm-api.html#clojure.tools.analyzer.jvm.utils/prim-or-obj",
    :doc
    "If the given Class is a primitive, returns that Class, otherwise returns Object",
    :var-type "function",
-   :line 303,
+   :line 318,
    :file "src/main/clojure/clojure/tools/analyzer/jvm/utils.clj"}
   {:file "src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L98",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L113",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//jvm-api.html#clojure.tools.analyzer.jvm.utils/primitive?",
    :namespace "clojure.tools.analyzer.jvm.utils",
-   :line 98,
+   :line 113,
    :var-type "var",
    :doc
    "Returns non-nil if the argument represents a primitive Class other than Void",
@@ -594,91 +594,91 @@
    :name "subsumes?",
    :namespace "clojure.tools.analyzer.jvm.utils",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L152",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L167",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//jvm-api.html#clojure.tools.analyzer.jvm.utils/subsumes?",
    :doc "Returns true if c2 is subsumed by c1",
    :var-type "function",
-   :line 152,
+   :line 167,
    :file "src/main/clojure/clojure/tools/analyzer/jvm/utils.clj"}
   {:arglists ([tags methods]),
    :name "try-best-match",
    :namespace "clojure.tools.analyzer.jvm.utils",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L318",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L333",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//jvm-api.html#clojure.tools.analyzer.jvm.utils/try-best-match",
    :doc
    "Given a vector of arg tags and a collection of methods, tries to return the\nsubset of methods that match best the given tags",
    :var-type "function",
-   :line 318,
+   :line 333,
    :file "src/main/clojure/clojure/tools/analyzer/jvm/utils.clj"}
   {:arglists ([c]),
    :name "unbox",
    :namespace "clojure.tools.analyzer.jvm.utils",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L131",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L146",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//jvm-api.html#clojure.tools.analyzer.jvm.utils/unbox",
    :doc
    "If the argument is a Class with a primitive equivalent, returns that,\notherwise returns the argument",
    :var-type "function",
-   :line 131,
+   :line 146,
    :file "src/main/clojure/clojure/tools/analyzer/jvm/utils.clj"}
   {:arglists ([from to]),
    :name "wider-primitive",
    :namespace "clojure.tools.analyzer.jvm.utils",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L187",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L202",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//jvm-api.html#clojure.tools.analyzer.jvm.utils/wider-primitive",
    :doc "Given two numeric primitive Classes, returns the wider one",
    :var-type "function",
-   :line 187,
+   :line 202,
    :file "src/main/clojure/clojure/tools/analyzer/jvm/utils.clj"}
   {:arglists ([tags]),
    :name "wider-tag",
    :namespace "clojure.tools.analyzer.jvm.utils",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L216",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L231",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//jvm-api.html#clojure.tools.analyzer.jvm.utils/wider-tag",
    :doc "Given a collection of Classes returns the wider one",
    :var-type "function",
-   :line 216,
+   :line 231,
    :file "src/main/clojure/clojure/tools/analyzer/jvm/utils.clj"}
   {:arglists ([from to]),
    :name "wider-tag*",
    :namespace "clojure.tools.analyzer.jvm.utils",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L194",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L209",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//jvm-api.html#clojure.tools.analyzer.jvm.utils/wider-tag*",
    :doc "Given two Classes returns the wider one",
    :var-type "function",
-   :line 194,
+   :line 209,
    :file "src/main/clojure/clojure/tools/analyzer/jvm/utils.clj"}
   {:file "src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/c72d5c9407a5e25e8bd01fb2518521341856c059/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L177",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/0a5975a72f0c17904606ae19898c177d1d53d7f7/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L192",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//jvm-api.html#clojure.tools.analyzer.jvm.utils/wider-than",
    :namespace "clojure.tools.analyzer.jvm.utils",
-   :line 177,
+   :line 192,
    :var-type "var",
    :doc
    "If the argument is a numeric primitive Class, returns a set of primitive Classes\nthat are narrower than the given one",
