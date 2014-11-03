@@ -2,6 +2,14 @@ Changelog
 ========================================
 Since tools.analyzer.jvm version are usually cut simultaneously with a tools.analyzer version, check also the tools.analyzer [CHANGELOG](https://github.com/clojure/tools.analyzer/blob/master/CHANGELOG.md) for changes on the corresponding version, since changes in that library will reflect on this one.
 - - -
+* Release 0.6.4 on 03 Nov 2014
+  * Disallow def of a symbol that maps to a Class
+  * Made the target of a host interop expression privilege classnames over the lexical scope, as in clojure
+  * Preserve correct meta on emit-form
+  * Validate the target of a new expression
+  * Fixed bug that caused the symbols used as primitive type hints to be interpreted as classes in host interop expressions
+  * Made update-ns-map! an optional global-env field
+  * Enhanced source-info support on analyze+eval
 * Release 0.6.3 on 27 Oct 2014
   * Better interop method matcher
   * Fixed a bug when using analyze+eval and lein uberjar caused by Compiler/LOADER being unbound during macroexpansion
