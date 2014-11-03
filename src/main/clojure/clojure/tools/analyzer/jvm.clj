@@ -503,21 +503,20 @@
            ;; handle the Gilardi scenario
            (let [[statements ret] (butlast+last (rest mform))
                  statements-expr (mapv (fn [s] (analyze+eval s (-> env
-                                                                   (ctx :statement)
-                                                                   (assoc :ns (ns-name *ns*)))
-                                                             opts))
+                                                                (ctx :statement)
+                                                                (assoc :ns (ns-name *ns*)))
+                                                            opts))
                                        statements)
                  ret-expr (analyze+eval ret (assoc env :ns (ns-name *ns*)) opts)]
-             (-> {:op         :do
-                 :top-level  true
-                 :form       mform
-                 :statements statements-expr
-                 :ret        ret-expr
-                 :children   [:statements :ret]
-                 :env        env
-                 :result     (:result ret-expr)
-                 :raw-forms  raw-forms}
-               source-info))
+             {:op         :do
+              :top-level  true
+              :form       mform
+              :statements statements-expr
+              :ret        ret-expr
+              :children   [:statements :ret]
+              :env        env
+              :result     (:result ret-expr)
+              :raw-forms  raw-forms})
            (let [a (analyze mform env opts)
                  frm (emit-form a)
                  result (try (eval frm) ;; eval the emitted form rather than directly the form to avoid double macroexpansion
