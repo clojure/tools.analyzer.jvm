@@ -87,7 +87,7 @@
   (let [sym-ns (namespace form)]
     (if-let [target (and sym-ns
                          (not (resolve-ns (symbol sym-ns) env))
-                         (maybe-class sym-ns))]                           ;; Class/field
+                         (maybe-class-literal sym-ns))]          ;; Class/field
       (with-meta (list '. target (symbol (str "-" (name form)))) ;; transform to (. Class -field)
         (meta form))
       form)))
@@ -99,10 +99,9 @@
             opns   (namespace op)]
         (if-let [target (and opns
                              (not (resolve-ns (symbol opns) env))
-                             (maybe-class opns))] ; (class/field ..)
+                             (maybe-class-literal opns))] ; (class/field ..)
 
-          (let [target (maybe-class opns)
-                op (symbol opname)]
+          (let [op (symbol opname)]
             (with-meta (list '. target (if (zero? (count expr))
                                          op
                                          (list* op expr)))
@@ -111,8 +110,7 @@
           (cond
            (.startsWith opname ".")     ; (.foo bar ..)
            (let [[target & args] expr
-                 target (if-let [target (and (not (get (:locals env) target))
-                                             (maybe-class target))]
+                 target (if-let [target (maybe-class-literal target)]
                           (with-meta (list 'do target)
                             {:tag 'java.lang.Class})
                           target)
