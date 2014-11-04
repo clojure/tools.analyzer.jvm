@@ -469,7 +469,8 @@
                             #'ana/var?          var?
                             #'elides            (merge {:fn    #{:line :column :end-line :end-column :file :source}
                                                         :reify #{:line :column :end-line :end-column :file :source}}
-                                                       elides)}
+                                                       elides)
+                            #'*ns*              (the-ns (:ns env))}
                            (:bindings opts))
        (env/ensure (global-env)
          (env/with-env (swap! env/*env* mmerge
@@ -493,6 +494,7 @@
        (update-ns-map!)
        (let [env (merge env (-source-info form env))
              [mform raw-forms] (with-bindings {Compiler/LOADER     (RT/makeClassLoader)
+                                               #'*ns*              (the-ns (:ns env))
                                                #'ana/macroexpand-1 (get-in opts [:bindings #'ana/macroexpand-1] macroexpand-1)}
                                  (loop [form form raw-forms []]
                                    (let [mform (ana/macroexpand-1 form env)]
