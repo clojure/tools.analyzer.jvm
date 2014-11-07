@@ -396,8 +396,10 @@
 
 (defmethod parse 'catch
   [[_ etype ename & body :as form] env]
-  (let [etype (if (= etype :default) Throwable etype)] ;; catch-all
-    (ana/-parse `(catch ~etype ~ename ~@body) env)))
+  (if-not (:in-try env)
+    (ana/parse-invoke form env)
+    (let [etype (if (= etype :default) Throwable etype)] ;; catch-all
+      (ana/-parse `(catch ~etype ~ename ~@body) env))))
 
 (def default-passes
   "Set of passes that will be run by default on the AST by #'run-passes"
