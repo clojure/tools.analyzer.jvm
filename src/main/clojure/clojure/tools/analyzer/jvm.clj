@@ -197,15 +197,11 @@
     (if (and v (or (class? v)
                    (= ns (ns-name (.ns ^Var v) ))))
       v
-      (intern ns (vary-meta sym merge
-                            (let [{:keys [inline inline-arities arglists]} (meta sym)]
-                              (merge {}
-                                     (when arglists
-                                       {:arglists (qualify-arglists arglists)})
-                                     (when inline
-                                       {:inline (eval inline)})
-                                     (when inline-arities
-                                       {:inline-arities (eval inline-arities)}))))))))
+      (let [meta (dissoc (meta sym) :inline :inline-arities)
+            meta (if-let [arglists (:arglists meta)]
+                   (assoc meta :arglists (qualify-arglists arglists))
+                   meta)]
+       (intern ns (with-meta sym meta))))))
 
 (defmethod parse 'var
   [[_ var :as form] env]
