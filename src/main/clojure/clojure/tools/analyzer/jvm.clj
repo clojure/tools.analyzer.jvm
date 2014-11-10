@@ -197,7 +197,7 @@
     (if (and v (or (class? v)
                    (= ns (ns-name (.ns ^Var v) ))))
       v
-      (let [meta (dissoc (meta sym) :inline :inline-arities)
+      (let [meta (dissoc (meta sym) :inline :inline-arities :macro)
             meta (if-let [arglists (:arglists meta)]
                    (assoc meta :arglists (qualify-arglists arglists))
                    meta)]
