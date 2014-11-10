@@ -24,7 +24,6 @@
 
             [clojure.tools.analyzer.passes
              [source-info :refer [source-info]]
-             [cleanup :refer [cleanup]]
              [elide-meta :refer [elide-meta elides]]
              [warn-earmuff :refer [warn-earmuff]]
              [uniquify :refer [uniquify-locals]]]
@@ -523,20 +522,6 @@
                                (ExceptionThrown. e)))]
              (merge a {:result    result
                        :raw-forms raw-forms})))))))
-
-(defn analyze'
-  "Like `analyze` but runs cleanup on the AST"
-  ([form] (analyze' form (empty-env)))
-  ([form env] (analyze' form env {}))
-  ([form env opts]
-     (prewalk (analyze form env opts) cleanup)))
-
-(defn analyze+eval'
-  "Like `analyze+eval` but runs cleanup on the AST"
-  ([form] (analyze+eval' form (empty-env)))
-  ([form env] (analyze+eval' form env {}))
-  ([form env opts]
-     (prewalk (analyze+eval form env opts) cleanup)))
 
 (defn analyze-ns
   "Analyzes a whole namespace, returns a vector of the ASTs for all the
