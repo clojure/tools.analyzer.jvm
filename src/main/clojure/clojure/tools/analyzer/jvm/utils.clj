@@ -8,6 +8,7 @@
 
 (ns clojure.tools.analyzer.jvm.utils
   (:require [clojure.tools.analyzer.utils :as u]
+            [clojure.tools.analyzer.env :as env]
             [clojure.reflect :as reflect]
             [clojure.string :as s]
             [clojure.core.memoize :refer [lru]]
@@ -82,7 +83,9 @@
                  (= \[ (first s)))
            (try (RT/classForName s)
                 (catch ClassNotFoundException _))
-           (when-let [maybe-class ((ns-map *ns*) (symbol s))]
+           (when-let [maybe-class (if env/*env*
+                                    (u/resolve-var (symbol s) {:ns (ns-name *ns*)})
+                                    ((ns-map *ns*) (symbol s)))]
              (when (class? maybe-class)
                maybe-class))))))
 
