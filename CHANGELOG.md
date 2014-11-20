@@ -2,6 +2,10 @@ Changelog
 ========================================
 Since tools.analyzer.jvm version are usually cut simultaneously with a tools.analyzer version, check also the tools.analyzer [CHANGELOG](https://github.com/clojure/tools.analyzer/blob/master/CHANGELOG.md) for changes on the corresponding version, since changes in that library will reflect on this one.
 - - -
+* Release 0.6.5 on 20 Nov 2014
+  * Ensure *ns* is correctly bound during analysis
+  * Removed analyze' and analyze+eval'
+  * Improvements in class resolution
 * Release 0.6.4 on 03 Nov 2014
   * Disallow def of a symbol that maps to a Class
   * Made the target of a host interop expression privilege classnames over the lexical scope, as in clojure
