@@ -15,7 +15,7 @@
              :rename {analyze -analyze}]
 
             [clojure.tools.analyzer
-             [utils :refer [ctx resolve-var -source-info resolve-ns obj? dissoc-env butlast+last mmerge]]
+             [utils :refer [ctx resolve-sym -source-info resolve-ns obj? dissoc-env butlast+last mmerge]]
              [ast :refer [walk prewalk postwalk]]
              [env :as env :refer [*env*]]
              [passes :refer [schedule]]]
@@ -138,7 +138,7 @@
         (let [[op & args] form]
           (if (specials op)
             form
-            (let [v (resolve-var op env)
+            (let [v (resolve-sym op env)
                   m (meta v)
                   local? (-> env :locals (get op))
                   macro? (and (not local?) (:macro m)) ;; locals shadow macros
@@ -209,7 +209,7 @@
     (throw (ex-info (str "Wrong number of args to var, had: " (dec (count form)))
                     (merge {:form form}
                            (-source-info form env)))))
-  (if-let [var (resolve-var var env)]
+  (if-let [var (resolve-sym var env)]
     {:op   :the-var
      :env  env
      :form form

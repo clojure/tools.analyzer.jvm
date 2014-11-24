@@ -25,13 +25,13 @@
          options))
 
 (defn macro? [sym env]
-  (when-let [v (u/resolve-var sym env)]
+  (when-let [v (u/resolve-sym sym env)]
     (and (not (-> env :locals (get sym)))
          (u/macro? v)
          v)))
 
 (defn inline? [sym args env]
-  (when-let [v (u/resolve-var sym env)]
+  (when-let [v (u/resolve-sym sym env)]
     (let [inline-arities-f (:inline-arities (meta v))]
       (and (not (-> env :locals (get sym)))
            (or (not inline-arities-f)
@@ -84,7 +84,7 @@
            (try (RT/classForName s)
                 (catch ClassNotFoundException _))
            (when-let [maybe-class (if env/*env*
-                                    (u/resolve-var (symbol s) {:ns (ns-name *ns*)})
+                                    (u/resolve-sym (symbol s) {:ns (ns-name *ns*)})
                                     ((ns-map *ns*) (symbol s)))]
              (when (class? maybe-class)
                maybe-class))))))

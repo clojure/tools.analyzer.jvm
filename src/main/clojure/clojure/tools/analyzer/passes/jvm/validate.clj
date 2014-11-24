@@ -13,7 +13,7 @@
             [clojure.tools.analyzer.passes.jvm
              [infer-tag :refer [infer-tag]]
              [analyze-host-expr :refer [analyze-host-expr]]]
-            [clojure.tools.analyzer.utils :refer [arglist-for-arity source-info resolve-var resolve-ns merge']]
+            [clojure.tools.analyzer.utils :refer [arglist-for-arity source-info resolve-sym resolve-ns merge']]
             [clojure.tools.analyzer.jvm.utils :as u :refer [tag-match? try-best-match]])
   (:import (clojure.lang IFn ExceptionInfo)))
 
@@ -157,7 +157,7 @@
   [{:keys [^String class validated? env form] :as ast}]
   (if-not validated?
     (let [class-sym (-> class (subs (inc (.lastIndexOf class "."))) symbol)
-          sym-val (resolve-var class-sym env)]
+          sym-val (resolve-sym class-sym env)]
       (if (and (class? sym-val) (not= (.getName ^Class sym-val) class)) ;; allow deftype redef
         (throw (ex-info (str class-sym " already refers to: " sym-val
                              " in namespace: " (:ns env))
