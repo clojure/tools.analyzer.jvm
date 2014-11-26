@@ -46,7 +46,7 @@
 (defmulti -validate-loop-locals (fn [_ {:keys [op]}] op))
 (defmulti -cleanup-dirty-nodes :op)
 
-(defmethod -cleanup-dirty-nodes :local
+(defmethod -cleanup-dirty-nodes :op/local
   [{:keys [form name atom env] :as ast}]
   (if-let [cast ((:loop-locals-casts env) name)]
     (assoc ast
@@ -64,7 +64,7 @@
   (assoc (update-children ast (fn [ast] (dissoc ast :dirty?)))
     :dirty? true))
 
-(defmethod -cleanup-dirty-nodes :do
+(defmethod -cleanup-dirty-nodes :op/do
   [{:keys [op ret] :as ast}]
   (if (:dirty? ret)
     (dissoc (dirty ast) :tag)
@@ -117,19 +117,19 @@
                                 :dirty?))))
           ast)))))
 
-(defmethod -validate-loop-locals :loop
+(defmethod -validate-loop-locals :op/loop
   [analyze ast]
   (-validate-loop-locals* analyze ast :bindings))
 
-(defmethod -validate-loop-locals :fn-method
+(defmethod -validate-loop-locals :op/fn-method
   [analyze ast]
   (-validate-loop-locals* analyze ast :params))
 
-(defmethod -validate-loop-locals :method
+(defmethod -validate-loop-locals :op/method
   [analyze ast]
   (-validate-loop-locals* analyze ast :params))
 
-(defmethod -validate-loop-locals :recur
+(defmethod -validate-loop-locals :op/recur
   [_ {:keys [exprs env loop-id] :as ast}]
   (if (= validating loop-id)
     (let [casts (:loop-locals-casts env)]

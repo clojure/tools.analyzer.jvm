@@ -35,7 +35,7 @@
   (and (or (nil? tag) (not (u/primitive? tag)))
        (u/primitive? (:tag expr))))
 
-(defmethod box :instance-call
+(defmethod box :op/instance-call
   [{:keys [args class validated? tag] :as ast}]
   (let [ast (if-let-box class
               (assoc (update-in ast [:instance :tag] u/box) :class class)
@@ -47,7 +47,7 @@
                                   tag
                                   Object)))))
 
-(defmethod box :static-call
+(defmethod box :op/static-call
   [{:keys [args validated? tag] :as ast}]
   (if validated?
     ast
@@ -56,34 +56,34 @@
                                 tag
                                 Object))))
 
-(defmethod box :new
+(defmethod box :op/new
   [{:keys [args validated?] :as ast}]
   (if validated?
     ast
     (assoc ast :args (mapv -box args)
            :o-tag Object)))
 
-(defmethod box :instance-field
+(defmethod box :op/instance-field
   [{:keys [class] :as ast}]
   (if-let-box class
     (assoc (update-in ast [:instance :tag] u/box) :class class)
     ast))
 
-(defmethod box :def
+(defmethod box :op/def
   [{:keys [init] :as ast}]
   (if (and init (u/primitive? (:tag init)))
     (update-in ast [:init] -box)
     ast))
 
-(defmethod box :vector
+(defmethod box :op/vector
   [ast]
   (assoc ast :items (mapv -box (:items ast))))
 
-(defmethod box :set
+(defmethod box :op/set
   [ast]
   (assoc ast :items (mapv -box (:items ast))))
 
-(defmethod box :map
+(defmethod box :op/map
   [ast]
   (let [keys (mapv -box (:keys ast))
         vals (mapv -box (:vals ast))]
@@ -91,7 +91,7 @@
       :keys keys
       :vals vals)))
 
-(defmethod box :do
+(defmethod box :op/do
   [ast]
   (if (boxed? (:tag ast) (:ret ast))
     (-> ast
@@ -99,7 +99,7 @@
       (update-in [:o-tag] u/box))
     ast))
 
-(defmethod box :quote
+(defmethod box :op/quote
   [ast]
   (if (boxed? (:tag ast) (:ret ast))
     (-> ast
@@ -107,11 +107,11 @@
       (update-in [:o-tag] u/box))
     ast))
 
-(defmethod box :protocol-invoke
+(defmethod box :op/protocol-invoke
   [ast]
   (assoc ast :args (mapv -box (:args ast))))
 
-(defmethod box :let
+(defmethod box :op/let
   [{:keys [tag body] :as ast}]
   (if (boxed? tag body)
     (-> ast
@@ -119,7 +119,7 @@
       (update-in [:o-tag] u/box))
     ast))
 
-(defmethod box :letfn
+(defmethod box :op/letfn
   [ast]
   (if (boxed? (:tag ast) (:body ast))
     (-> ast
@@ -127,7 +127,7 @@
       (update-in [:o-tag] u/box))
     ast))
 
-(defmethod box :loop
+(defmethod box :op/loop
   [ast]
   (if (boxed? (:tag ast) (:body ast))
     (-> ast
@@ -135,7 +135,7 @@
       (update-in [:o-tag] u/box))
     ast))
 
-(defmethod box :fn-method
+(defmethod box :op/fn-method
   [{:keys [params tag] :as  ast}]
   (let [ast (if (u/primitive? tag)
               ast
@@ -148,7 +148,7 @@
       :tag   (u/prim-or-obj tag)
       :o-tag (u/prim-or-obj tag))))
 
-(defmethod box :if
+(defmethod box :op/if
   [{:keys [test then else tag o-tag] :as ast}]
   (let [test-tag (:tag test)
         test (if (and (u/primitive? test-tag)
@@ -166,7 +166,7 @@
             :then  then
             :else  else})))
 
-(defmethod box :case
+(defmethod box :op/case
   [{:keys [tag default tests thens test-type] :as ast}]
   (let [ast (if (and tag (u/primitive? tag))
               ast
@@ -180,7 +180,7 @@
         (assoc-in [:tests] (mapv (fn [t] (update-in t [:test] -box)) tests)))
       ast)))
 
-(defmethod box :try
+(defmethod box :op/try
   [{:keys [tag] :as ast}]
   (let [ast (if (and tag (u/primitive? tag))
               ast
@@ -191,7 +191,7 @@
     (-> ast
       (update-in [:finally] -box))))
 
-(defmethod box :invoke
+(defmethod box :op/invoke
   [ast]
   (assoc ast
     :args  (mapv -box (:args ast))

@@ -13,7 +13,7 @@
 
 (defn maybe-static-field [[_ class sym]]
   (when-let [{:keys [flags type name]} (static-field class sym)]
-    {:op          :static-field
+    {:op          :op/static-field
      :assignable? (not (:final flags))
      :class       class
      :field       name
@@ -22,7 +22,7 @@
 
 (defn maybe-static-method [[_ class sym]]
   (when-let [{:keys [name return-type]} (static-method class sym)]
-    {:op      :static-call
+    {:op      :op/static-call
      :tag     return-type
      :o-tag   return-type
      :class   class
@@ -30,7 +30,7 @@
 
 (defn maybe-instance-method [target-expr class sym]
   (when-let [{:keys [return-type]} (instance-method class sym)]
-    {:op       :instance-call
+    {:op       :op/instance-call
      :tag      return-type
      :o-tag    return-type
      :instance target-expr
@@ -40,7 +40,7 @@
 
 (defn maybe-instance-field [target-expr class sym]
   (when-let [{:keys [flags name type]} (instance-field class sym)]
-    {:op          :instance-field
+    {:op          :op/instance-field
      :assignable? (not (:final flags))
      :class       class
      :instance    target-expr
@@ -52,8 +52,8 @@
 (defn analyze-host-call
   [target-type method args target-expr class env]
   (let [op (case target-type
-             :static   :static-call
-             :instance :instance-call)]
+             :static   :op/static-call
+             :instance :op/instance-call)]
     (merge
      {:op     op
       :method method
@@ -76,7 +76,7 @@
                                           :field field}
                                          (source-info env)))))
       :instance (or (maybe-instance-field target-expr class field)
-                    {:op          :host-interop
+                    {:op          :op/host-interop
                      :target      (dissoc target-expr :tag :validated?)
                      :m-or-f      field
                      :assignable? true
@@ -87,7 +87,7 @@
                                       (merge {:instance (dissoc target-expr :env)
                                               :field    field}
                                              (source-info env)))))))
-    {:op          :host-interop
+    {:op          :op/host-interop
      :target      target-expr
      :m-or-f      field
      :assignable? true
@@ -105,7 +105,7 @@
     (cond
 
      (not (or class target-class))
-     {:op          :host-interop
+     {:op          :op/host-interop
       :target      target-expr
       :m-or-f      m-or-f
       :assignable? true
@@ -125,7 +125,7 @@
                             (source-info env))))
 
      target-class
-     {:op          :host-interop
+     {:op          :op/host-interop
       :target      (dissoc target-expr :tag :validated?)
       :m-or-f      m-or-f
       :assignable? true
@@ -148,48 +148,49 @@
    A :host-interop node represents either an instance-field or a no-arg instance-method. "
   {:pass-info {:walk :post :depends #{}}}
   [{:keys [op target form tag env class] :as ast}]
-  (if (#{:host-interop :host-call :host-field :maybe-class :var} op)
-    (let [target (if-let [the-class (and (= :local (:op target))
+  (if (some #(isa? % op) #{:op/host-interop :op/host-call :op/host-field :op/maybe-class :op/var})
+    (let [target (if-let [the-class (and (isa? :op/local (:op target))
                                          (maybe-class-literal (:form target)))]
                    (merge target
                           (assoc (ana/analyze-const the-class env :class)
                             :tag   Class
                             :o-tag Class))
                    target)
-          class? (and (= :const (:op target))
+          class? (and (isa? :op/const (:op target))
                       (= :class (:type target))
                       (:form target))
           target-type (if class? :static :instance)]
       (merge' (dissoc ast :assignable? :target :args :children)
-              (case op
+              (cond
 
-                :host-call
-                (analyze-host-call target-type (:method ast)
-                                   (:args ast) target class? env)
+               (isa? :op/host-call op)
+               (analyze-host-call target-type (:method ast)
+                                  (:args ast) target class? env)
 
-                :host-field
-                (analyze-host-field target-type (:field ast)
-                                    target (or class? (:tag target)) env)
+               (isa? :op/host-field op)
+               (analyze-host-field target-type (:field ast)
+                                   target (or class? (:tag target)) env)
 
-                :maybe-class
-                (when-let [the-class (maybe-class-literal class)]
-                  (assoc (ana/analyze-const the-class env :class)
-                    :tag   Class
-                    :o-tag Class
-                    :form  form))
+               (isa? :op/maybe-class op)
+               (when-let [the-class (maybe-class-literal class)]
+                 (assoc (ana/analyze-const the-class env :class)
+                   :tag   Class
+                   :o-tag Class
+                   :form  form))
 
-                :var
-                (if-let [the-class (and (not (namespace form))
-                                        (pos? (.indexOf (str form) "."))
-                                        (maybe-class-literal form))]
-                  (assoc (ana/analyze-const the-class env :class)
-                    :tag   Class
-                    :o-tag Class
-                    :form  form)
-                  ast)
+               (isa? :op/var op)
+               (if-let [the-class (and (not (namespace form))
+                                       (pos? (.indexOf (str form) "."))
+                                       (maybe-class-literal form))]
+                 (assoc (ana/analyze-const the-class env :class)
+                   :tag   Class
+                   :o-tag Class
+                   :form  form)
+                 ast)
 
-                (-analyze-host-expr target-type (:m-or-f ast)
-                                    target class? env))
+               :else
+               (-analyze-host-expr target-type (:m-or-f ast)
+                                   target class? env))
               (when tag
                 {:tag tag})))
     ast))

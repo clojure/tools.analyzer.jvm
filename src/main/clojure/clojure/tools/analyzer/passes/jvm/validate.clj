@@ -19,7 +19,7 @@
 
 (defmulti -validate :op)
 
-(defmethod -validate :maybe-class
+(defmethod -validate :op/maybe-class
   [{:keys [class env] :as ast}]
   (if-let [handle (-> (env/deref-env) :passes-opts :validate/unresolvable-symbol-handler)]
     (handle nil class ast)
@@ -32,7 +32,7 @@
                       (merge {:class class}
                              (source-info env)))))))
 
-(defmethod -validate :maybe-host-form
+(defmethod -validate :op/maybe-host-form
   [{:keys [class field form env] :as ast}]
   (if-let [handle (-> (env/deref-env) :passes-opts :validate/unresolvable-symbol-handler)]
     (handle class field ast)
@@ -45,7 +45,7 @@
                               :form form}
                              (source-info env)))))))
 
-(defmethod -validate :set!
+(defmethod -validate :op/set!
   [{:keys [target form env] :as ast}]
   (when (not (:assignable? target))
     (throw (ex-info "Cannot set! non-assignable target"
@@ -54,7 +54,7 @@
                            (source-info env)))))
   ast)
 
-(defmethod -validate :new
+(defmethod -validate :op/new
   [{:keys [args] :as ast}]
   (if (:validated? ast)
     ast
@@ -85,7 +85,7 @@
 
 (defn validate-call [{:keys [class instance method args tag env op] :as ast}]
   (let [argc (count args)
-        instance? (= :instance-call op)
+        instance? (isa? :op/instance-call op)
         f (if instance? u/instance-methods u/static-methods)
         tags (mapv :tag args)]
     (if-let [matching-methods (seq (f class method argc))]
@@ -129,31 +129,31 @@
                                 :argc   argc}
                                (source-info env))))))))
 
-(defmethod -validate :static-call
+(defmethod -validate :op/static-call
   [ast]
   (if (:validated? ast)
     ast
     (validate-call (assoc ast :class (u/maybe-class (:class ast))))))
 
-(defmethod -validate :static-field
+(defmethod -validate :op/static-field
   [ast]
   (if (:validated? ast)
     ast
     (assoc ast :class (u/maybe-class (:class ast)))))
 
-(defmethod -validate :instance-call
+(defmethod -validate :op/instance-call
   [{:keys [class validated? instance] :as ast}]
   (let [class (or class (:tag instance))]
     (if (and class (not validated?))
       (validate-call (assoc ast :class (u/maybe-class class)))
       ast)))
 
-(defmethod -validate :instance-field
+(defmethod -validate :op/instance-field
   [{:keys [instance class] :as ast}]
   (let [class (u/maybe-class class)]
     (assoc ast :class class :instance (assoc instance :tag class))))
 
-(defmethod -validate :import
+(defmethod -validate :op/import
   [{:keys [^String class validated? env form] :as ast}]
   (if-not validated?
     (let [class-sym (-> class (subs (inc (.lastIndexOf class "."))) symbol)
@@ -169,7 +169,7 @@
         (assoc ast :validated? true)))
     ast))
 
-(defmethod -validate :def
+(defmethod -validate :op/def
   [ast]
   (when-not (var? (:var ast))
     (throw (ex-info (str "Cannot def " (:name ast) " as it refers to the class "
@@ -189,7 +189,7 @@
                          (merge {:ast      (prewalk ast cleanup)}
                                 (source-info (:env ast))))))))))
 
-(defmethod -validate :invoke
+(defmethod -validate :op/invoke
   [{:keys [args env fn form] :as ast}]
   (let [argc (count args)]
     (when (and (= :const (:op fn))
@@ -213,12 +213,12 @@
                             :form       form}
                            (source-info env))))))
 
-(defmethod -validate :deftype
+(defmethod -validate :op/deftype
   [{:keys [class-name] :as ast}]
   (validate-interfaces ast)
   (assoc ast :class-name (u/maybe-class class-name)))
 
-(defmethod -validate :reify
+(defmethod -validate :op/reify
   [{:keys [class-name] :as ast}]
   (validate-interfaces ast)
   (assoc ast :class-name (u/maybe-class class-name)))

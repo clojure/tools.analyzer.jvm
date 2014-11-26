@@ -210,7 +210,7 @@
                     (merge {:form form}
                            (-source-info form env)))))
   (if-let [var (resolve-sym var env)]
-    {:op   :the-var
+    {:op   :op/the-var
      :env  env
      :form form
      :var  var}
@@ -222,7 +222,7 @@
     (throw (ex-info (str "Wrong number of args to monitor-enter, had: " (dec (count form)))
                     (merge {:form form}
                            (-source-info form env)))))
-  {:op       :monitor-enter
+  {:op       :op/monitor-enter
    :env      env
    :form     form
    :target   (-analyze target (ctx env :ctx/expr))
@@ -234,7 +234,7 @@
     (throw (ex-info (str "Wrong number of args to monitor-exit, had: " (dec (count form)))
                     (merge {:form form}
                            (-source-info form env)))))
-  {:op       :monitor-exit
+  {:op       :op/monitor-exit
    :env      env
    :form     form
    :target   (-analyze target (ctx env :ctx/expr))
@@ -246,7 +246,7 @@
     (throw (ex-info (str "Wrong number of args to import*, had: " (dec (count form)))
                     (merge {:form form}
                            (-source-info form env)))))
-  {:op    :import
+  {:op    :op/import
    :env   env
    :form  form
    :class class})
@@ -270,14 +270,14 @@
         this-expr   {:name  this
                      :env   env
                      :form  this
-                     :op    :binding
+                     :op    :op/binding
                      :o-tag (:this env)
                      :tag   (:this env)
                      :local :this}
         env         (assoc-in (dissoc env :this) [:locals this] (dissoc-env this-expr))
         method-expr (analyze-fn-method meth env)]
     (assoc (dissoc method-expr :variadic?)
-      :op       :method
+      :op       :op/method
       :form     form
       :this     this-expr
       :name     (symbol (name method))
@@ -309,7 +309,7 @@
     (-deftype name class-name [] interfaces)
 
     (wrapping-meta
-     {:op         :reify
+     {:op         :op/reify
       :env        env
       :form       form
       :class-name class-name
@@ -330,7 +330,7 @@
                                             (and (:volatile-mutable m)
                                                  :volatile-mutable)))
                              :local   :field
-                             :op      :binding})
+                             :op      :op/binding})
                           fields)
         menv (assoc env
                :context :ctx/expr
@@ -341,7 +341,7 @@
 
     (-deftype name class-name fields interfaces)
 
-    {:op         :deftype
+    {:op         :op/deftype
      :env        env
      :form       form
      :name       name
@@ -359,13 +359,13 @@
         [tests thens] (reduce (fn [[te th] [min-hash [test then]]]
                                 (let [test-expr (ana/analyze-const test e)
                                       then-expr (-analyze then env)]
-                                  [(conj te {:op       :case-test
+                                  [(conj te {:op       :op/case-test
                                              :form     test
                                              :env      e
                                              :hash     min-hash
                                              :test     test-expr
                                              :children [:test]})
-                                   (conj th {:op       :case-then
+                                   (conj th {:op       :op/case-then
                                              :form     then
                                              :env      env
                                              :hash     min-hash
@@ -373,7 +373,7 @@
                                              :children [:then]})]))
                               [[] []] case-map)
         default-expr (-analyze default env)]
-    {:op          :case
+    {:op          :op/case
      :form        form
      :env         env
      :test        (assoc test-expr :case-test true)
@@ -433,9 +433,9 @@
 (def default-passes-opts
   "Default :passes-opts for `analyze`"
   {:collect/what                    #{:constants :callsites}
-   :collect/where                   #{:deftype :reify :fn}
+   :collect/where                   #{:op/deftype :op/reify :op/fn}
    :collect/top-level?              false
-   :collect-closed-overs/where      #{:deftype :reify :fn :loop :try}
+   :collect-closed-overs/where      #{:op/deftype :op/reify :op/fn :op/loop :op/try}
    :collect-closed-overs/top-level? false})
 
 (defn analyze
@@ -463,8 +463,8 @@
                             #'ana/create-var    create-var
                             #'ana/parse         parse
                             #'ana/var?          var?
-                            #'elides            (merge {:fn    #{:line :column :end-line :end-column :file :source}
-                                                        :reify #{:line :column :end-line :end-column :file :source}}
+                            #'elides            (merge {:op/fn    #{:line :column :end-line :end-column :file :source}
+                                                        :op/reify #{:line :column :end-line :end-column :file :source}}
                                                        elides)
                             #'*ns*              (the-ns (:ns env))}
                            (:bindings opts))
@@ -506,7 +506,7 @@
                                                             opts))
                                        statements)
                  ret-expr (analyze+eval ret (assoc env :ns (ns-name *ns*)) opts)]
-             {:op         :do
+             {:op         :op/do
               :top-level  true
               :form       mform
               :statements statements-expr

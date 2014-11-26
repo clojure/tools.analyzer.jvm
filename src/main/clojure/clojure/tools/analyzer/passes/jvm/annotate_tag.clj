@@ -15,49 +15,45 @@
 
 (defmethod -annotate-tag :default
   [ast]
-  (if (= :const (:op ast))
-    (let [t (class (:val ast))]
-      (assoc ast :o-tag t :tag t))
-    ast))
+  ast)
 
-(defmethod -annotate-tag :map
+(defmethod -annotate-tag :op/map
   [{:keys [val form] :as ast}]
   (let [t (class (or val form))]
     (assoc ast :o-tag t :tag t)))
 
-(defmethod -annotate-tag :set
+(defmethod -annotate-tag :op/set
   [{:keys [val form] :as ast}]
   (let [t (class (or val form))]
     (assoc ast :o-tag t :tag t)))
 
-(defmethod -annotate-tag :vector
+(defmethod -annotate-tag :op/vector
   [{:keys [val form] :as ast}]
   (let [t (class (or val form))]
     (assoc ast :o-tag t :tag t)))
 
-(defmethod -annotate-tag :seq
-  [ast]
-  (assoc ast :o-tag ISeq :tag ISeq))
-
-;; char and numbers are unboxed by default
-(defmethod -annotate-tag :number
-  [ast]
-  (let [t (unbox (class (:val ast)))]
-    (assoc ast :o-tag t :tag t)))
-
-(defmethod -annotate-tag :char
-  [ast]
-  (assoc ast :o-tag Character/TYPE :tag Character/TYPE))
-
-(defmethod -annotate-tag :the-var
+(defmethod -annotate-tag :op/the-var
   [ast]
   (assoc ast :o-tag Var :tag Var))
 
-(defmethod -annotate-tag :const
+(defmethod -annotate-tag :op/const
   [ast]
-  ((get-method -annotate-tag (:type ast)) ast))
+  (case (:type ast)
 
-(defmethod -annotate-tag :binding
+    ;; char and numbers are unboxed by default
+    :number
+    (let [t (unbox (class (:val ast)))]
+      (assoc ast :o-tag t :tag t))
+    :char
+    (assoc ast :o-tag Character/TYPE :tag Character/TYPE)
+
+    :seq
+    (assoc ast :o-tag ISeq :tag ISeq)
+
+    (let [t (class (:val ast))]
+      (assoc ast :o-tag t :tag t))))
+
+(defmethod -annotate-tag :op/binding
   [{:keys [form tag atom o-tag init local name variadic?] :as ast}]
   (let [o-tag (or (:tag init) ;; should defer to infer-tag?
                   (and (= :fn local) AFunction)
@@ -74,7 +70,7 @@
           ast))
       (assoc ast :tag o-tag :o-tag o-tag))))
 
-(defmethod -annotate-tag :local
+(defmethod -annotate-tag :op/local
   [{:keys [name form tag atom case-test] :as ast}]
   (let [o-tag (@atom :tag)]
     (assoc ast :o-tag o-tag :tag o-tag)))
@@ -96,6 +92,6 @@
                            (-> ast :form meta :tag))]
             (assoc (-annotate-tag ast) :tag tag)
             (-annotate-tag ast)))]
-    (when (= op :binding)
+    (when (isa? :op/binding op)
       (swap! atom assoc :tag (:tag ast)))
     ast))

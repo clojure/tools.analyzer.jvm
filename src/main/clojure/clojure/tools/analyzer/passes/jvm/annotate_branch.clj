@@ -16,7 +16,7 @@
   {:pass-info {:walk :any :depends #{}}}
   :op)
 
-(defmethod annotate-branch :if
+(defmethod annotate-branch :op/if
   [ast]
   (-> ast
     (assoc :branch? true)
@@ -24,22 +24,22 @@
     (assoc-in [:then :path?] true)
     (assoc-in [:else :path?] true)))
 
-(defmethod annotate-branch :fn-method
+(defmethod annotate-branch :op/fn-method
   [ast]
   (assoc ast :path? true))
 
-(defmethod annotate-branch :method
+(defmethod annotate-branch :op/method
   [ast]
   (assoc ast :path? true))
 
-(defmethod annotate-branch :case
+(defmethod annotate-branch :op/case
   [ast]
   (-> ast
     (assoc :branch? true)
     (assoc-in [:test :test?] true)
     (assoc-in [:default :path?] true)))
 
-(defmethod annotate-branch :case-then
+(defmethod annotate-branch :op/case-then
   [ast]
   (assoc ast :path? true))
 

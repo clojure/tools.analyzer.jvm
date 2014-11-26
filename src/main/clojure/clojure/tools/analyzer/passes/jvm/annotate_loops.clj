@@ -30,28 +30,28 @@
       (assoc ast :recurs true)
       ast)))
 
-(defmethod check-recur :do
+(defmethod check-recur :op/do
   [ast]
   (let [ast (-check-recur ast :ret)]
     (if (:recurs ast)
       (assoc ast :statements (mapv (fn [s] (assoc s :recurs true)) (:statements ast)))
       ast)))
 
-(defmethod check-recur :let
+(defmethod check-recur :op/let
   [ast]
   (-check-recur ast :body))
 
-(defmethod check-recur :letfn
+(defmethod check-recur :op/letfn
   [ast]
   (-check-recur ast :body))
 
-(defmethod check-recur :if
+(defmethod check-recur :op/if
   [ast]
   (-> ast
     (-check-recur :then)
     (-check-recur :else)))
 
-(defmethod check-recur :case
+(defmethod check-recur :op/case
   [ast]
   (let [ast (-> ast
                 (-check-recur :default)
@@ -60,7 +60,7 @@
       (assoc ast :recurs true)
       ast)))
 
-(defmethod check-recur :recur
+(defmethod check-recur :op/recur
   [ast]
   (assoc ast :recurs true))
 
@@ -71,7 +71,7 @@
 (defn -loops [ast loop-id]
   (update-in ast [:loops] (fnil conj #{}) loop-id))
 
-(defmethod annotate-loops :loop
+(defmethod annotate-loops :op/loop
   [{:keys [loops loop-id] :as ast}]
   (let [ast (if loops
               (update-children ast #(assoc % :loops loops))
@@ -87,7 +87,7 @@
     (update-children ast #(assoc % :loops loops))
     ast))
 
-(defmethod annotate-loops :if
+(defmethod annotate-loops :op/if
   [{:keys [loops test then else env] :as ast}]
   (if loops
     (let [loop-id (:loop-id env)
@@ -107,7 +107,7 @@
         :test (assoc test :loops loops)))
     ast))
 
-(defmethod annotate-loops :case
+(defmethod annotate-loops :op/case
   [{:keys [loops test default thens env] :as ast}]
   (if loops
     (let [loop-id (:loop-id env)

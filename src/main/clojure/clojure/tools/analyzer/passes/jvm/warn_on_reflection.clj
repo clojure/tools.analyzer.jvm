@@ -29,7 +29,7 @@
   {:pass-info {:walk :pre :depends #{#'validate} :after #{#'validate-loop-locals}}}
   :op)
 
-(defmethod warn-on-reflection :instance-call
+(defmethod warn-on-reflection :op/instance-call
   [ast]
   (when-not (:validated? ast)
     (warn (str "call to method " (:method ast) (when-let [class (:class ast)]
@@ -37,7 +37,7 @@
                " cannot be resolved") (:env ast)))
   ast)
 
-(defmethod warn-on-reflection :static-call
+(defmethod warn-on-reflection :op/static-call
   [ast]
   (when-not (:validated? ast)
     (warn (str "call to static method " (:method ast) " on "
@@ -45,14 +45,14 @@
           (:env ast)))
   ast)
 
-(defmethod warn-on-reflection :host-interop
+(defmethod warn-on-reflection :op/host-interop
   [ast]
   (warn (str "reference to field or no args method call " (:m-or-f ast)
              " cannot be resolved")
         (:env ast))
   ast)
 
-(defmethod warn-on-reflection :new
+(defmethod warn-on-reflection :op/new
   [ast]
   (when-not (:validated? ast)
     (warn (str "call to " (.getName ^Class (:val (:class ast))) " ctor cannot be resolved")

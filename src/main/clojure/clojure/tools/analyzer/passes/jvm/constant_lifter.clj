@@ -7,7 +7,7 @@
 
 (defn constant-lift*
   [ast]
-  (if (= :var (:op ast))
+  (if (isa? :op/var (:op ast))
     (let [{:keys [var env form meta]} ast]
      (if (constant? var meta)
        (let [val @var]

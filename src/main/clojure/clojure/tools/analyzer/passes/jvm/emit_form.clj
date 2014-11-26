@@ -44,30 +44,30 @@
   [ast opts]
   (default/-emit-form ast opts))
 
-(defmethod -emit-form :const
+(defmethod -emit-form :op/const
   [{:keys [type val] :as ast} opts]
   (if (and (= type :class)
            (:qualified-symbols opts))
     (symbol (.getName ^Class val))
     (default/-emit-form ast opts)))
 
-(defmethod -emit-form :monitor-enter
+(defmethod -emit-form :op/monitor-enter
   [{:keys [target]} opts]
   `(monitor-enter ~(-emit-form* target opts)))
 
-(defmethod -emit-form :monitor-exit
+(defmethod -emit-form :op/monitor-exit
   [{:keys [target]} opts]
   `(monitor-exit ~(-emit-form* target opts)))
 
-(defmethod -emit-form :import
+(defmethod -emit-form :op/import
   [{:keys [class]} opts]
   `(clojure.core/import* ~class))
 
-(defmethod -emit-form :the-var
+(defmethod -emit-form :op/the-var
   [{:keys [^clojure.lang.Var var]} opts]
   `(var ~(symbol (name (ns-name (.ns var))) (name (.sym var)))))
 
-(defmethod -emit-form :method
+(defmethod -emit-form :op/method
   [{:keys [params body this name form]} opts]
   (let [params (into [this] params)]
     `(~(with-meta name (meta (first form)))
@@ -78,23 +78,23 @@
 (defn class->sym [class]
   (symbol (.getName ^Class class)))
 
-(defmethod -emit-form :catch
+(defmethod -emit-form :op/catch
   [{:keys [class local body]} opts]
   `(catch ~(-emit-form* class opts) ~(-emit-form* local opts)
      ~(-emit-form* body opts)))
 
-(defmethod -emit-form :deftype
+(defmethod -emit-form :op/deftype
   [{:keys [name class-name fields interfaces methods]} opts]
   `(deftype* ~name ~(class->sym class-name) ~(mapv #(-emit-form* % opts) fields)
      :implements ~(mapv class->sym interfaces)
      ~@(mapv #(-emit-form* % opts) methods)))
 
-(defmethod -emit-form :reify
+(defmethod -emit-form :op/reify
   [{:keys [interfaces methods]} opts]
   `(reify* ~(mapv class->sym (disj interfaces clojure.lang.IObj))
            ~@(mapv #(-emit-form* % opts) methods)))
 
-(defmethod -emit-form :case
+(defmethod -emit-form :op/case
   [{:keys [test default tests thens shift mask low high switch-type test-type skip-check?]} opts]
   `(case* ~(-emit-form* test opts)
           ~shift ~mask
@@ -105,49 +105,49 @@
                           tests thens))
           ~switch-type ~test-type ~skip-check?))
 
-(defmethod -emit-form :static-field
+(defmethod -emit-form :op/static-field
   [{:keys [class field]} opts]
   (symbol (.getName ^Class class) (name field)))
 
-(defmethod -emit-form :static-call
+(defmethod -emit-form :op/static-call
   [{:keys [class method args]} opts]
   `(~(symbol (.getName ^Class class) (name method))
     ~@(mapv #(-emit-form* % opts) args)))
 
-(defmethod -emit-form :instance-field
+(defmethod -emit-form :op/instance-field
   [{:keys [instance field]} opts]
   `(~(symbol (str ".-" (name field))) ~(-emit-form* instance opts)))
 
-(defmethod -emit-form :instance-call
+(defmethod -emit-form :op/instance-call
   [{:keys [instance method args]} opts]
   `(~(symbol (str "." (name method))) ~(-emit-form* instance opts)
     ~@(mapv #(-emit-form* % opts) args)))
 
-(defmethod -emit-form :host-interop
+(defmethod -emit-form :op/host-interop
   [{:keys [target m-or-f]} opts]
   `(~(symbol (str "." (name m-or-f))) ~(-emit-form* target opts)))
 
-(defmethod -emit-form :prim-invoke
+(defmethod -emit-form :op/prim-invoke
   [{:keys [fn args]} opts]
   `(~(-emit-form* fn opts)
     ~@(mapv #(-emit-form* % opts) args)))
 
-(defmethod -emit-form :protocol-invoke
+(defmethod -emit-form :op/protocol-invoke
   [{:keys [protocol-fn target args]} opts]
   `(~(-emit-form* protocol-fn opts)
     ~(-emit-form* target opts)
     ~@(mapv #(-emit-form* % opts) args)))
 
-(defmethod -emit-form :keyword-invoke
+(defmethod -emit-form :op/keyword-invoke
   [{:keys [target keyword]} opts]
   (list (-emit-form* keyword opts)
         (-emit-form* target opts)))
 
-(defmethod -emit-form :instance?
+(defmethod -emit-form :op/instance?
   [{:keys [class target]} opts]
   `(instance? ~class ~(-emit-form* target opts)))
 
-(defmethod -emit-form :var
+(defmethod -emit-form :op/var
   [{:keys [form ^clojure.lang.Var var]} opts]
   (if (or (:qualified-symbols opts)
           (:qualified-vars opts))
@@ -155,7 +155,7 @@
       (meta form))
     form))
 
-(defmethod -emit-form :def
+(defmethod -emit-form :op/def
   [ast opts]
   (let [f (default/-emit-form ast opts)]
     (if (:qualified-symbols opts)

@@ -28,6 +28,9 @@
   (env/with-env (ana.jvm/global-env)
     (v/validate ast)))
 
+(defn add-binding-atom* [ast]
+  (prewalk ast (partial add-binding-atom (atom {}))))
+
 (deftest emit-form-test
   (is (= '(monitor-enter 1) (emit-form (ast (monitor-enter 1)))))
   (is (= '(monitor-exit 1) (emit-form (ast (monitor-exit 1)))))
@@ -62,15 +65,15 @@
     (is (every? :path? (-> c-ast :thens)))))
 
 (deftest fix-case-test-test
-  (let [c-ast (-> (ast (case 1 1 1)) add-binding-atom (prewalk fix-case-test))]
+  (let [c-ast (-> (ast (case 1 1 1)) add-binding-atom* (prewalk fix-case-test))]
     (is (= true (-> c-ast :body :ret :test :atom deref :case-test)))))
 
 (deftest annotate-tag-test
-  (is (= PersistentVector (-> {:op :const :form [] :val []} annotate-tag :tag)))
+  (is (= PersistentVector (-> {:op :op/const :form [] :val []} annotate-tag :tag)))
   (is (= PersistentVector (-> (ast []) annotate-tag :tag)))
   (is (= PersistentArrayMap(-> (ast {}) annotate-tag :tag)))
   (is (= PersistentHashSet (-> (ast #{}) annotate-tag :tag)))
-  (is (= Class (-> {:op :const :type :class :form Object :val Object}
+  (is (= Class (-> {:op :op/const :type :class :form Object :val Object}
                  annotate-tag :tag)))
   (is (= String (-> (ast "foo") annotate-tag :tag)))
   (is (= Keyword (-> (ast :foo) annotate-tag :tag)))
@@ -79,17 +82,17 @@
   (is (= Pattern (-> (ast #"foo") annotate-tag :tag)))
   (is (= Var (-> (ast #'+)  annotate-tag :tag)))
   (is (= Boolean (-> (ast true) annotate-tag :tag)))
-  (let [b-ast (-> (ast (let [a 1] a)) add-binding-atom
+  (let [b-ast (-> (ast (let [a 1] a)) add-binding-atom*
                  (postwalk annotate-tag))]
     (is (= Long/TYPE (-> b-ast :body :ret :tag)))))
 
 (deftest classify-invoke-test
-  (is (= :keyword-invoke (-> (ast (:foo {})) classify-invoke :op)))
-  (is (= :invoke (-> (ast (:foo {} 1)) classify-invoke :op)))
-  (is (= :protocol-invoke (-> (ast (f nil)) classify-invoke :op)))
-  (is (= :instance? (-> (ast (instance? String ""))
-                      (prewalk analyze-host-expr) classify-invoke :op)))
-  (is (= :prim-invoke (-> (ast (f1 1)) (prewalk infer-tag) classify-invoke :op))))
+  (is (= :op/keyword-invoke (-> (ast (:foo {})) classify-invoke :op)))
+  (is (= :op/invoke (-> (ast (:foo {} 1)) classify-invoke :op)))
+  (is (= :op/protocol-invoke (-> (ast (f nil)) classify-invoke :op)))
+  (is (= :op/instance? (-> (ast (instance? String ""))
+                        (prewalk analyze-host-expr) classify-invoke :op)))
+  (is (= :op/prim-invoke (-> (ast (f1 1)) (prewalk infer-tag) classify-invoke :op))))
 
 (deftest annotate-methods-test
   (let [r-ast (-> (ast ^:foo (reify Object (toString [_] ""))) (prewalk annotate-methods))]

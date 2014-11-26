@@ -25,23 +25,23 @@
      node"
   {:pass-info {:walk :post :depends #{#'validate}}}
   [{:keys [op args tag env form] :as ast}]
-  (if-not (= op :invoke)
+  (if-not (isa? :op/invoke op)
     ast
     (let [argc (count args)
           the-fn (:fn ast)
           op (:op the-fn)
-          var? (= :var op)
+          var? (isa? :op/var op)
           the-var (:var the-fn)]
 
       (cond
 
-       (and (= :const op)
+       (and (isa? :op/const op)
             (= :keyword (:type the-fn)))
        (if (<= 1 argc 2)
          (if (and (not (namespace (:val the-fn)))
                   (= 1 argc))
            (merge (dissoc ast :fn :args)
-                  {:op       :keyword-invoke
+                  {:op       :op/keyword-invoke
                    :target   (first args)
                    :keyword  the-fn
                    :children [:keyword :target]})
@@ -52,10 +52,10 @@
        (and (= 2 argc)
             var?
             (= #'clojure.core/instance? the-var)
-            (= :const (:op (first args)))
+            (isa? :op/const (:op (first args)))
             (= :class (:type (first args))))
        (merge (dissoc ast :fn :args)
-              {:op       :instance?
+              {:op       :op/instance?
                :class    (:val (first args))
                :target   (second args)
                :form     form
@@ -67,7 +67,7 @@
        (and var? (protocol-node? the-var (:meta the-fn)))
        (if (>= argc 1)
          (merge (dissoc ast :fn)
-                {:op          :protocol-invoke
+                {:op          :op/protocol-invoke
                  :protocol-fn the-fn
                  :target      (first args)
                  :args        (vec (rest args))
@@ -83,7 +83,7 @@
              tags (conj arg-tags ret-tag)]
          (if-let [prim-interface (prim-interface (mapv #(if (nil? %) Object %) tags))]
            (merge ast
-                  {:op             :prim-invoke
+                  {:op             :op/prim-invoke
                    :prim-interface prim-interface
                    :args           (mapv (fn [arg tag] (assoc arg :tag tag)) args arg-tags)
                    :o-tag          ret-tag

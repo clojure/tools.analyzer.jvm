@@ -20,7 +20,7 @@
 (defmulti -infer-tag :op)
 (defmethod -infer-tag :default [ast] ast)
 
-(defmethod -infer-tag :binding
+(defmethod -infer-tag :op/binding
   [{:keys [init atom] :as ast}]
   (if init
     (let [info (select-keys init [:return-tag :arglists])]
@@ -28,14 +28,14 @@
       (merge ast info))
     ast))
 
-(defmethod -infer-tag :local
+(defmethod -infer-tag :op/local
   [ast]
   (let [atom @(:atom ast)]
     (merge atom
            ast
            {:o-tag (:tag atom)})))
 
-(defmethod -infer-tag :var
+(defmethod -infer-tag :op/var
   [{:keys [var form] :as ast}]
   (let [{:keys [tag arglists]} (:meta ast)
         arglists (if (= 'quote (first arglists))
@@ -52,7 +52,7 @@
            (when arglists
              {:arglists arglists}))))
 
-(defmethod -infer-tag :def
+(defmethod -infer-tag :op/def
   [{:keys [var init name] :as ast}]
   (let [info (merge (select-keys init [:return-tag :arglists :tag])
                     (select-keys (meta name) [:tag :arglists]))]
@@ -62,41 +62,41 @@
       (alter-meta! var merge (rename-keys info {:return-tag :tag})))
     (merge ast info {:tag clojure.lang.Var :o-tag clojure.lang.Var})))
 
-(defmethod -infer-tag :quote
+(defmethod -infer-tag :op/quote
   [ast]
   (let [tag (-> ast :expr :tag)]
     (assoc ast :tag tag :o-tag tag)))
 
-(defmethod -infer-tag :new
+(defmethod -infer-tag :op/new
   [ast]
   (let [t (-> ast :class :val)]
     (assoc ast :o-tag t :tag t)))
 
-(defmethod -infer-tag :with-meta
+(defmethod -infer-tag :op/with-meta
   [{:keys [expr] :as ast}]
   (merge ast (select-keys expr [:return-tag :arglists])
          {:tag (or (:tag expr) Object) :o-tag Object})) ;;trying to be smart here
 
-(defmethod -infer-tag :recur
+(defmethod -infer-tag :op/recur
   [ast]
   (assoc ast :ignore-tag true))
 
-(defmethod -infer-tag :do
+(defmethod -infer-tag :op/do
   [{:keys [ret] :as ast}]
   (merge ast (select-keys ret [:return-tag :arglists :ignore-tag :tag])
          {:o-tag (:tag ret)}))
 
-(defmethod -infer-tag :let
+(defmethod -infer-tag :op/let
   [{:keys [body] :as ast}]
   (merge ast (select-keys body [:return-tag :arglists :ignore-tag :tag])
          {:o-tag (:tag body)}))
 
-(defmethod -infer-tag :letfn
+(defmethod -infer-tag :op/letfn
   [{:keys [body] :as ast}]
   (merge ast (select-keys body [:return-tag :arglists :ignore-tag :tag])
          {:o-tag (:tag body)}))
 
-(defmethod -infer-tag :loop
+(defmethod -infer-tag :op/loop
   [{:keys [body] :as ast}]
   (merge ast (select-keys body [:return-tag :arglists])
          {:o-tag (:tag body)}
@@ -114,7 +114,7 @@
                                (mapv tag a2))))
                      a1 a2)))))
 
-(defmethod -infer-tag :if
+(defmethod -infer-tag :op/if
   [{:keys [then else] :as ast}]
   (let [then-tag (:tag then)
         else-tag (:tag else)
@@ -148,11 +148,11 @@
      :else
      ast)))
 
-(defmethod -infer-tag :throw
+(defmethod -infer-tag :op/throw
   [ast]
   (assoc ast :ignore-tag true))
 
-(defmethod -infer-tag :case
+(defmethod -infer-tag :op/case
   [{:keys [thens default] :as ast}]
   (let [thens (conj (mapv :then thens) default)
         exprs (seq (remove :ignore-tag thens))
@@ -175,7 +175,7 @@
      :else
      ast)))
 
-(defmethod -infer-tag :try
+(defmethod -infer-tag :op/try
   [{:keys [body catches] :as ast}]
   (let [{:keys [tag return-tag arglists]} body
         catches (remove :ignore-tag (mapv :body catches))]
@@ -187,7 +187,7 @@
            (when (and arglists (every? #(=-arglists? % arglists) (mapv :arglists catches)))
              {:arglists arglists}))))
 
-(defmethod -infer-tag :fn-method
+(defmethod -infer-tag :op/fn-method
   [{:keys [form body params local] :as ast}]
   (let [annotated-tag (or (:tag (meta (first form)))
                           (:tag (meta (:form local))))
@@ -207,7 +207,7 @@
                                              params))
                        (when tag {:tag tag}))})))
 
-(defmethod -infer-tag :fn
+(defmethod -infer-tag :op/fn
   [{:keys [local methods] :as ast}]
   (merge ast
          {:arglists (seq (mapv :arglist methods))
@@ -218,7 +218,7 @@
                                  (:tag (first methods))))]
            {:return-tag tag})))
 
-(defmethod -infer-tag :invoke
+(defmethod -infer-tag :op/invoke
   [{:keys [fn args] :as ast}]
   (if (:arglists fn)
     (let [argc (count args)
@@ -235,18 +235,18 @@
       (assoc ast :tag tag :o-tag tag)
       ast)))
 
-(defmethod -infer-tag :method
+(defmethod -infer-tag :op/method
   [{:keys [form body params] :as ast}]
   (let [tag (or (:tag (meta (first form)))
                 (:tag (meta (second form))))
         body-tag (:tag body)]
     (assoc ast :tag (or tag body-tag) :o-tag body-tag)))
 
-(defmethod -infer-tag :reify
+(defmethod -infer-tag :op/reify
   [{:keys [class-name] :as ast}]
   (assoc ast :tag class-name :o-tag class-name))
 
-(defmethod -infer-tag :set!
+(defmethod -infer-tag :op/set!
   [ast]
   (let [t (:tag (:target ast))]
     (assoc ast :tag t :o-tag t)))

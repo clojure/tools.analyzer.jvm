@@ -39,33 +39,33 @@
 (deftest analyzer-test
 
   (let [v-ast (ast #'+)]
-    (is (= :the-var (:op v-ast)))
+    (is (= :op/the-var (:op v-ast)))
     (is (= #'+ (:var v-ast))))
 
   (let [mn-ast (ast (monitor-enter 1))]
-    (is (= :monitor-enter (:op mn-ast)))
+    (is (= :op/monitor-enter (:op mn-ast)))
     (is (= 1 (-> mn-ast :target :form))))
 
   (let [mx-ast (ast (monitor-exit 1))]
-    (is (= :monitor-exit (:op mx-ast)))
+    (is (= :op/monitor-exit (:op mx-ast)))
     (is (= 1 (-> mx-ast :target :form))))
 
   (let [i-ast (ast (clojure.core/import* "java.lang.String"))]
-    (is (= :import (:op i-ast)))
+    (is (= :op/import (:op i-ast)))
     (is (= "java.lang.String" (:class i-ast))))
 
   (let [r-ast (ast ^:foo (reify
                            Object (toString [this] "")
                            Appendable (^Appendable append [this ^char x] this)))]
-    (is (= :with-meta (-> r-ast :op))) ;; line/column info
-    (is (= :reify (-> r-ast :expr :op)))
+    (is (= :op/with-meta (-> r-ast :op))) ;; line/column info
+    (is (= :op/reify (-> r-ast :expr :op)))
     (is (= #{Appendable clojure.lang.IObj} (-> r-ast :expr :interfaces)))
     (is (= '#{toString append} (->> r-ast :expr :methods (mapv :name) set))))
 
   (let [dt-ast (ast (deftype* x user.x [a b]
                       :implements [Appendable]
                       (^Appendable append [this ^char x] this)))]
-    (is (= :deftype (-> dt-ast :op)))
+    (is (= :op/deftype (-> dt-ast :op)))
     (is (= '[a b] (->> dt-ast :fields (mapv :name))))
     (is (= '[append] (->> dt-ast :methods (mapv :name))))
     (is (= 'user.x (-> dt-ast :class-name))))
@@ -87,7 +87,7 @@
   (let [tree (ast1 (doseq [item (range 10)]
                      (println item)))
         {[_ chunk] :bindings} tree]
-    (is (= :loop (:op tree)))
+    (is (= :op/loop (:op tree)))
     (is (.startsWith (name (:name chunk)) "chunk"))
     (is (= clojure.lang.IChunk (:tag chunk)))))
 
