@@ -311,7 +311,7 @@
    :keys [[:form "`(recur expr*)`"]
           ^:children
           [:exprs "A vector of AST nodes representing the new bound values for the loop binding on the next loop iteration"]
-          [:loop-id "Unique symbol identifying the enclosing loop"]]}
+          [:loop-id "Unique symbol identifying the enclosing loop target"]]}
   {:op   :reify
    :doc  "Node for a reify* special-form expression"
    :keys [[:form "`(reify* [interface*] method*)`"]
