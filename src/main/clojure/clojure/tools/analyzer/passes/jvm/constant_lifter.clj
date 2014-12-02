@@ -1,13 +1,13 @@
 (ns clojure.tools.analyzer.passes.jvm.constant-lifter
   (:require [clojure.tools.analyzer.passes.constant-lifter :as orig]
-            [clojure.tools.analyzer :refer [analyze-const]]
+            [clojure.tools.analyzer :refer [analyze-const h]]
             [clojure.tools.analyzer.utils :refer [constant? classify]]
             [clojure.tools.analyzer.passes.jvm.analyze-host-expr :refer [analyze-host-expr]]
             [clojure.tools.analyzer.passes.elide-meta :refer [elide-meta]]))
 
 (defn constant-lift*
   [ast]
-  (if (isa? :op/var (:op ast))
+  (if (isa? @h :op/var (:op ast))
     (let [{:keys [var env form meta]} ast]
      (if (constant? var meta)
        (let [val @var]

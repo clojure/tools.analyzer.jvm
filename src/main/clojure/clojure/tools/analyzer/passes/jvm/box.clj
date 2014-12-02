@@ -7,7 +7,8 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.box
-  (:require [clojure.tools.analyzer.jvm.utils :as u]
+  (:require [clojure.tools.analyzer :refer [h]]
+            [clojure.tools.analyzer.jvm.utils :as u]
             [clojure.tools.analyzer.utils :refer [protocol-node? arglist-for-arity]]
             [clojure.tools.analyzer.passes.jvm
              [validate :refer [validate]]
@@ -16,7 +17,8 @@
 (defmulti box
   "Box the AST node tag where necessary"
   {:pass-info {:walk :pre :depends #{#'infer-tag} :after #{#'validate}}}
-  :op)
+  :op
+  :hierarchy h)
 
 (defmacro if-let-box [class then else]
   `(let [c# ~class

@@ -7,7 +7,8 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.annotate-loops
-  (:require [clojure.tools.analyzer.ast :refer [update-children]]))
+  (:require [clojure.tools.analyzer :refer [h]]
+            [clojure.tools.analyzer.ast :refer [update-children]]))
 
 (defmulti annotate-loops
   "Adds a :loops field to nodes that represent a code path that
@@ -20,7 +21,8 @@
    the node corresponting to expr will have the same :loops field
    as the nodes in the same code path of the recur"
   {:pass-info {:walk :pre :depends #{}}}
-  :op)
+  :op
+  :hierarchy h)
 
 (defmulti check-recur :op)
 

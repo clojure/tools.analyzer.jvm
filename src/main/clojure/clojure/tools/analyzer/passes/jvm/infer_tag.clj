@@ -7,7 +7,8 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.infer-tag
-  (:require [clojure.tools.analyzer.utils :refer [arglist-for-arity]]
+  (:require [clojure.tools.analyzer :refer [h]]
+            [clojure.tools.analyzer.utils :refer [arglist-for-arity]]
             [clojure.tools.analyzer.jvm.utils :as u]
             [clojure.tools.analyzer.env :as env]
             [clojure.set :refer [rename-keys]]
@@ -17,7 +18,7 @@
              [analyze-host-expr :refer [analyze-host-expr]]
              [fix-case-test :refer [fix-case-test]]]))
 
-(defmulti -infer-tag :op)
+(defmulti -infer-tag :op :hierarchy h)
 (defmethod -infer-tag :default [ast] ast)
 
 (defmethod -infer-tag :op/binding

@@ -7,11 +7,12 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.emit-form
-  (:require [clojure.tools.analyzer.passes
+  (:require [clojure.tools.analyzer :refer [h]]
+            [clojure.tools.analyzer.passes
              [emit-form :as default]
              [uniquify :refer [uniquify-locals]]]))
 
-(defmulti -emit-form (fn [{:keys [op]} _] op))
+(defmulti -emit-form (fn [{:keys [op]} _] op) :hierarchy h)
 
 (defn -emit-form*
   [{:keys [form] :as ast} opts]

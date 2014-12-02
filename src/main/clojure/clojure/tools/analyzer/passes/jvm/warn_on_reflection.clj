@@ -7,7 +7,8 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.warn-on-reflection
-  (:require [clojure.tools.analyzer.passes.jvm
+  (:require [clojure.tools.analyzer :refer [h]]
+            [clojure.tools.analyzer.passes.jvm
              [validate-loop-locals :refer [validate-loop-locals]]
              [validate :refer [validate]]]))
 
@@ -27,7 +28,8 @@
   "Prints a warning to *err* when *warn-on-reflection* is true
    and a node requires runtime reflection"
   {:pass-info {:walk :pre :depends #{#'validate} :after #{#'validate-loop-locals}}}
-  :op)
+  :op
+  :hierarchy h)
 
 (defmethod warn-on-reflection :op/instance-call
   [ast]

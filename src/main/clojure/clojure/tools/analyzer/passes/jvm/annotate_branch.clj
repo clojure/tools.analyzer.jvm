@@ -6,7 +6,8 @@
 ;;   the terms of this license.
 ;;   You must not remove this notice, or any other, from this software.
 
-(ns clojure.tools.analyzer.passes.jvm.annotate-branch)
+(ns clojure.tools.analyzer.passes.jvm.annotate-branch
+  (:require [clojure.tools.analyzer :refer [h]]))
 
 (defmulti annotate-branch
   "Adds :branch? to branch AST nodes (if/case), :test? to the test children
@@ -14,7 +15,8 @@
 
    Example: {:op if :branch? true :test {:test? true ..} :then {:path? true ..} ..}"
   {:pass-info {:walk :any :depends #{}}}
-  :op)
+  :op
+  :hierarchy h)
 
 (defmethod annotate-branch :op/if
   [ast]

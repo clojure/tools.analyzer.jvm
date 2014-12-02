@@ -7,7 +7,8 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.classify-invoke
-  (:require [clojure.tools.analyzer.utils :refer [arglist-for-arity protocol-node? source-info]]
+  (:require [clojure.tools.analyzer :refer [h]]
+            [clojure.tools.analyzer.utils :refer [arglist-for-arity protocol-node? source-info]]
             [clojure.tools.analyzer.jvm.utils
              :refer [specials prim-interface]]
             [clojure.tools.analyzer.passes.jvm.validate :refer [validate]]))
@@ -25,17 +26,17 @@
      node"
   {:pass-info {:walk :post :depends #{#'validate}}}
   [{:keys [op args tag env form] :as ast}]
-  (if-not (isa? :op/invoke op)
+  (if-not (isa? @h :op/invoke op)
     ast
     (let [argc (count args)
           the-fn (:fn ast)
           op (:op the-fn)
-          var? (isa? :op/var op)
+          var? (isa? @h :op/var op)
           the-var (:var the-fn)]
 
       (cond
 
-       (and (isa? :op/const op)
+       (and (isa? @h :op/const op)
             (= :keyword (:type the-fn)))
        (if (<= 1 argc 2)
          (if (and (not (namespace (:val the-fn)))
@@ -52,7 +53,7 @@
        (and (= 2 argc)
             var?
             (= #'clojure.core/instance? the-var)
-            (isa? :op/const (:op (first args)))
+            (isa? @h :op/const (:op (first args)))
             (= :class (:type (first args))))
        (merge (dissoc ast :fn :args)
               {:op       :op/instance?

@@ -7,7 +7,8 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.validate-loop-locals
-  (:require [clojure.tools.analyzer.ast :refer [postwalk children update-children]]
+  (:require [clojure.tools.analyzer :refer [h]]
+            [clojure.tools.analyzer.ast :refer [postwalk children update-children]]
             [clojure.tools.analyzer.jvm.utils :refer [wider-tag maybe-class primitive?]]
             [clojure.tools.analyzer.passes.jvm
              [validate :refer [validate]]
@@ -19,32 +20,48 @@
 (def ^:dynamic ^:private mismatch?)
 (def ^:dynamic ^:private *loop-locals* [])
 
-(defn find-mismatches [{:keys [op exprs] :as ast} bindings]
-  (case op
-    :recur
-    (when (some true? (mapv (fn [e {:keys [tag init form]}]
-                           (and (or (primitive? tag)
-                                    (not (or (:tag (meta form))
-                                           (:tag (meta (:form init))))))
-                                (not= (:tag e) tag))) exprs bindings))
-      (swap! mismatch? conj (mapv :tag exprs)))
-    :do
-    (doseq [child (children ast)]
-      (find-mismatches child bindings))
-    (:let :letfn)
-    (find-mismatches (:body ast) bindings)
-    :if
-    (do (find-mismatches (:then ast) bindings)
-        (find-mismatches (:else ast) bindings))
-    :case
-    (do (find-mismatches (:default ast) bindings)
-        (doseq [child (:thens ast)]
-          (find-mismatches child bindings)))
-    nil)
-  ast)
+(defmulti -validate-loop-locals (fn [_ {:keys [op]}] op) :hierarchy h)
+(defmulti -cleanup-dirty-nodes :op :hierarchy h)
+(defmulti -find-mismatches (fn [{:keys [op]} _] op) :hierarchy h)
 
-(defmulti -validate-loop-locals (fn [_ {:keys [op]}] op))
-(defmulti -cleanup-dirty-nodes :op)
+(defmethod -find-mismatches :default [_ _])
+
+(defmethod -find-mismatches :op/recur
+  [{:keys [exprs] :as ast} bindings]
+  (when (some true? (mapv (fn [e {:keys [tag init form]}]
+                         (and (or (primitive? tag)
+                                  (not (or (:tag (meta form))
+                                         (:tag (meta (:form init))))))
+                              (not= (:tag e) tag))) exprs bindings))
+    (swap! mismatch? conj (mapv :tag exprs))))
+
+(defmethod -find-mismatches :op/do
+  [ast bindings]
+  (doseq [child (children ast)]
+    (-find-mismatches child bindings)))
+
+(defmethod -find-mismatches :op/let
+  [{:keys [body]} bindings]
+  (-find-mismatches body bindings))
+
+(defmethod -find-mismatches :op/loop
+  [{:keys [body]} bindings]
+  (-find-mismatches body bindings))
+
+(defmethod -find-mismatches :op/if
+  [{:keys [then else]} bindings]
+  (-find-mismatches then bindings)
+  (-find-mismatches else bindings))
+
+(defmethod -find-mismatches :op/case
+  [{:keys [default thens]} bindings]
+  (-find-mismatches default bindings)
+  (doseq [child thens]
+    (-find-mismatches child bindings)))
+
+(defn find-mismatches [ast bindings]
+  (-find-mismatches ast bindings)
+  ast)
 
 (defmethod -cleanup-dirty-nodes :op/local
   [{:keys [form name atom env] :as ast}]

@@ -273,7 +273,7 @@
                      :op    :op/binding
                      :o-tag (:this env)
                      :tag   (:this env)
-                     :local :this}
+                     :local :local/this}
         env         (assoc-in (dissoc env :this) [:locals this] (dissoc-env this-expr))
         method-expr (analyze-fn-method meth env)]
     (assoc (dissoc method-expr :variadic?)
@@ -329,7 +329,7 @@
                                                  :unsynchronized-mutable)
                                             (and (:volatile-mutable m)
                                                  :volatile-mutable)))
-                             :local   :field
+                             :local   :local/field
                              :op      :op/binding})
                           fields)
         menv (assoc env

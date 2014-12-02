@@ -7,7 +7,8 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.annotate-methods
-  (:require [clojure.tools.analyzer.ast :refer [prewalk]]
+  (:require [clojure.tools.analyzer :refer [h]]
+            [clojure.tools.analyzer.ast :refer [prewalk]]
             [clojure.tools.analyzer.passes
              [cleanup :refer [cleanup]]
              [elide-meta :refer [elide-meta]]]
@@ -22,8 +23,8 @@
   {:pass-info {:walk :pre :depends #{} :after #{#'elide-meta}}}
   [{:keys [op methods interfaces] :as ast}]
   (cond
-   (or (isa? :op/reify op)
-       (isa? :op/deftype op))
+   (or (isa? @h :op/reify op)
+       (isa? @h :op/deftype op))
    (let [all-methods
          (into #{}
                (mapcat (fn [class]
@@ -41,7 +42,7 @@
                                                         (= argc (count (:parameter-types %))))
                                                   all-methods)))) methods)))
 
-   (isa? :op/method op)
+   (isa? @h :op/method op)
    ;; this should actually be in validate but it's here since it needs to be prewalked
    ;; for infer-tag purposes
    (let [{:keys [name class tag form params fixed-arity env]} ast]

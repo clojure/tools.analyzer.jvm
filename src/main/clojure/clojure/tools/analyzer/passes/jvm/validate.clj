@@ -7,7 +7,8 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.validate
-  (:require [clojure.tools.analyzer.ast :refer [prewalk]]
+  (:require [clojure.tools.analyzer :refer [h]]
+            [clojure.tools.analyzer.ast :refer [prewalk]]
             [clojure.tools.analyzer.env :as env]
             [clojure.tools.analyzer.passes.cleanup :refer [cleanup]]
             [clojure.tools.analyzer.passes.jvm
@@ -17,7 +18,7 @@
             [clojure.tools.analyzer.jvm.utils :as u :refer [tag-match? try-best-match]])
   (:import (clojure.lang IFn ExceptionInfo)))
 
-(defmulti -validate :op)
+(defmulti -validate :op :hierarchy h)
 
 (defmethod -validate :op/maybe-class
   [{:keys [class env] :as ast}]
@@ -85,7 +86,7 @@
 
 (defn validate-call [{:keys [class instance method args tag env op] :as ast}]
   (let [argc (count args)
-        instance? (isa? :op/instance-call op)
+        instance? (isa? @h :op/instance-call op)
         f (if instance? u/instance-methods u/static-methods)
         tags (mapv :tag args)]
     (if-let [matching-methods (seq (f class method argc))]

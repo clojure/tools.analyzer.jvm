@@ -7,7 +7,7 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.analyze-host-expr
-  (:require [clojure.tools.analyzer :as ana]
+  (:require [clojure.tools.analyzer :as ana :refer [h]]
             [clojure.tools.analyzer.utils :refer [ctx source-info merge']]
             [clojure.tools.analyzer.jvm.utils :refer :all]))
 
@@ -148,37 +148,37 @@
    A :host-interop node represents either an instance-field or a no-arg instance-method. "
   {:pass-info {:walk :post :depends #{}}}
   [{:keys [op target form tag env class] :as ast}]
-  (if (some #(isa? % op) #{:op/host-interop :op/host-call :op/host-field :op/maybe-class :op/var})
-    (let [target (if-let [the-class (and (isa? :op/local (:op target))
+  (if (some #(isa? @h % op) #{:op/host-interop :op/host-call :op/host-field :op/maybe-class :op/var})
+    (let [target (if-let [the-class (and (isa? @h :op/local (:op target))
                                          (maybe-class-literal (:form target)))]
                    (merge target
                           (assoc (ana/analyze-const the-class env :class)
                             :tag   Class
                             :o-tag Class))
                    target)
-          class? (and (isa? :op/const (:op target))
+          class? (and (isa? @h :op/const (:op target))
                       (= :class (:type target))
                       (:form target))
           target-type (if class? :static :instance)]
       (merge' (dissoc ast :assignable? :target :args :children)
               (cond
 
-               (isa? :op/host-call op)
+               (isa? @h :op/host-call op)
                (analyze-host-call target-type (:method ast)
                                   (:args ast) target class? env)
 
-               (isa? :op/host-field op)
+               (isa? @h :op/host-field op)
                (analyze-host-field target-type (:field ast)
                                    target (or class? (:tag target)) env)
 
-               (isa? :op/maybe-class op)
+               (isa? @h :op/maybe-class op)
                (when-let [the-class (maybe-class-literal class)]
                  (assoc (ana/analyze-const the-class env :class)
                    :tag   Class
                    :o-tag Class
                    :form  form))
 
-               (isa? :op/var op)
+               (isa? @h :op/var op)
                (if-let [the-class (and (not (namespace form))
                                        (pos? (.indexOf (str form) "."))
                                        (maybe-class-literal form))]

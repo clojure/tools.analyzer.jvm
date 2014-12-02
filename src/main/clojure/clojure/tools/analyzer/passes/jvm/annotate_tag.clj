@@ -7,11 +7,12 @@
 ;;   You must not remove this notice, or any other, from this software.
 
 (ns clojure.tools.analyzer.passes.jvm.annotate-tag
-  (:require [clojure.tools.analyzer.jvm.utils :refer [unbox maybe-class]]
+  (:require [clojure.tools.analyzer :refer [h]]
+            [clojure.tools.analyzer.jvm.utils :refer [unbox maybe-class]]
             [clojure.tools.analyzer.passes.jvm.constant-lifter :refer [constant-lift]])
   (:import (clojure.lang ISeq Var AFunction)))
 
-(defmulti -annotate-tag :op)
+(defmulti -annotate-tag :op :hierarchy h)
 
 (defmethod -annotate-tag :default
   [ast]
@@ -56,8 +57,8 @@
 (defmethod -annotate-tag :op/binding
   [{:keys [form tag atom o-tag init local name variadic?] :as ast}]
   (let [o-tag (or (:tag init) ;; should defer to infer-tag?
-                  (and (= :fn local) AFunction)
-                  (and (= :arg local) variadic? ISeq)
+                  (and (isa? @h :local/fn local) AFunction)
+                  (and (isa? @h :local/arg local) variadic? ISeq)
                   o-tag
                   Object)
         o-tag (if (#{Void Void/TYPE} o-tag)
@@ -92,6 +93,6 @@
                            (-> ast :form meta :tag))]
             (assoc (-annotate-tag ast) :tag tag)
             (-annotate-tag ast)))]
-    (when (isa? :op/binding op)
+    (when (isa? @h :op/binding op)
       (swap! atom assoc :tag (:tag ast)))
     ast))
