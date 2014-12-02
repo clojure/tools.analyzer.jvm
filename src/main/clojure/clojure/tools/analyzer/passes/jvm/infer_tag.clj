@@ -12,6 +12,7 @@
             [clojure.tools.analyzer.jvm.utils :as u]
             [clojure.tools.analyzer.env :as env]
             [clojure.set :refer [rename-keys]]
+            [clojure.tools.analyzer.passes.trim :refer [trim]]
             [clojure.tools.analyzer.passes.jvm
              [annotate-tag :refer [annotate-tag]]
              [annotate-methods :refer [annotate-methods]]
@@ -269,7 +270,7 @@
   Passes opts:
   * :infer-tag/level  If :global, infer-tag will perform Var tag
                       inference"
-  {:pass-info {:walk :post :depends #{#'annotate-tag #'annotate-methods #'fix-case-test #'analyze-host-expr}}}
+  {:pass-info {:walk :post :depends #{#'annotate-tag #'annotate-methods #'fix-case-test #'analyze-host-expr} :before #{#'trim}}}
   [{:keys [tag form] :as ast}]
   (let [tag (or tag (:tag (meta form)))
         ast (-infer-tag ast)]

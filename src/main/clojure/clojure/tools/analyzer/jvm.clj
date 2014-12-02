@@ -23,6 +23,7 @@
             [clojure.tools.analyzer.jvm.utils :refer :all :as u :exclude [box specials]]
 
             [clojure.tools.analyzer.passes
+             [trim :refer [trim]]
              [source-info :refer [source-info]]
              [elide-meta :refer [elide-meta elides]]
              [warn-earmuff :refer [warn-earmuff]]
@@ -407,6 +408,8 @@
     #'source-info
     #'elide-meta
     #'constant-lift
+
+    #'trim
 
     #'box
 
