@@ -51,14 +51,6 @@
   (into ana/specials
         '#{var monitor-enter monitor-exit clojure.core/import* reify* deftype* case*}))
 
-(defmulti parse
-  "Extension to tools.analyzer/-parse for JVM special forms"
-  (fn [[op & rest] env] op))
-
-(defmethod parse :default
-  [form env]
-  (ana/-parse form env))
-
 (defn build-ns-map []
   (into {} (mapv #(vector (ns-name %)
                           {:mappings (merge (ns-map %) {'in-ns #'clojure.core/in-ns
@@ -203,7 +195,7 @@
                    meta)]
        (intern ns (with-meta sym meta))))))
 
-(defmethod parse 'var
+(defn parse-var
   [[_ var :as form] env]
   (when-not (= 2 (count form))
     (throw (ex-info (str "Wrong number of args to var, had: " (dec (count form)))
@@ -216,7 +208,7 @@
      :var  var}
     (throw (ex-info (str "var not found: " var) {:var var}))))
 
-(defmethod parse 'monitor-enter
+(defn parse-monitor-enter
   [[_ target :as form] env]
   (when-not (= 2 (count form))
     (throw (ex-info (str "Wrong number of args to monitor-enter, had: " (dec (count form)))
@@ -228,7 +220,7 @@
    :target   (-analyze target (ctx env :ctx/expr))
    :children [:target]})
 
-(defmethod parse 'monitor-exit
+(defn parse-monitor-exit
   [[_ target :as form] env]
   (when-not (= 2 (count form))
     (throw (ex-info (str "Wrong number of args to monitor-exit, had: " (dec (count form)))
@@ -240,7 +232,7 @@
    :target   (-analyze target (ctx env :ctx/expr))
    :children [:target]})
 
-(defmethod parse 'clojure.core/import*
+(defn parse-import*
   [[_ class :as form] env]
   (when-not (= 2 (count form))
     (throw (ex-info (str "Wrong number of args to import*, had: " (dec (count form)))
@@ -296,7 +288,7 @@
                 (list 'deftype* name class-name args :implements interfaces)
                 (list 'import class-name)))))
 
-(defmethod parse 'reify*
+(defn parse-reify*
   [[_ interfaces & methods :as form] env]
   (let [interfaces (conj (disj (set (mapv maybe-class interfaces)) Object)
                          IObj)
@@ -317,7 +309,7 @@
       :interfaces interfaces
       :children   [:methods]})))
 
-(defmethod parse 'deftype*
+(defn parse-deftype*
   [[_ name class-name fields _ interfaces & methods :as form] env]
   (let [interfaces (disj (set (mapv maybe-class interfaces)) Object)
         fields-expr (mapv (fn [name]
@@ -351,7 +343,7 @@
      :interfaces interfaces
      :children   [:fields :methods]}))
 
-(defmethod parse 'case*
+(defn parse-case*
   [[_ expr shift mask default case-map switch-type test-type & [skip-check?] :as form] env]
   (let [[low high] ((juxt first last) (keys case-map)) ;;case-map is a sorted-map
         e (ctx env :ctx/expr)
@@ -390,12 +382,27 @@
      :children    [:test :tests :thens :default]}))
 
 
-(defmethod parse 'catch
+(defn parse-catch
   [[_ etype ename & body :as form] env]
   (if-not (:in-try env)
     (ana/parse-invoke form env)
     (let [etype (if (= etype :default) Throwable etype)] ;; catch-all
       (ana/-parse `(catch ~etype ~ename ~@body) env))))
+
+(defn parse
+  "Extension to tools.analyzer/-parse for JVM special forms"
+  [form env]
+  ((case (first form)
+     var                  parse-var
+     monitor-enter        parse-monitor-enter
+     monitor-exit         parse-monitor-exit
+     clojure.core/import* parse-import*
+     reify*               parse-reify*
+     deftype*             parse-deftype*
+     case*                parse-case*
+     catch                parse-catch
+     #_:else              ana/-parse)
+   form env))
 
 (def default-passes
   "Set of passes that will be run by default on the AST by #'run-passes"
