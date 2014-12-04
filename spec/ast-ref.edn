@@ -261,7 +261,11 @@
           [:this "A :binding AST node with :local :this representing the \"this\" local"]
           [:loop-id "Unique symbol identifying this method as a target for recursion"]
           [:name "The symbol name of this method"]
-          [:params "A vector of AST :binding nodes with :local :arg representing the arguments of the method"]]}
+          ^:children
+          [:params "A vector of AST :binding nodes with :local :arg representing the arguments of the method"]
+          [:fixed-arity "The number of args this method takes"]
+          ^:children
+          [:body "Synthetic :do node (with :body? `true`) representing the body of this method"]]}
   {:op   :monitor-enter
    :doc  "Node for a monitor-enter special-form statement"
    :keys [[:form "`(monitor-enter target)`"]
