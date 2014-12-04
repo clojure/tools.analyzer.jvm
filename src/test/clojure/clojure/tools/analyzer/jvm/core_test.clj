@@ -102,4 +102,4 @@
   (is (ast1 (defrecord TestRecord [x y]))))
 
 (deftest eq-no-reflection
-  (is (:validated? (-> (ast1 (fn [s] (= s \f))) :methods first :body :ret))))
+  (is (:validated? (-> (ast1 (fn [s] (= s \f))) :methods first :body))))
