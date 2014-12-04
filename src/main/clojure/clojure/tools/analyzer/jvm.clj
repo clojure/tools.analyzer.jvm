@@ -24,6 +24,7 @@
 
             [clojure.tools.analyzer.passes
              [source-info :refer [source-info]]
+             [trim :refer [trim]]
              [elide-meta :refer [elide-meta elides]]
              [warn-earmuff :refer [warn-earmuff]]
              [uniquify :refer [uniquify-locals]]]
@@ -414,6 +415,8 @@
     #'source-info
     #'elide-meta
     #'constant-lift
+
+    #'trim
 
     #'box
 
