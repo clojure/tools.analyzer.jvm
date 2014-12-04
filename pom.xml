@@ -42,7 +42,7 @@
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>tools.reader</artifactId>
-      <version>0.8.12</version>
+      <version>0.8.13</version>
     </dependency>
   </dependencies>
 
