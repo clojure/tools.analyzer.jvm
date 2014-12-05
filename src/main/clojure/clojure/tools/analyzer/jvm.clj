@@ -382,13 +382,13 @@
      :skip-check? skip-check?
      :children    [:test :tests :thens :default]}))
 
-
 (defn parse-catch
   [[_ etype ename & body :as form] env]
   (if-not (:in-try env)
     (ana/parse-invoke form env)
     (let [etype (if (= etype :default) Throwable etype)] ;; catch-all
       (ana/-parse `(catch ~etype ~ename ~@body) env))))
+
 
 (defn parse
   "Extension to tools.analyzer/-parse for JVM special forms"
