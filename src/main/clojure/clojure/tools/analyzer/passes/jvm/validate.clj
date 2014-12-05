@@ -11,6 +11,7 @@
             [clojure.tools.analyzer.env :as env]
             [clojure.tools.analyzer.passes.cleanup :refer [cleanup]]
             [clojure.tools.analyzer.passes.jvm
+             [validate-recur :refer [validate-recur]]
              [infer-tag :refer [infer-tag]]
              [analyze-host-expr :refer [analyze-host-expr]]]
             [clojure.tools.analyzer.utils :refer [arglist-for-arity source-info resolve-sym resolve-ns merge']]
@@ -259,7 +260,7 @@
       AST node which can be either a :maybe-class or a :maybe-host-form,
       those nodes are documented in the tools.analyzer quickref.
       The function must return a valid tools.analyzer.jvm AST node."
-  {:pass-info {:walk :post :depends #{#'infer-tag #'analyze-host-expr}}}
+  {:pass-info {:walk :post :depends #{#'infer-tag #'analyze-host-expr #'validate-recur}}}
   [{:keys [tag form env] :as ast}]
   (let [ast (merge (-validate ast)
                    (when tag
