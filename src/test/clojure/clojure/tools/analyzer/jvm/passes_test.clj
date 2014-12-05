@@ -15,7 +15,7 @@
             [clojure.tools.analyzer.passes.jvm.annotate-tag :refer [annotate-tag]]
             [clojure.tools.analyzer.passes.jvm.infer-tag :refer [infer-tag]]
             [clojure.tools.analyzer.passes.jvm.annotate-branch :refer [annotate-branch]]
-            [clojure.tools.analyzer.passes.jvm.annotate-methods :refer [annotate-methods]]
+            [clojure.tools.analyzer.passes.jvm.annotate-host-info :refer [annotate-host-info]]
             [clojure.tools.analyzer.passes.jvm.annotate-loops :refer [annotate-loops]]
             [clojure.tools.analyzer.passes.jvm.fix-case-test :refer [fix-case-test]]
             [clojure.tools.analyzer.passes.jvm.analyze-host-expr :refer [analyze-host-expr]]
@@ -91,8 +91,8 @@
                       (prewalk analyze-host-expr) classify-invoke :op)))
   (is (= :prim-invoke (-> (ast (f1 1)) (prewalk infer-tag) classify-invoke :op))))
 
-(deftest annotate-methods-test
-  (let [r-ast (-> (ast ^:foo (reify Object (toString [_] ""))) (prewalk annotate-methods))]
+(deftest annotate-host-info-test
+  (let [r-ast (-> (ast ^:foo (reify Object (toString [_] ""))) (prewalk annotate-host-info))]
     (is (= 'toString (-> r-ast :expr :methods first :name)))
     (is (= [] (-> r-ast :expr :methods first :params)))
     (is (= '_ (-> r-ast :expr :methods first :this :name)))))

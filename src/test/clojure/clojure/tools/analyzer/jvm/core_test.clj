@@ -81,7 +81,7 @@
     (is (= 0 (-> c-ast :shift)))
     (is (= 0 (-> c-ast :mask))))
 
-  (is (= Throwable (-> (ast (try (catch :default e))) :catches first :class :val))))
+  (is (= Throwable (-> (ast1 (try (catch :default e))) :catches first :class :val))))
 
 (deftest doseq-chunk-hint
   (let [tree (ast1 (doseq [item (range 10)]
