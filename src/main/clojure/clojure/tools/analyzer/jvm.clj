@@ -50,7 +50,7 @@
 (def specials
   "Set of the special forms for clojure in the JVM"
   (into ana/specials
-        '#{var monitor-enter monitor-exit clojure.core/import* reify* deftype* case*}))
+        '#{monitor-enter monitor-exit clojure.core/import* reify* deftype* case*}))
 
 (defn build-ns-map []
   (into {} (mapv #(vector (ns-name %)
@@ -195,19 +195,6 @@
                    (assoc meta :arglists (qualify-arglists arglists))
                    meta)]
        (intern ns (with-meta sym meta))))))
-
-(defn parse-var
-  [[_ var :as form] env]
-  (when-not (= 2 (count form))
-    (throw (ex-info (str "Wrong number of args to var, had: " (dec (count form)))
-                    (merge {:form form}
-                           (-source-info form env)))))
-  (if-let [var (resolve-sym var env)]
-    {:op   :the-var
-     :env  env
-     :form form
-     :var  var}
-    (throw (ex-info (str "var not found: " var) {:var var}))))
 
 (defn parse-monitor-enter
   [[_ target :as form] env]
@@ -386,7 +373,6 @@
   "Extension to tools.analyzer/-parse for JVM special forms"
   [form env]
   ((case (first form)
-     var                  parse-var
      monitor-enter        parse-monitor-enter
      monitor-exit         parse-monitor-exit
      clojure.core/import* parse-import*
