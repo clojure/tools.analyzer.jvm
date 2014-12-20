@@ -484,7 +484,9 @@
                                      (if (= mform form)
                                        [mform (seq raw-forms)]
                                        (recur mform (conj raw-forms
-                                                          (if (and (seq? form) (u/macro? (first form) env))
+                                                          (if (and (seq? form)
+                                                                   (or (u/macro? (first form) env)
+                                                                       (u/inline? (first form) (rest form) env)))
                                                             (vary-meta form assoc ::ana/resolved-op (resolve-sym (first form) env))
                                                             form)))))))]
          (if (and (seq? mform) (= 'do (first mform)) (next mform))
