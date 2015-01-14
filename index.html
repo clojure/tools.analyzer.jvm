@@ -33,7 +33,7 @@ namespace.
     <div class="NamespaceTOC">
       <span class="toc-header">Namespaces</span>
       <ul id="left-sidebar-list">
-        <li><a href="jvm-api.html" class="wiki_link">jvm</a></li><li><a href="passes.jvm.analyze-host-expr-api.html" class="wiki_link">passes.jvm.analyze-host-expr</a></li><li><a href="passes.jvm.annotate-branch-api.html" class="wiki_link">passes.jvm.annotate-branch</a></li><li><a href="passes.jvm.annotate-loops-api.html" class="wiki_link">passes.jvm.annotate-loops</a></li><li><a href="passes.jvm.annotate-methods-api.html" class="wiki_link">passes.jvm.annotate-methods</a></li><li><a href="passes.jvm.annotate-tag-api.html" class="wiki_link">passes.jvm.annotate-tag</a></li><li><a href="passes.jvm.box-api.html" class="wiki_link">passes.jvm.box</a></li><li><a href="passes.jvm.classify-invoke-api.html" class="wiki_link">passes.jvm.classify-invoke</a></li><li><a href="passes.jvm.constant-lifter-api.html" class="wiki_link">passes.jvm.constant-lifter</a></li><li><a href="passes.jvm.emit-form-api.html" class="wiki_link">passes.jvm.emit-form</a></li><li><a href="passes.jvm.fix-case-test-api.html" class="wiki_link">passes.jvm.fix-case-test</a></li><li><a href="passes.jvm.infer-tag-api.html" class="wiki_link">passes.jvm.infer-tag</a></li><li><a href="passes.jvm.validate-api.html" class="wiki_link">passes.jvm.validate</a></li><li><a href="passes.jvm.validate-loop-locals-api.html" class="wiki_link">passes.jvm.validate-loop-locals</a></li><li><a href="passes.jvm.warn-on-reflection-api.html" class="wiki_link">passes.jvm.warn-on-reflection</a></li>
+        <li><a href="jvm-api.html" class="wiki_link">jvm</a></li><li><a href="passes.jvm.analyze-host-expr-api.html" class="wiki_link">passes.jvm.analyze-host-expr</a></li><li><a href="passes.jvm.annotate-branch-api.html" class="wiki_link">passes.jvm.annotate-branch</a></li><li><a href="passes.jvm.annotate-host-info-api.html" class="wiki_link">passes.jvm.annotate-host-info</a></li><li><a href="passes.jvm.annotate-loops-api.html" class="wiki_link">passes.jvm.annotate-loops</a></li><li><a href="passes.jvm.annotate-tag-api.html" class="wiki_link">passes.jvm.annotate-tag</a></li><li><a href="passes.jvm.box-api.html" class="wiki_link">passes.jvm.box</a></li><li><a href="passes.jvm.classify-invoke-api.html" class="wiki_link">passes.jvm.classify-invoke</a></li><li><a href="passes.jvm.constant-lifter-api.html" class="wiki_link">passes.jvm.constant-lifter</a></li><li><a href="passes.jvm.emit-form-api.html" class="wiki_link">passes.jvm.emit-form</a></li><li><a href="passes.jvm.fix-case-test-api.html" class="wiki_link">passes.jvm.fix-case-test</a></li><li><a href="passes.jvm.infer-tag-api.html" class="wiki_link">passes.jvm.infer-tag</a></li><li><a href="passes.jvm.validate-api.html" class="wiki_link">passes.jvm.validate</a></li><li><a href="passes.jvm.validate-loop-locals-api.html" class="wiki_link">passes.jvm.validate-loop-locals</a></li><li><a href="passes.jvm.validate-recur-api.html" class="wiki_link">passes.jvm.validate-recur</a></li><li><a href="passes.jvm.warn-on-reflection-api.html" class="wiki_link">passes.jvm.warn-on-reflection</a></li>
       </ul>
     </div>
     
@@ -57,10 +57,10 @@ namespace.
     <a href="#passes.jvm.annotate-branch" style="margin-top: 3px;">passes.jvm.annotate-branch</a>
     
   </div><div style="margin-left: 1em;" class="toc-section">
-    <a href="#passes.jvm.annotate-loops" style="margin-top: 3px;">passes.jvm.annotate-loops</a>
+    <a href="#passes.jvm.annotate-host-info" style="margin-top: 3px;">passes.jvm.annotate-host-info</a>
     
   </div><div style="margin-left: 1em;" class="toc-section">
-    <a href="#passes.jvm.annotate-methods" style="margin-top: 3px;">passes.jvm.annotate-methods</a>
+    <a href="#passes.jvm.annotate-loops" style="margin-top: 3px;">passes.jvm.annotate-loops</a>
     
   </div><div style="margin-left: 1em;" class="toc-section">
     <a href="#passes.jvm.annotate-tag" style="margin-top: 3px;">passes.jvm.annotate-tag</a>
@@ -88,6 +88,9 @@ namespace.
     
   </div><div style="margin-left: 1em;" class="toc-section">
     <a href="#passes.jvm.validate-loop-locals" style="margin-top: 3px;">passes.jvm.validate-loop-locals</a>
+    
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#passes.jvm.validate-recur" style="margin-top: 3px;">passes.jvm.validate-recur</a>
     
   </div><div style="margin-left: 1em;" class="toc-section">
     <a href="#passes.jvm.warn-on-reflection" style="margin-top: 3px;">passes.jvm.warn-on-reflection</a>
@@ -172,6 +175,19 @@ namespace.
 </div><div id="namespace-entry">
   <br />
   <hr />
+  <h2 id="passes.jvm.annotate-host-info">passes.jvm.annotate-host-info</h2>
+  
+  <a href="passes.jvm.annotate-host-info-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="passes.jvm.annotate-host-info-api.html#clojure.tools.analyzer.passes.jvm.annotate-host-info/annotate-host-info" id="var-tag">annotate-host-info</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
   <h2 id="passes.jvm.annotate-loops">passes.jvm.annotate-loops</h2>
   
   <a href="passes.jvm.annotate-loops-api.html" id="api-link">Detailed API documentation</a><br />
@@ -181,19 +197,6 @@ namespace.
   
   Contents:
   <span id="var-link"><a href="passes.jvm.annotate-loops-api.html#clojure.tools.analyzer.passes.jvm.annotate-loops/annotate-loops" id="var-tag">annotate-loops</a> </span><br />
-  
-</div><div id="namespace-entry">
-  <br />
-  <hr />
-  <h2 id="passes.jvm.annotate-methods">passes.jvm.annotate-methods</h2>
-  
-  <a href="passes.jvm.annotate-methods-api.html" id="api-link">Detailed API documentation</a><br />
-  <pre id="namespace-docstr"></pre>
-  
-  
-  
-  Contents:
-  <span id="var-link"><a href="passes.jvm.annotate-methods-api.html#clojure.tools.analyzer.passes.jvm.annotate-methods/annotate-methods" id="var-tag">annotate-methods</a> </span><br />
   
 </div><div id="namespace-entry">
   <br />
@@ -311,6 +314,19 @@ namespace.
   
   Contents:
   <span id="var-link"><a href="passes.jvm.validate-loop-locals-api.html#clojure.tools.analyzer.passes.jvm.validate-loop-locals/validate-loop-locals" id="var-tag">validate-loop-locals</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="passes.jvm.validate-recur">passes.jvm.validate-recur</h2>
+  
+  <a href="passes.jvm.validate-recur-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  
+  
+  Contents:
+  <span id="var-link"><a href="passes.jvm.validate-recur-api.html#clojure.tools.analyzer.passes.jvm.validate-recur/validate-recur" id="var-tag">validate-recur</a> </span><br />
   
 </div><div id="namespace-entry">
   <br />

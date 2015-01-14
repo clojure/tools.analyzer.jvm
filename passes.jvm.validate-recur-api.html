@@ -1,7 +1,7 @@
 <html>
   <head>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-    <title>passes.jvm.fix-case-test - JVM-specific passes for tools.analyzer 0.6.6 API documentation</title>
+    <title>passes.jvm.validate-recur - JVM-specific passes for tools.analyzer 0.6.6 API documentation</title>
     <link href="static/favicon.png" rel="icon" />
     <link href="static/favicon.png" rel="shortcut icon" />
     <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
@@ -59,17 +59,17 @@ namespace.
   </div><div style="margin-left: 1em;" class="toc-section">
     <a href="#var-section" style="margin-top: 3px;">Vars and Functions</a>
     <div style="margin-left: 1em;" class="toc-entry">
-      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.passes.jvm.fix-case-test/fix-case-test">fix-case-test</a>
+      <a class="toc-entry-anchor" href="#clojure.tools.analyzer.passes.jvm.validate-recur/validate-recur">validate-recur</a>
       
     </div>
   </div>
 </div>
 </div>
-                <div id="content-tag"><h1 id="overview">API for <span id="passes.jvm.fix-case-test">passes.jvm.fix-case-test</span>
+                <div id="content-tag"><h1 id="overview">API for <span id="passes.jvm.validate-recur">passes.jvm.validate-recur</span>
   - <span id="header-project">JVM-specific passes for tools.analyzer</span> <span id="header-version">0.6.6</span><span id="header-status-block"> (<span id="header-status">in development</span>)</span>
   </h1>
 
-<br />Full namespace name: <span id="long-name">clojure.tools.analyzer.passes.jvm.fix-case-test</span>
+<br />Full namespace name: <span id="long-name">clojure.tools.analyzer.passes.jvm.validate-recur</span>
 <p></p>
 <h2>Overview</h2>
 
@@ -86,15 +86,13 @@ namespace.
   <div id="var-entry">
     <br />
     <hr />
-    <h2 id="clojure.tools.analyzer.passes.jvm.fix-case-test/fix-case-test">fix-case-test</h2>
-    <span id="var-type">function</span><br />
-    <pre id="var-usage">Usage: (fix-case-test ast)
-</pre>
-    <pre id="var-docstr">If the node is a :case-test, annotates in the atom shared
-by the binding and the local node with :case-test</pre>
+    <h2 id="clojure.tools.analyzer.passes.jvm.validate-recur/validate-recur">validate-recur</h2>
+    <span id="var-type">multimethod</span><br />
+    <pre id="var-usage">No usage documentation available</pre>
+    <pre id="var-docstr">Ensures recurs don't cross try boundaries</pre>
     
     
-    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/afb17b6d233b620fc84291903e2a682879f84e4c/src/main/clojure/clojure/tools/analyzer/passes/jvm/fix_case_test.clj#L12" id="var-source">Source</a>
+    <a href="https://github.com/clojure/tools.analyzer.jvm/blob/2fb8c3cfefb844c80d637bbf81f1a33c822c7ef6/src/main/clojure/clojure/tools/analyzer/passes/jvm/validate_recur.clj#L13" id="var-source">Source</a>
   </div>
 </div>
 
