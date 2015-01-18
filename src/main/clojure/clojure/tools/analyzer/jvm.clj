@@ -297,6 +297,12 @@
       :interfaces interfaces
       :children   [:methods]})))
 
+(defn parse-opts+methods [methods]
+  (loop [opts {} methods methods]
+    (if (keyword? (first methods))
+      (recur (assoc opts (first methods) (second methods)) (nnext methods))
+      [opts methods])))
+
 (defn parse-deftype*
   [[_ name class-name fields _ interfaces & methods :as form] env]
   (let [interfaces (disj (set (mapv maybe-class interfaces)) Object)
@@ -316,6 +322,7 @@
                :context :ctx/expr
                :locals  (zipmap fields (map dissoc-env fields-expr))
                :this    class-name)
+        [opts methods] (parse-opts+methods methods)
         methods (mapv #(assoc (analyze-method-impls % menv) :interfaces interfaces)
                       methods)]
 
