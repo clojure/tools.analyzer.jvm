@@ -549,3 +549,11 @@
                                 (analyze+eval form (assoc env :ns (ns-name *ns*)) opts))
                          (recur))))))))
            (get-in @*env* [::analyzed-clj path]))))))
+
+(defn macroexpand-all
+  "Like clojure.walk/macroexpand-all but correctly handles lexical scope"
+  ([form] (macroexpand-all form (empty-env) {}))
+  ([form env] (macroexpand-all form env {}))
+  ([form env opts]
+     (binding [run-passes emit-form]
+       (analyze form env opts))))
