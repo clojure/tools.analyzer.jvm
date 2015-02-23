@@ -27,7 +27,7 @@
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>tools.analyzer</artifactId>
-      <version>0.6.5-SNAPSHOT</version>
+      <version>0.6.5</version>
     </dependency>
     <dependency>
       <groupId>org.clojure</groupId>
@@ -42,7 +42,7 @@
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>tools.reader</artifactId>
-      <version>0.8.13</version>
+      <version>0.8.15</version>
     </dependency>
   </dependencies>
 
