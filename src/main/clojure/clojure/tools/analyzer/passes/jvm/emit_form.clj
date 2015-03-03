@@ -131,10 +131,6 @@
   `(~(symbol (str "." (name method))) ~(-emit-form* instance opts)
     ~@(mapv #(-emit-form* % opts) args)))
 
-(defmethod -emit-form :host-interop
-  [{:keys [target m-or-f]} opts]
-  `(~(symbol (str "." (name m-or-f))) ~(-emit-form* target opts)))
-
 (defmethod -emit-form :prim-invoke
   [{:keys [fn args]} opts]
   `(~(-emit-form* fn opts)
