@@ -2,6 +2,13 @@ Changelog
 ========================================
 Since tools.analyzer.jvm version are usually cut simultaneously with a tools.analyzer version, check also the tools.analyzer [CHANGELOG](https://github.com/clojure/tools.analyzer/blob/master/CHANGELOG.md) for changes on the corresponding version, since changes in that library will reflect on this one.
 - - -
+* Release 0.6.6 on 23 Feb 2015
+  * Small performance enhancements
+  * Added validate-recur pass
+  * Renamed annotate-methods to annotate-host-info
+  * Fixed class resolution
+  * Added macroexpand-all
+  * Fixed ::resolved-op handling in analyze+eval
 * Release 0.6.5 on 20 Nov 2014
   * Ensure *ns* is correctly bound during analysis
   * Removed analyze' and analyze+eval'
