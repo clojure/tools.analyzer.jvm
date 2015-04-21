@@ -373,23 +373,10 @@
                    (conj p next)))) [] methods)
       methods)))
 
-(defn source-path [x]
-  (if (instance? File x)
-    (.getAbsolutePath ^File x)
-    (str x)))
-
 (defn ns->relpath [s]
   (str (s/replace (munge (str s)) \. \/) ".clj"))
 
 (defn ns-resource [ns]
   (let [f (ns->relpath ns)]
-    (cond
-     (instance? File f) f
-     (instance? URL f) f
-     (re-find #"^file://" f) (URL. f)
-     :else (io/resource f))))
-
-(defn res-path [res]
-  (if (instance? File res)
-    (.getPath ^File res)
-    (.getPath ^URL res)))
+    (or (io/resource f)
+        (io/resource (str f "c")))))

@@ -531,19 +531,23 @@
   ([ns env] (analyze-ns ns env {}))
   ([ns env opts]
      (env/ensure (global-env)
-       (let [res (ns-resource ns)]
+       (let [res ^File (ns-file ns)]
          (assert res (str "Can't find " ns " in classpath"))
-         (let [filename (source-path res)
-               path (res-path res)]
+         (let [filename (.getAbsolutePath res)
+               path     (.getPath res)]
            (when-not (get-in (env/deref-env) [::analyzed-clj path])
              (binding [*ns*   *ns*
                        *file* filename]
                (with-open [rdr (io/reader res)]
                  (let [pbr (readers/indexing-push-back-reader
                             (java.io.PushbackReader. rdr) 1 filename)
-                       eof (Object.)]
+                       eof (Object.)
+                       opts {:eof :eofthrow :features #{:clj :t.a.jvm}}
+                       opts (if (.endsWith filename "cljc")
+                              (assoc opts :read-cond :allow)
+                              opts)]
                    (loop []
-                     (let [form (reader/read pbr nil eof)]
+                     (let [form (reader/read opts pbr)]
                        (when-not (identical? form eof)
                          (swap! *env* update-in [::analyzed-clj path]
                                 (fnil conj [])
