@@ -14,9 +14,7 @@
             [clojure.core.memoize :refer [lru]]
             [clojure.java.io :as io])
   (:import (clojure.lang RT Symbol Var)
-           (org.objectweb.asm Type)
-           (java.io File)
-           (java.net URL)))
+           org.objectweb.asm.Type))
 
 (defn ^:private type-reflect
   [typeref & options]

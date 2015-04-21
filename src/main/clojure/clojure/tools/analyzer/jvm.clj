@@ -45,7 +45,8 @@
             [clojure.tools.reader.reader-types :as readers]
 
             [clojure.core.memoize :refer [memo-clear!]])
-  (:import (clojure.lang IObj RT Compiler Var)))
+  (:import (clojure.lang IObj RT Compiler Var)
+           java.net.URL))
 
 (def specials
   "Set of the special forms for clojure in the JVM"
