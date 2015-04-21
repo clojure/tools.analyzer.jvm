@@ -531,9 +531,9 @@
   ([ns env] (analyze-ns ns env {}))
   ([ns env opts]
      (env/ensure (global-env)
-       (let [res ^File (ns-file ns)]
+       (let [res ^URL (ns-url ns)]
          (assert res (str "Can't find " ns " in classpath"))
-         (let [filename (.getAbsolutePath res)
+         (let [filename (str res)
                path     (.getPath res)]
            (when-not (get-in (env/deref-env) [::analyzed-clj path])
              (binding [*ns*   *ns*

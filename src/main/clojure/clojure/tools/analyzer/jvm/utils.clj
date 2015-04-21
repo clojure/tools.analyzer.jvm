@@ -376,7 +376,7 @@
 (defn ns->relpath [s]
   (str (s/replace (munge (str s)) \. \/) ".clj"))
 
-(defn ns-resource [ns]
+(defn ns-url [ns]
   (let [f (ns->relpath ns)]
     (or (io/resource f)
         (io/resource (str f "c")))))
