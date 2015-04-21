@@ -536,7 +536,8 @@
          (let [filename (source-path res)
                path (res-path res)]
            (when-not (get-in (env/deref-env) [::analyzed-clj path])
-             (binding [*ns* *ns*]
+             (binding [*ns*   *ns*
+                       *file* filename]
                (with-open [rdr (io/reader res)]
                  (let [pbr (readers/indexing-push-back-reader
                             (java.io.PushbackReader. rdr) 1 filename)
