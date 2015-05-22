@@ -543,7 +543,7 @@
                  (let [pbr (readers/indexing-push-back-reader
                             (java.io.PushbackReader. rdr) 1 filename)
                        eof (Object.)
-                       opts {:eof :eofthrow :features #{:clj :t.a.jvm}}
+                       opts {:eof eof :features #{:clj :t.a.jvm}}
                        opts (if (.endsWith filename "cljc")
                               (assoc opts :read-cond :allow)
                               opts)]
