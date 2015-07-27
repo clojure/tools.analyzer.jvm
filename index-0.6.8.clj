@@ -19,7 +19,7 @@
    :name "clojure.tools.analyzer.passes.jvm.annotate-branch",
    :doc nil}
   {:source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/bd985917d6324d27bbd5c10d4dd77291d28790a3/src/main/clojure/clojure/tools/analyzer/passes/jvm/annotate_host_info.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/966fe1ff985039bf29d640fbd8bf95ea50aad237/src/main/clojure/clojure/tools/analyzer/passes/jvm/annotate_host_info.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm/passes.jvm.annotate-host-info-api.html",
    :name "clojure.tools.analyzer.passes.jvm.annotate-host-info",
@@ -320,9 +320,9 @@
    :name "annotate-host-info",
    :namespace "clojure.tools.analyzer.passes.jvm.annotate-host-info",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/bd985917d6324d27bbd5c10d4dd77291d28790a3/src/main/clojure/clojure/tools/analyzer/passes/jvm/annotate_host_info.clj#L20",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/966fe1ff985039bf29d640fbd8bf95ea50aad237/src/main/clojure/clojure/tools/analyzer/passes/jvm/annotate_host_info.clj#L20",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/bd985917d6324d27bbd5c10d4dd77291d28790a3/src/main/clojure/clojure/tools/analyzer/passes/jvm/annotate_host_info.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/966fe1ff985039bf29d640fbd8bf95ea50aad237/src/main/clojure/clojure/tools/analyzer/passes/jvm/annotate_host_info.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//passes.jvm.annotate-host-info-api.html#clojure.tools.analyzer.passes.jvm.annotate-host-info/annotate-host-info",
    :doc
