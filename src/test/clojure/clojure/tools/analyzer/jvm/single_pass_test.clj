@@ -245,3 +245,26 @@
 (deftest TheVarExpr-test
   (is (= (ast #'+)
          (taj #'+))))
+
+(deftest InstanceOfExpr-test
+  (is (= 
+        #{:column :line :form}
+        (leaf-diff
+          (ast (instance? Object 1))
+          (taj (instance? Object 1))))))
+
+(deftest EmptyExpr-test
+  (is (= (ast {})
+         (taj {})))
+  (is (= (ast [])
+         (taj [])))
+  (is (= (ast #{})
+         (taj #{})))
+  ;; TODO annotate-tag's logic for ISeq
+  (is (= #{:tag :o-tag}
+         (leaf-diff 
+           (ast ())
+           (taj ())))))
+
+(deftest MetaExpr-test
+  (is (= nil (taj (with-meta {} 1)))))

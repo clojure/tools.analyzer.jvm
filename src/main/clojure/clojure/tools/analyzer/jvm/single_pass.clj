@@ -154,6 +154,7 @@
     c))
 
 (defmacro literal-dispatch [disp-class op-keyword]
+  {:pre [((some-fn nil? keyword?) op-keyword)]}
   `(extend-protocol AnalysisToMap
      ~disp-class
      (analysis->map
@@ -165,7 +166,8 @@
           :tag tag#
           :o-tag tag#
           :literal? true
-          :type ~op-keyword
+          :type (or ~op-keyword
+                    (u/classify v#))
           :env env#
           :val v#
           :form v#}))))
@@ -175,6 +177,7 @@
 (literal-dispatch Compiler$StringExpr :string)
 (literal-dispatch Compiler$NilExpr :nil)
 (literal-dispatch Compiler$BooleanExpr :bool)
+(literal-dispatch Compiler$EmptyExpr nil)
 
 (extend-protocol AnalysisToMap
   Compiler$ConstantExpr
@@ -463,16 +466,6 @@
          :children [:class :args]}
         (when ctor
           {:validated? true}))))
-
-  Compiler$EmptyExpr
-  (analysis->map
-    [expr env opt]
-    (merge
-      {:op :empty-expr
-       :env env
-       :coll (.coll expr)}
-      (when (:java-obj opt)
-        {:Expr-obj expr})))
 
   ;; set literal
   Compiler$SetExpr
@@ -834,19 +827,25 @@
           {:Expr-obj expr}))))
 
   ;; InstanceOfExpr
+  ; {:op   :instance?
+  ;  :doc  "Node for a clojure.core/instance? call where the Class is known at compile time"
+  ;  :keys [[:form "`(clojure.core/instance? Class x)`"]
+  ;         [:class "The Class to test the :target for instanceability"]
+  ;         ^:children
+  ;         [:target "An AST node representing the object to test for instanceability"]]}
   Compiler$InstanceOfExpr
   (analysis->map
     [expr env opt]
-    (let [exp (analysis->map (field Compiler$InstanceOfExpr expr expr) env opt)]
-      (merge
-        {:op :instance-of
-         :env env
-         :class (field Compiler$InstanceOfExpr c expr)
-         :the-expr exp}
-        (when (:children opt)
-          {:children [[[:exp] {}]]})
-        (when (:java-obj opt) 
-          {:Expr-obj expr}))))
+    (let [exp (analysis->map (field Compiler$InstanceOfExpr expr expr) env opt)
+          ^Class cls (field Compiler$InstanceOfExpr c expr)]
+      {:op :instance?
+       :env env
+       :class cls
+       :target exp
+       :tag Boolean/TYPE
+       :o-tag Boolean/TYPE
+       :form (list 'instance? (symbol (.getName cls)) (emit-form/emit-form exp))
+       :children [:target]}))
 
   ;; MetaExpr
   Compiler$MetaExpr
