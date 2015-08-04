@@ -190,11 +190,21 @@
 
 (deftest FnExpr-test
   (is (=
-       #{:body? :loop-id :o-tag :line :form :tag :arglists :raw-forms}
+       #{:loop-id :o-tag :line :column :form :tag :arglists :top-level}
        (leaf-diff
          ;; taj is wrapped in implicit do?
-         (ast (do (fn [])))
-         (taj (fn [])))))
+         (ast (fn []))
+         (:ret (taj (fn []))))))
+  (is (=
+       #{:loop-id :arglist :o-tag :column :line :top-level :form :tag :arglists :atom}
+       (leaf-diff
+         (ast (fn [a]))
+         (:ret (taj (fn [a]))))))
+  (is (=
+       #{:loop-id :o-tag :line :tag :atom :assignable?}
+       (leaf-diff
+         (-> (ast (fn [a] a)) :methods first :body :ret)
+         (-> (taj (fn [a] a)) :ret :methods first :body :ret))))
   )
 
 (deftest InvokeExpr-test
@@ -225,3 +235,13 @@
        (leaf-diff
          (ast (Exception.))
          (taj (Exception.))))))
+
+(deftest VarExpr-test
+  (is (= #{:tag :o-tag}
+         (leaf-diff
+           (ast +)
+           (taj +)))))
+
+(deftest TheVarExpr-test
+  (is (= (ast #'+)
+         (taj #'+))))

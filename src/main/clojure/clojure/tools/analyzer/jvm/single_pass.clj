@@ -19,7 +19,11 @@
             [clojure.java.io :as io]
             [clojure.repl :as repl]
             [clojure.string :as string]
+            [clojure.tools.analyzer.jvm :as ana.jvm]
             [clojure.tools.analyzer.passes.jvm.emit-form :as emit-form]
+            [clojure.tools.analyzer.passes.uniquify :refer [uniquify-locals]]
+            [clojure.tools.analyzer.passes.jvm.infer-tag :refer [infer-tag]]
+            [clojure.tools.analyzer.env :as env]
             [clojure.tools.analyzer.jvm :as taj]
             [clojure.tools.analyzer.jvm.utils :as ju]
             [clojure.tools.analyzer.utils :as u]))
@@ -36,7 +40,10 @@
 
 (defn analyze-form 
   ([form] (analyze-form form {}))
-  ([form opt] (analyze-one (merge (taj/empty-env) (meta form)) form opt)))
+  ([form opt]
+   (env/ensure (ana.jvm/global-env)
+     (-> (analyze-one (merge (taj/empty-env) (meta form)) form opt)
+         uniquify-locals))))
 
 (defmacro ast 
   "Returns the abstract syntax tree representation of the given form,
@@ -289,28 +296,37 @@
     (let [init (when-let [init (.init lb)]
                  (analysis->map init env opt))
           form (.sym lb)]
-      {:op :local
-       :env (inherit-env init env)
-       ;; TODO uniquify
-       :name form
-       :form form
-       :tag (.tag lb)}))
+      (assoc ((:locals env) form)
+             :op :local
+             :name form
+             :form form
+             :env (inherit-env init env)
+             :tag (.tag lb)
+             :children [])))
 
+  ;  {:op   :binding
+  ;   :doc  "Node for a binding symbol"
+  ;   :keys [[:form "The binding symbol"]
+  ;          [:name "The uniquified binding symbol"]
+  ;          [:local "One of :arg, :catch, :fn, :let, :letfn, :loop, :field or :this"]
+  ;          ^:optional
+  ;          [:arg-id "When :local is :arg, the parameter index"]
+  ;          ^:optional
+  ;          [:variadic? "When :local is :arg, a boolean indicating whether this parameter binds to a variable number of arguments"]
+  ;          ^:optional ^:children
+  ;          [:init "When :local is :let, :letfn or :loop, an AST node representing the bound value"]
+  ;          [:atom "An atom shared by this :binding node and all the :local nodes that refer to this binding"]
   Compiler$BindingInit
   (analysis->map
     [bi env opt]
     (let [local-binding (analysis->map (.binding bi) env opt)
           init (analysis->map (.init bi) env opt)]
-      (merge
-        {:op :binding-init
-         :env (inherit-env init env)
-         :local-binding local-binding
-         :init init}
-        (when (:children opt)
-          {:children [[[:local-binding] {}]
-                      [[:init] {}]]})
-        (when (:java-obj opt)
-          {:BindingInit-obj bi}))))
+      {:op :binding
+       :form local-binding
+       :env (inherit-env init env)
+       :local :unknown
+       :init init
+       :children [:init]}))
 
   ;; letfn
   Compiler$LetFnExpr
@@ -612,32 +628,48 @@
           {:Expr-obj expr}))))
 
   ;; TheVarExpr
+  ; {:op   :the-var
+  ;  :doc  "Node for a var special-form expression"
+  ;  :keys [[:form "`(var var-name)`"]
+  ;         [:var "The Var object this expression refers to"]]}
   Compiler$TheVarExpr
   (analysis->map
     [expr env opt]
-    (merge
+    (let [^clojure.lang.Var var (.var expr)]
       {:op :the-var
+       :tag clojure.lang.Var
+       :o-tag clojure.lang.Var
+       :form (list 'var (.sym var))
        :env env
-       :var (.var expr)}
-      (when (:java-obj opt)
-        {:Expr-obj expr})))
+       :var var}))
 
   ;; VarExpr
+  ; {:op   :var
+  ;  :doc  "Node for a var symbol"
+  ;  :keys [[:form "A symbol naming the var"]
+  ;         [:var "The Var object this symbol refers to"]
+  ;         ^:optional
+  ;         [:assignable? "`true` if the Var is :dynamic"]]}
   Compiler$VarExpr
   (analysis->map
     [expr env opt]
-    (merge
+    (let [^clojure.lang.Var var (.var expr)
+          meta (meta var)
+          tag (.tag expr)]
       {:op :var
        :env env
-       :var (.var expr)
-       :tag (.tag expr)}
-      (when (:java-obj opt)
-        {:Expr-obj expr})))
+       :var var
+       :meta meta
+       :tag tag
+       :assignable? (boolean (:dynamic meta))
+       :arglists (:arglists meta)
+       :form (.sym var)}))
 
   ;; UnresolvedVarExpr
   Compiler$UnresolvedVarExpr
   (analysis->map
     [expr env opt]
+    (assert nil "NYI")
     (let []
       (merge
         {:op :unresolved-var
@@ -650,6 +682,7 @@
   Compiler$ObjExpr
   (analysis->map
     [expr env opt]
+    (assert nil "NYI")
     (merge
       {:op :obj-expr
        :env env
@@ -661,6 +694,7 @@
   Compiler$NewInstanceMethod
   (analysis->map
     [obm env opt]
+    (assert nil "NYI")
     (let [body (analysis->map (.body obm) env opt)]
       (merge
         {:op :new-instance-method
@@ -692,13 +726,22 @@
     [obm env opt]
     (let [loop-id (gensym "loop_")
           rest-param (when-let [rest-param (.restParm obm)]
-                       (analysis->map rest-param env opt))
-          required-params (mapv #(analysis->map % env opt) (.reqParms obm))
+                       (assoc (analysis->map rest-param env opt)
+                              :variadic? true
+                              :local :arg
+                              :op :binding))
+          required-params (mapv #(assoc (analysis->map %1 env opt)
+                                        :variadic? false
+                                        :local :arg
+                                        :arg-id %2
+                                        :op :binding)
+                                (.reqParms obm)
+                                (range))
           params-expr (into required-params
-                       (when rest-param
-                         [rest-param]))
-          body-env (into env #_(update-in env [:locals] ;;FIXME
-                                    merge (zipmap params-names (map u/dissoc-env params-expr)))
+                            (when rest-param
+                              [rest-param]))
+          body-env (into (update-in env [:locals]
+                                    merge (zipmap (map :name params-expr) (map u/dissoc-env params-expr)))
                          {:context     :ctx/return
                           :loop-id     loop-id
                           :loop-locals (count params-expr)})
