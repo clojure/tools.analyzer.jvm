@@ -1,5 +1,5 @@
 (ns clojure.tools.analyzer.jvm.single-pass-test
-  (:require [clojure.tools.analyzer.jvm.single-pass :refer [ast]]
+  (:require [clojure.tools.analyzer.jvm.single-pass :as si :refer [ast]]
             [clojure.tools.analyzer.jvm :as ana.jvm]
             [clojure.tools.analyzer.passes.jvm.emit-form :refer [emit-form]]
             [clojure.tools.analyzer.passes :refer [schedule]]
@@ -360,8 +360,13 @@
        ;; :class-name is a redefined class with the same name
        #{:loop-locals :loop-id :name :line :once :context :class-name :form :tag}
         (leaf-diff
-          (-> (ast (deftype A [f])) :fn :methods first :body :ret :body :statements first :fields)
-          (-> (taj (deftype A [f])) :body :statements first :fields)))))
+          (-> (ast (deftype A [])) :fn :methods first :body :ret :body :statements first)
+          (-> (taj (deftype A [])) :body :statements first))))
+  (is (=
+        #{:loop-locals :loop-id :name :o-tag :line :once :context :class-name :form :tag :atom}
+        (leaf-diff
+          (-> (ast (deftype A [f])) :fn :methods first :body :ret :body :statements first)
+          (-> (taj (deftype A [f])) :body :statements first)))))
 
 (defprotocol Foo
   (bar [a]))
@@ -369,9 +374,39 @@
 (deftest NewInstanceMethod-test
   (is (=
         (-> (ast (deftype A []
-                   )) :fn :methods first :body :ret :body :statements first :class-name)
+                   )) 
+            :fn :methods first :body :ret :body :statements first)
 
 (deftest CaseExpr-test
   (is (ppdiff
         (-> (ast (case 1 2 3)) :fn :methods first :body :ret :body :ret :test)
         (-> (taj (case 1 2 3)) :body :ret :test))))
+
+(defmacro juxt-ast [f]
+  `(do (time (si/analyze-one (ana.jvm/empty-env) '~f))
+       (time (si/analyze-form '~f))
+       (time (ast ~f))
+       (time (taj ~f))
+       nil))
+
+#_(juxt-ast
+  (defn foo [{:keys [a b c]}]
+    [(inc a) (+ b c)]))
+
+#_(juxt-ast
+  (doseq [{:keys [a b c]} [1 2 3]
+          {:keys [d e f]} [4 5 6]
+          {:keys [d e f]} [4 5 6]
+          {:keys [d e f]} [4 5 6]
+          {:keys [d e f]} [4 5 6]
+          :when a]
+    (inc a)))
+
+#_(do
+  (time (ast (defn foo [{:keys [a b c]}]
+               [(inc a) (+ b c)])))
+  nil)
+#_(do
+  (time (taj (defn foo [{:keys [a b c]}]
+               [(inc a) (+ b c)])))
+  nil)

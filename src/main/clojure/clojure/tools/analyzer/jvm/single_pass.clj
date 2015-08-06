@@ -275,7 +275,7 @@
                                  :local (if loop? :loop :let))
                 name (:name bind-expr)]
             (assert (symbol? name) (str "letexpr" bind-expr))
-            (prn "name" name (keys bind-expr) (:op bind-expr))
+            ;(prn "name" name (keys bind-expr) (:op bind-expr))
             (recur bindings
                    (assoc-in env [:locals name] (u/dissoc-env bind-expr))
                    (conj binds bind-expr)))
@@ -335,8 +335,8 @@
     [bi env opt]
     (let [;; Compiler$LocalBinding
           local-binding (analysis->map (.binding bi) env opt)
-          _ (prn "binding init local-binding" (keys local-binding)
-                 (:op local-binding))
+          ;_ (prn "binding init local-binding" (keys local-binding)
+          ;       (:op local-binding))
           init (analysis->map (.init bi) env opt)
           name (:name local-binding)]
       (assert (symbol? name) "bindinginit")
@@ -374,9 +374,12 @@
           form (:name b)]
       (assert (symbol? form))
       (assert (contains? (:locals env) form))
-      (prn "LocalBindingExpr" env)
+      ;(prn "LocalBindingExpr" env)
       (assoc ((:locals env) form)
              :op :local
+             ;; form has new metadata
+             :form form
+             :val form
              :env env)))
 
   ;; Methods
@@ -806,7 +809,7 @@
           params-expr (into required-params
                             (when rest-param
                               [rest-param]))
-          _ (prn "params-expr" (map :op params-expr))
+          ;_ (prn "params-expr" (map :op params-expr))
           body-env (into (update-in env [:locals]
                                     merge (zipmap (map :name params-expr) (map u/dissoc-env params-expr)))
                          {:context     :ctx/return
@@ -884,23 +887,26 @@
   Compiler$NewInstanceExpr
   (analysis->map
     [expr env opt]
-    (prn "NewInstanceExpr")
+    ;(prn "NewInstanceExpr")
     (let [methods (mapv #(analysis->map % env opt) (field Compiler$NewInstanceExpr methods expr))
-          _ (prn "fields")
+          ;_ (prn "fields")
           fields (mapv (fn [kv]
-                         (prn kv)
-                         (analysis->map (second kv) env opt))
+                         ;(prn kv)
+                         (assoc (analysis->map (val kv) env opt)
+                                :op :binding
+                                :local :field
+                                :mutable nil))
                        (field Compiler$ObjExpr fields expr))
-          _ (prn "before name")
+          ;_ (prn "before name")
           name (symbol (.name expr))
-          _ (prn "after name")
+          ;_ (prn "after name")
           class-name (.compiledClass expr) ;or  #_(.internalName expr) ?
           interfaces (remove
                        #{Object}
                        (concat
                          [clojure.lang.IType]
                          (mapcat second (keys (field Compiler$NewInstanceExpr mmap expr)))))]
-      (prn "mmap" (field Compiler$NewInstanceExpr mmap expr))
+      ;(prn "mmap" (field Compiler$NewInstanceExpr mmap expr))
       {:op :deftype
        :form (list* 'deftype* name class-name
                     [] ;; TODO
