@@ -38,14 +38,14 @@
 
 (declare analyze-one)
 
-(defn analyze-form 
+(defn analyze-form
   ([form] (analyze-form form {}))
   ([form opt]
    (env/ensure (ana.jvm/global-env)
-     (-> (analyze-one (merge (taj/empty-env) (meta form)) form opt)
+     (-> (analyze-one (merge (taj/empty-env) (select-keys (meta form) [:line :column :ns :file])) form opt)
          uniquify-locals))))
 
-(defmacro ast 
+(defmacro ast
   "Returns the abstract syntax tree representation of the given form,
   evaluated in the current namespace"
   ([form] `(ast ~form {}))
@@ -55,7 +55,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;; Utils
 
-(defmacro field 
+(defmacro field
   "Call a private field, must be known at compile time. Throws an error
   if field is already publicly accessible."
   ([class-obj field] `(field ~class-obj ~field nil))
@@ -70,7 +70,7 @@
    `(field-accessor ~class-obj '~field ~obj)))
 
 (defn- field-accessor [^Class class-obj field obj]
-  (let [^java.lang.reflect.Field 
+  (let [^java.lang.reflect.Field
         field (.getDeclaredField class-obj (name field))]
     (.setAccessible field true)
     (let [ret (.get field obj)]
@@ -79,10 +79,10 @@
         ret))))
 
 (defn- method-accessor [^Class class-obj method obj types & args]
-  (let [^java.lang.reflect.Method 
+  (let [^java.lang.reflect.Method
         method (.getMethod class-obj (name method) (into-array Class types))]
     (.setAccessible method true)
-    (try 
+    (try
       (.invoke method obj (object-array args))
       (catch java.lang.reflect.InvocationTargetException e
         (throw (repl/root-cause e))))))
@@ -143,10 +143,7 @@
 ;          [:type "one of :nil, :bool, :keyword, :symbol, :string, :number, :type, :record, :map, :vector, :set, :seq, :char, :regex, :class, :var, or :unknown"]
 ;          [:val "The value of the constant node"]
 ;          ^:optional ^:children
-;          [:meta "An AST node representing the metadata of the constant value, if present. The node will be either a :map node or a :const node with :type :map"]
-;          #_
-;          ^:optional
-;          [:id "A numeric id for the constant value, will be the same for every instance of this constant inside the same compilation unit, not present if :type is :nil or :bool"]]}
+;          [:meta "An AST node representing the metadata of the constant value, if present. The node will be either a :map node or a :const node with :type :map"]]}
 
 (defn tag-for-val [val]
   {:post [((some-fn nil? class?) %)]}
@@ -218,9 +215,7 @@
   ;         ^:optional ^:children
   ;         [:init "An AST node representing the initial value of the var"]
   ;         ^:optional
-  ;         [:doc "The docstring for this var"]
-  ;         #_
-  ;         [:id "A numeric id for this var, will be the same for every instance of this var inside the same compilation unit"]]}
+  ;         [:doc "The docstring for this var"]]}
   Compiler$DefExpr
   (analysis->map
     [expr env opt]
@@ -266,21 +261,37 @@
   ;         [:bindings "A vector of :binding AST nodes with :local :loop"]
   ;         ^:children
   ;         [:body "Synthetic :do node (with :body? `true`) representing the body of the loop expression"]
-  ;         [:loop-id "Unique symbol identifying this loop as a target for recursion"]
-  ;         #_
-  ;         [:closed-overs "A map of uniquified local name -> :binding AST node of the local, containing all the locals closed-over by this loop"]]}
+  ;         [:loop-id "Unique symbol identifying this loop as a target for recursion"]]}
   Compiler$LetExpr
   (analysis->map
-    [expr env opt]
-    (let [body (analysis->map (.body expr) env opt)
-          binding-inits (map analysis->map (.bindingInits expr) (repeat env) (repeat opt))
+    [expr {:keys [context loop-id] :as env} opt]
+    (let [top-env env
           loop? (.isLoop expr)]
-      {:op (if loop? :loop :let)
-       :form (list (if loop? 'loop* 'let*) 'TODO)
-       :env (inherit-env body env)
-       :bindings binding-inits
-       :body body
-       :children [:bindings :body]}))
+      (loop [bindings (.bindingInits expr)
+             env (u/ctx env :ctx/expr)
+             binds []]
+        (if-let [[binit & bindings] (seq bindings)]
+          (let [bind-expr (assoc (analysis->map binit env opt)
+                                 :local (if loop? :loop :let))
+                name (:name bind-expr)]
+            (assert (symbol? name) (str "letexpr" bind-expr))
+            (prn "name" name (keys bind-expr) (:op bind-expr))
+            (recur bindings
+                   (assoc-in env [:locals name] (u/dissoc-env bind-expr))
+                   (conj binds bind-expr)))
+          (let [body-env (assoc env :context (if loop? :ctx/return context))
+                body (analysis->map (.body expr)
+                                    (merge body-env
+                                           (when loop?
+                                             {:loop-id     loop-id
+                                              :loop-locals (count binds)}))
+                                    opt)]
+            {:op (if loop? :loop :let)
+             :form (list (if loop? 'loop* 'let*) 'TODO)
+             :env (inherit-env body top-env)
+             :bindings binds
+             :body body
+             :children [:bindings :body]})))))
 
   ;{:op   :local
   ; :doc  "Node for a local symbol"
@@ -292,20 +303,20 @@
   ;        [:arg-id "When :local is :arg, the parameter index"]
   ;        ^:optional
   ;        [:variadic? "When :local is :arg, a boolean indicating whether this parameter binds to a variable number of arguments"]
-  ;        [:atom "An atom shared by this :local node, the :binding node this local refers to and all the other :local nodes that refer to this same local"]
+  ;        [:atom "An atom shared by this :local node, the :binding node this local refers to and all the other :local nodes that refer to this same local"]]}
   Compiler$LocalBinding
   (analysis->map
     [lb env opt]
     (let [init (when-let [init (.init lb)]
                  (analysis->map init env opt))
           form (.sym lb)]
-      (assoc ((:locals env) form)
-             :op :local
-             :name form
-             :form form
-             :env (inherit-env init env)
-             :tag (.tag lb)
-             :children [])))
+      {:op :local
+       :name form
+       :form form
+       :env (inherit-env init env)
+       :tag (.tag lb)
+       :atom (atom {})
+       :children []}))
 
   ;  {:op   :binding
   ;   :doc  "Node for a binding symbol"
@@ -318,14 +329,20 @@
   ;          [:variadic? "When :local is :arg, a boolean indicating whether this parameter binds to a variable number of arguments"]
   ;          ^:optional ^:children
   ;          [:init "When :local is :let, :letfn or :loop, an AST node representing the bound value"]
-  ;          [:atom "An atom shared by this :binding node and all the :local nodes that refer to this binding"]
+  ;          [:atom "An atom shared by this :binding node and all the :local nodes that refer to this binding"]]}
   Compiler$BindingInit
   (analysis->map
     [bi env opt]
-    (let [local-binding (analysis->map (.binding bi) env opt)
-          init (analysis->map (.init bi) env opt)]
+    (let [;; Compiler$LocalBinding
+          local-binding (analysis->map (.binding bi) env opt)
+          _ (prn "binding init local-binding" (keys local-binding)
+                 (:op local-binding))
+          init (analysis->map (.init bi) env opt)
+          name (:name local-binding)]
+      (assert (symbol? name) "bindinginit")
       {:op :binding
-       :form local-binding
+       :form name
+       :name name
        :env (inherit-env init env)
        :local :unknown
        :init init
@@ -352,46 +369,82 @@
   Compiler$LocalBindingExpr
   (analysis->map
     [expr env opt]
-    (analysis->map (.b expr) env opt))
+    {:post [%]}
+    (let [b (analysis->map (.b expr) env opt)
+          form (:name b)]
+      (assert (symbol? form))
+      (assert (contains? (:locals env) form))
+      (prn "LocalBindingExpr" env)
+      (assoc ((:locals env) form)
+             :op :local
+             :env env)))
 
   ;; Methods
+  ; {:op   :static-call
+  ;  :doc  "Node for a static method call"
+  ;  :keys [[:form "`(Class/method arg*)`"]
+  ;         [:class "The Class the static method belongs to"]
+  ;         [:method "The symbol name of the static method"]
+  ;         ^:children
+  ;         [:args "A vector of AST nodes representing the args to the method call"]
+  ;         ^:optional
+  ;         [:validated? "`true` if the static method could be resolved at compile time"]]}
   Compiler$StaticMethodExpr
   (analysis->map
     [expr env opt]
-    (let [args (map analysis->map (field Compiler$StaticMethodExpr args expr) (repeat env) (repeat opt))]
-      (merge
-        {:op :static-method
-         :env (env-location env expr)
-         :class (field Compiler$StaticMethodExpr c expr)
-         :method-name (field Compiler$StaticMethodExpr methodName expr)
-         :method (when-let [method (field Compiler$StaticMethodExpr method expr)]
+    (let [args (mapv #(analysis->map % env opt) (field Compiler$StaticMethodExpr args expr))
+          method (when-let [method (field Compiler$StaticMethodExpr method expr)]
                    (@#'reflect/method->map method))
+          method-name (symbol (field Compiler$StaticMethodExpr methodName expr))
+          tag (field Compiler$StaticMethodExpr tag expr)
+          c (field Compiler$StaticMethodExpr c expr)]
+      (merge
+        {:op :static-call
+         :env (env-location env expr)
+         :form (list '. c (list* method-name (map emit-form/emit-form args)))
+         :class c
+         :method method-name
          :args args
-         :tag (field Compiler$StaticMethodExpr tag expr)}
-        (when (:children opt)
-          {:children [[[:args] {:exprs? true}]]})
-        (when (:java-obj opt)
-          {:Expr-obj expr}))))
+         :tag tag
+         :o-tag tag
+         :children [:args]}
+        (when method
+          {:validated? true}))))
 
   Compiler$InstanceMethodExpr
+  ;  {:op   :instance-call
+  ;   :doc  "Node for an instance method call"
+  ;   :keys [[:form "`(.method instance arg*)`"]
+  ;          [:method "Symbol naming the invoked method"]
+  ;          ^:children
+  ;          [:instance "An AST node representing the instance to call the method on"]
+  ;          ^:children
+  ;          [:args "A vector of AST nodes representing the args passed to the method call"]
+  ;          ^:optional
+  ;          [:validated? "`true` if the method call could be resolved at compile time"]
+  ;          ^:optional
+  ;          [:class "If :validated? the class or interface the method belongs to"]]}
   (analysis->map
     [expr env opt]
     (let [target (analysis->map (field Compiler$InstanceMethodExpr target expr) env opt)
-          args (map analysis->map (field Compiler$InstanceMethodExpr args expr) (repeat env) (repeat opt))]
-      (merge
-        {:op :instance-method
-         :env (env-location env expr)
-         :target target
-         :method-name (field Compiler$InstanceMethodExpr methodName expr)
-         :method (when-let [method (field Compiler$InstanceMethodExpr method expr)]
+          args (mapv #(analysis->map % env opt) (field Compiler$InstanceMethodExpr args expr))
+          method-name (symbol (field Compiler$InstanceMethodExpr methodName expr))
+          method (when-let [method (field Compiler$InstanceMethodExpr method expr)]
                    (@#'reflect/method->map method))
+          tag (field Compiler$InstanceMethodExpr tag expr)]
+      (merge
+        {:op :instance-call
+         :form (list '. (emit-form/emit-form target)
+                     (list* method-name (map emit-form/emit-form args)))
+         :env (env-location env expr)
+         :instance target
+         :method method-name
          :args args
-         :tag (field Compiler$InstanceMethodExpr tag expr)}
-        (when (:children opt)
-          {:children [[[:target] {}] 
-                      [[:args] {:exprs? true}]]})
-        (when (:java-obj opt)
-          {:Expr-obj expr}))))
+         :tag tag
+         :o-tag tag
+         :children [:instance :args]}
+        (when method
+          {:validated? true}))))
 
   ;; Fields
   Compiler$StaticFieldExpr
@@ -445,7 +498,7 @@
                :env env
                :type :class
                :literal? true
-               :form c
+               :form (emit-form/class->sym c)
                :val c
                :tag Class
                :o-tag Class}
@@ -453,7 +506,7 @@
                  (@#'reflect/constructor->map ctor))]
       (merge
         {:op :new
-         :form (list* 'new cls (map emit-form/emit-form args))
+         :form (list* 'new (emit-form/emit-form cls) (map emit-form/emit-form args))
          :env 
          ; borrow line numbers from arguments
          (if-let [iexpr (first (filter :line (map :env args)))]
@@ -468,86 +521,106 @@
           {:validated? true}))))
 
   ;; set literal
+  ; {:op   :set
+  ;  :doc  "Node for a set literal with attached metadata and/or non literal elements"
+  ;  :keys [[:form "`#{item*}`"]
+  ;         ^:children
+  ;         [:items "A vector of AST nodes representing the items of the set"]]}
   Compiler$SetExpr
   (analysis->map
     [expr env opt]
-    (let [keys (map analysis->map (.keys expr) (repeat env) (repeat opt))]
-      (merge
-        {:op :set
-         :env env
-         :keys keys}
-        (when (:children opt)
-          {:children [[[:keys] {:exprs? true}]]})
-        (when (:java-obj opt)
-          {:Expr-obj expr}))))
+    (let [keys (mapv #(analysis->map % env opt) (.keys expr))]
+      {:op :set
+       :env env
+       :form `#{~@(map emit-form/emit-form keys)}
+       :items keys
+       :children [:items]}))
 
   ;; vector literal
+  ; {:op   :vector
+  ;  :doc  "Node for a vector literal with attached metadata and/or non literal elements"
+  ;  :keys [[:form "`[item*]`"]
+  ;         ^:children
+  ;         [:items "A vector of AST nodes representing the items of the vector"]]}
   Compiler$VectorExpr
   (analysis->map
     [expr env opt]
-    (let [args (map analysis->map (.args expr) (repeat env) (repeat opt))]
-      (merge
-        {:op :vector
-         :env env
-         :args args}
-        (when (:children opt)
-          {:children [[[:args] {:exprs? true}]]})
-        (when (:java-obj opt) 
-          {:Expr-obj expr}))))
+    (let [args (mapv #(analysis->map % env opt) (.args expr))]
+      {:op :vector
+       :env env
+       :form `[~@(map emit-form/emit-form args)]
+       :items args
+       :children [:items]}))
 
   ;; map literal
+  ; {:op   :map
+  ;  :doc  "Node for a map literal with attached metadata and/or non literal elements"
+  ;  :keys [[:form "`{[key val]*}`"]
+  ;         ^:children
+  ;         [:keys "A vector of AST nodes representing the keys of the map"]
+  ;         ^:children
+  ;         [:vals "A vector of AST nodes representing the vals of the map"]]}
   Compiler$MapExpr
   (analysis->map
     [expr env opt]
-    (let [keyvals (map analysis->map (.keyvals expr) (repeat env) (repeat opt))]
-      (merge
-        {:op :map
-         :env env
-         :keyvals keyvals}
-        (when (:children opt)
-          {:children [[[:keyvals] {:exprs? true}]]})
-        (when (:java-obj opt)
-          {:Expr-obj expr}))))
+    (let [kvs (partition 2 (.keyvals expr))
+          ks  (mapv #(analysis->map % env opt) (map first kvs))
+          vs  (mapv #(analysis->map % env opt) (map second kvs))]
+      {:op :map
+       :env env
+       ;; FIXME use transducers when dropping 1.6 support
+       :form (into {}
+                   (map
+                     (fn [k v]
+                       [(emit-form/emit-form k)
+                        (emit-form/emit-form v)])
+                     ks
+                     vs))
+       :keys ks
+       :vals vs
+       :children [:keys :vals]}))
 
   ;; Untyped
   Compiler$MonitorEnterExpr
   (analysis->map
     [expr env opt]
     (let [target (analysis->map (field Compiler$MonitorEnterExpr target expr) env opt)]
-      (merge
-        {:op :monitor-enter
-         :env env
-         :target target}
-        (when (:children opt)
-          {:children [[[:target] {:exprs? true}]]})
-        (when (:java-obj opt)
-          {:Expr-obj expr}))))
+      {:op :monitor-enter
+       :env env
+       :form (list 'monitor-enter (emit-form/emit-form target))
+       :target target
+       :children [:target]}))
 
   Compiler$MonitorExitExpr
+  ;{:op   :monitor-exit
+  ; :doc  "Node for a monitor-exit special-form statement"
+  ; :keys [[:form "`(monitor-exit target)`"]
+  ;        ^:children
+  ;        [:target "An AST node representing the monitor-exit sentinel"]]}
   (analysis->map
     [expr env opt]
     (let [target (analysis->map (field Compiler$MonitorExitExpr target expr) env opt)]
       (merge
         {:op :monitor-exit
          :env env
-         :target target}
-        (when (:children opt)
-          {:children [[[:target] {}]]})
-        (when (:java-obj opt)
-          {:Expr-obj expr}))))
+         :form (list 'monitor-exit (emit-form/emit-form target))
+         :target target
+         :children [:target]})))
 
   Compiler$ThrowExpr
+  ; {:op   :throw
+  ;  :doc  "Node for a throw special-form statement"
+  ;  :keys [[:form "`(throw exception)`"]
+  ;         ^:children
+  ;         [:exception "An AST node representing the exception to throw"]]}
   (analysis->map
     [expr env opt]
     (let [exception (analysis->map (field Compiler$ThrowExpr excExpr expr) env opt)]
-      (merge
-        {:op :throw
-         :env env
-         :exception exception}
-        (when (:children opt)
-          {:children [[[:exception] {}]]})
-        (when (:java-obj opt)
-          {:Expr-obj expr}))))
+      {:op :throw
+       :form (list 'throw (emit-form/emit-form exception))
+       :env env
+       :exception exception
+       :children [:exception]}))
 
   ;; Invokes
   ; {:op   :invoke
@@ -733,6 +806,7 @@
           params-expr (into required-params
                             (when rest-param
                               [rest-param]))
+          _ (prn "params-expr" (map :op params-expr))
           body-env (into (update-in env [:locals]
                                     merge (zipmap (map :name params-expr) (map u/dissoc-env params-expr)))
                          {:context     :ctx/return
@@ -796,35 +870,60 @@
                    :name this-name}}))))
 
   ;; NewInstanceExpr
+  ; {:op   :deftype
+  ;  :doc  "Node for a deftype* special-form expression"
+  ;  :keys [[:form "`(deftype* name class.name [arg*] :implements [interface*] method*)`"]
+  ;         [:interfaces "A set of the interfaces implemented by the type"]
+  ;         [:name "The symbol name of the deftype"]
+  ;         [:class-name "A class for the deftype, should *never* be instantiated or used on instance? checks as this will not be the same class the deftype will evaluate to after compilation"]
+  ;         ^:children
+  ;         [:fields "A vector of :binding AST nodes with :local :field representing the deftype fields"]
+  ;         ^:children
+  ;         [:methods "A vector :method AST nodes representing the deftype methods"]]}
 ;FIXME find vector of interfaces this implements (I think it's in mmap + IType)
   Compiler$NewInstanceExpr
   (analysis->map
     [expr env opt]
-    (let [methods (map analysis->map (field Compiler$NewInstanceExpr methods expr) (repeat env) (repeat opt))]
-      (merge
-        {:op :deftype*
-         :name (symbol (.name expr))
-         :env (env-location env expr)
-         :methods methods
-         :mmap (field Compiler$NewInstanceExpr mmap expr)
+    (prn "NewInstanceExpr")
+    (let [methods (mapv #(analysis->map % env opt) (field Compiler$NewInstanceExpr methods expr))
+          _ (prn "fields")
+          fields (mapv (fn [kv]
+                         (prn kv)
+                         (analysis->map (second kv) env opt))
+                       (field Compiler$ObjExpr fields expr))
+          _ (prn "before name")
+          name (symbol (.name expr))
+          _ (prn "after name")
+          class-name (.compiledClass expr) ;or  #_(.internalName expr) ?
+          interfaces (remove
+                       #{Object}
+                       (concat
+                         [clojure.lang.IType]
+                         (mapcat second (keys (field Compiler$NewInstanceExpr mmap expr)))))]
+      (prn "mmap" (field Compiler$NewInstanceExpr mmap expr))
+      {:op :deftype
+       :form (list* 'deftype* name class-name
+                    [] ;; TODO
+                    :implements (map emit-form/class->sym interfaces)
+                    (map emit-form/emit-form methods))
+       :name name
+       :env (env-location env expr)
+       :methods methods
+       :fields fields
+       :class-name class-name
 
-         :compiled-class (.compiledClass expr)
-         :internal-name (.internalName expr)
-         :this-name (.thisName expr)
+       :interfaces (set interfaces)
 
-         ;(Set LocalBinding)
-         :fields (set
-                   (for [[k v] (field Compiler$ObjExpr fields expr)]
-                     (analysis->map v env opt)))
+       ;:mmap (field Compiler$NewInstanceExpr mmap expr)
+       ;:compiled-class (.compiledClass expr)
+       ;:internal-name (.internalName expr)
+       ;:this-name (.thisName expr)
 
-         ;(Vec Symbol)
-         :hinted-fields (field Compiler$ObjExpr hintedFields expr)
-         :covariants (field Compiler$NewInstanceExpr covariants expr)
-         :tag (.tag expr)}
-        (when (:children opt)
-          {:children [[[:methods] {:exprs? true}]]})
-        (when (:java-obj opt)
-          {:Expr-obj expr}))))
+       ;(Vec Symbol)
+       ;:hinted-fields (field Compiler$ObjExpr hintedFields expr)
+       ;:covariants (field Compiler$NewInstanceExpr covariants expr)
+       :tag (.tag expr)
+       :children [:fields :methods]}))
 
   ;; InstanceOfExpr
   ; {:op   :instance?
@@ -848,21 +947,24 @@
        :children [:target]}))
 
   ;; MetaExpr
+  ; {:op   :with-meta
+  ;  :doc  "Node for a non quoted collection literal or fn/reify expression with attached metadata"
+  ;  :keys [[:form "Non quoted collection literal or fn/reify expression with attached metadata"]
+  ;         ^:children
+  ;         [:meta "An AST node representing the metadata of expression. The node will be either a :map node or a :const node with :type :map"]
+  ;         ^:children
+  ;         [:expr "The expression this metadata is attached to, :op is one of :vector, :map, :set, :fn or :reify"]]}]}
   Compiler$MetaExpr
   (analysis->map
     [expr env opt]
     (let [meta (analysis->map (.meta expr) env opt)
           the-expr (analysis->map (.expr expr) env opt)]
-      (merge
-        {:op :meta
-         :env env
-         :meta meta
-         :expr the-expr}
-        (when (:children opt)
-          {:children [[[:meta] {}]
-                      [[:the-expr] {}]]})
-        (when (:java-obj opt)
-          {:Expr-obj expr}))))
+      {:op :with-meta
+       :env env
+       :form (emit-form/emit-form the-expr) ;FIXME add meta
+       :meta meta
+       :expr the-expr
+       :children [:meta :children]}))
 
   ;; do
   ; {:op   :do
@@ -891,67 +993,106 @@
        :children [:statements :ret]}))
 
   ;; if
+  ; {:op   :if
+  ;  :doc  "Node for an if special-form expression"
+  ;  :keys [[:form "`(if test then else?)`"]
+  ;         ^:children
+  ;         [:test "An AST node representing the test expression"]
+  ;         ^:children
+  ;         [:then "An AST node representing the expression's return value if :test evaluated to a truthy value"]
+  ;         ^:children
+  ;         [:else "An AST node representing the expression's return value if :test evaluated to a falsey value, if not supplied it will default to a :const node representing nil"]]}
   Compiler$IfExpr
   (analysis->map
     [expr env opt]
     (let [test (analysis->map (.testExpr expr) env opt)
           then (analysis->map (.thenExpr expr) env opt)
           else (analysis->map (.elseExpr expr) env opt)]
-      (merge
-        {:op :if
-         :env (env-location env expr)
-         :test test
-         :then then
-         :else else}
-        (when (:children opt)
-          {:children [[[:test] {}] 
-                      [[:then] {}] 
-                      [[:else] {}]]})
-        (when (:java-obj opt)
-          {:Expr-obj expr}))))
+      {:op :if
+       :env (env-location env expr)
+       :form (list* 'if (map emit-form/emit-form [test then else]))
+       :test test
+       :then then
+       :else else
+       :children [:test :then :else]}))
 
   ;; case
   ;; (from Compiler.java)
   ;;  //(case* expr shift mask default map<minhash, [test then]> table-type test-type skip-check?)
+  ; {:op   :case
+  ;  :doc  "Node for a case* special-form expression"
+  ;  :keys [[:form "`(case* expr shift maks default case-map switch-type test-type skip-check?)`"]
+  ;         ^:children
+  ;         [:test "The AST node for the expression to test against"]
+  ;         ^:children
+  ;         [:tests "A vector of :case-test AST nodes, each node has a corresponding :case-then node in the :thens field"]
+  ;         ^:children
+  ;         [:thens "A vector of :case-then AST nodes, each node has a corresponding :case-test node in the :tests field"]
+  ;         ^:children
+  ;         [:default "An AST node representing the default value of the case expression"]
+  ;         [:shift]
+  ;         [:mask]
+  ;         [:low]
+  ;         [:high]
+  ;         [:switch-type "One of :sparse or :compact"]
+  ;         [:test-type "One of :int, :hash-equiv or :hash-identity"]
+  ;         [:skip-check? "A set of case ints for which equivalence checking should not be done"]]}
   Compiler$CaseExpr
   (analysis->map
     [expr env opt]
     (let [the-expr (analysis->map (.expr expr) env opt)
-          tests (map analysis->map (vals (.tests expr)) (repeat env) (repeat opt))
-          thens (map analysis->map (vals (.thens expr)) (repeat env) (repeat opt))
+          tests-map (.tests expr)
+          thens-map (.thens expr)
+          [low high] ((juxt first last) (keys tests-map)) ;;tests-map is a sorted-map
+          [tests thens] (reduce (fn [[tests thens] [h tst]]
+                                  (let [test-expr (analysis->map tst env opt)
+                                        then-expr (analysis->map (get thens-map h) env opt)]
+                                    [(conj tests {:op       :case-test
+                                                  :form     (emit-form/emit-form test-expr)
+                                                  :env      env
+                                                  :hash     h
+                                                  :test     test-expr
+                                                  :children [:test]})
+                                     (conj thens {:op       :case-then
+                                                  :form     (emit-form/emit-form then-expr)
+                                                  :env      env
+                                                  :hash     h
+                                                  :then     then-expr
+                                                  :children [:then]})]))
+                                [[] []] tests-map)
           default (analysis->map (.defaultExpr expr) env opt)]
-      (merge
-        {:op :case*
-         :env (env-location env expr)
-         :the-expr the-expr
-         :tests tests
-         :thens thens
-         :default default
-         :tests-hashes (keys (.tests expr))
-         :shift (.shift expr)
-         :mask (.mask expr)
-         :test-type (.testType expr)
-         :switch-type (.switchType expr)
-         :skip-check (.skipCheck expr)}
-        (when (:children opt)
-          {:children [[[:the-expr]  {}]
-                      [[:tests] {:exprs? true}] 
-                      [[:thens] {:exprs? true}] 
-                      [[:default] {}]]})
-        (when (:java-obj opt)
-          {:Expr-obj expr}))))
+      {:op :case
+       :env (env-location env expr)
+       :test (assoc the-expr :case-test true)
+       :tests tests
+       :thens thens
+       :default default
+       :shift (.shift expr)
+       :mask (.mask expr)
+       :low low
+       :high high
+       :switch-type (.switchType expr)
+       :test-type (.testType expr)
+       :skip-check? (.skipCheck expr)
+       :children [:test :tests :thens :default]}))
 
 
   ;; ImportExpr
+  ; {:op   :import
+  ;  :doc  "Node for a clojure.core/import* special-form expression"
+  ;  :keys [[:form "`(clojure.core/import* \"qualified.class\")`"]
+  ;         [:class "String representing the qualified class to import"]]}
   Compiler$ImportExpr
   (analysis->map
     [expr env opt]
-    (merge
-      {:op :import*
+    (let [c (.c expr)]
+      (assert (string? c))
+      {:op :import
        :env env
-       :class-str (.c expr)}
-       (when (:java-obj opt)
-         {:Expr-obj expr})))
+       :form (list 'clojure.core/import* c)
+       :class c
+       ; :validated? true ?
+       }))
 
   ;; AssignExpr (set!)
   Compiler$AssignExpr
