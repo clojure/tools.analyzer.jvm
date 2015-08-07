@@ -682,7 +682,7 @@
   Compiler$KeywordInvokeExpr
   (analysis->map
     [expr env opt]
-    (assert "NYI")
+    (assert nil "KeywordExpr")
     #_(let [target (analysis->map (field Compiler$KeywordInvokeExpr target expr) env opt)
           kw (analysis->map (field Compiler$KeywordInvokeExpr kw expr) env opt)]
       (merge
@@ -738,7 +738,7 @@
   Compiler$UnresolvedVarExpr
   (analysis->map
     [expr env opt]
-    (assert nil "NYI")
+    (assert nil "UnresolvedVarExpr")
     (let []
       (merge
         {:op :unresolved-var
@@ -751,7 +751,7 @@
   Compiler$ObjExpr
   (analysis->map
     [expr env opt]
-    (assert nil "NYI")
+    (assert nil "ObjExprs")
     (merge
       {:op :obj-expr
        :env env
@@ -760,25 +760,39 @@
         {:Expr-obj expr})))
 
   ;; FnExpr (extends ObjExpr)
+  ; {:op   :method
+  ;  :doc  "Node for a method in a deftype* or reify* special-form expression"
+  ;  :keys [[:form "`(method [this arg*] body*)`"]
+  ;         [:bridges "A list of signature for bridge methods to emit"]
+  ;         [:interface "The interface (or Object) this method belongs to"]
+  ;         ^:children
+  ;         [:this "A :binding AST node with :local :this representing the \"this\" local"]
+  ;         [:loop-id "Unique symbol identifying this method as a target for recursion"]
+  ;         [:name "The symbol name of this method"]
+  ;         ^:children
+  ;         [:params "A vector of AST :binding nodes with :local :arg representing the arguments of the method"]
+  ;         [:fixed-arity "The number of args this method takes"]
+  ;         ^:children
+  ;         [:body "Synthetic :do node (with :body? `true`) representing the body of this method"]]}
   Compiler$NewInstanceMethod
   (analysis->map
     [obm env opt]
-    (assert nil "NYI")
-    (let [body (analysis->map (.body obm) env opt)]
-      (merge
-        {:op :new-instance-method
-         :env (env-location env obm)
-         :name (symbol (field Compiler$NewInstanceMethod name obm))
-         :required-params (map analysis->map 
-                               (concat [((field Compiler$ObjMethod indexlocals obm) 0)]
-                                       (field Compiler$ObjMethod argLocals obm))
-                               (repeat env)
-                               (repeat opt))
-         :body body}
-        (when (:children opt)
-          {:children [[[:body] {}]]})
-        (when (:java-obj opt)
-          {:ObjMethod-obj obm}))))
+    (let [loop-id (gensym "loop_")
+          body (assoc (analysis->map (.body obm) (assoc env :loop-id loop-id) opt)
+                      :body? true)
+          name (symbol (field Compiler$NewInstanceMethod name obm))
+          this (analysis->map ((field Compiler$ObjMethod indexlocals obm) 0) env opt)
+          params (mapv #(analysis->map % env opt)
+                       (field Compiler$ObjMethod argLocals obm))]
+      {:op :method
+       :env (env-location env obm)
+       :this (assoc this :local :this)
+       :name name
+       :loop-id loop-id
+       :fixed-arity (count params)
+       :params params
+       :body body
+       :children [:then :params :body]}))
 
   ; {:op   :fn-method
   ;  :doc  "Node for an arity method in a fn* expression"
@@ -905,7 +919,9 @@
                        #{Object}
                        (concat
                          [clojure.lang.IType]
-                         (mapcat second (keys (field Compiler$NewInstanceExpr mmap expr)))))]
+                         (map (fn [^java.lang.reflect.Method m]
+                                (.getDeclaringClass m))
+                              (vals (field Compiler$NewInstanceExpr mmap expr)))))]
       ;(prn "mmap" (field Compiler$NewInstanceExpr mmap expr))
       {:op :deftype
        :form (list* 'deftype* name class-name

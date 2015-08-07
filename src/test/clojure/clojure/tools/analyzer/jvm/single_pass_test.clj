@@ -369,13 +369,18 @@
           (-> (taj (deftype A [f])) :body :statements first)))))
 
 (defprotocol Foo
-  (bar [a]))
+  (bar [this a]))
 
 (deftest NewInstanceMethod-test
-  (is (=
+  (is (ppdiff
         (-> (ast (deftype A []
-                   )) 
+                   Foo
+                   (bar [this a])))
             :fn :methods first :body :ret :body :statements first)
+        (-> (taj (deftype A []
+                   Foo
+                   (bar [this a])))
+            :body :statements first))))
 
 (deftest CaseExpr-test
   (is (ppdiff
