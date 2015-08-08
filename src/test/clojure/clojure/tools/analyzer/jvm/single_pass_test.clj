@@ -34,6 +34,9 @@
   `(binding [ana.jvm/run-passes passes]
      (ana.jvm/analyze '~form)))
 
+(defn ppdiff [x y]
+  (pprint (diff x y)))
+
 (deftest KeywordExpr-test
   (is (= (ast :abc)
          (taj :abc)
@@ -192,9 +195,6 @@
            (ast (do (do 1)))
            (taj (do (do 1)))))))
 
-(defn ppdiff [x y]
-  (pprint (diff x y)))
-
 (deftest FnExpr-test
   (is (=
        #{:loop-id :o-tag :line :column :form :tag :arglists :top-level}
@@ -203,13 +203,15 @@
          (ast (fn []))
          (:ret (taj (fn []))))))
   (is (=
-       #{:loop-id :arglist :o-tag :column :line :top-level :form :tag :arglists :atom}
+       ;; :children is always empty
+       #{:children :loop-id :arglist :o-tag :column :line :top-level :form :tag :arglists :atom}
        (leaf-diff
          (ast (fn [a]))
          (:ret (taj (fn [a]))))))
   (is (=
-       #{:loop-id :o-tag :line :tag :atom :assignable?}
-       (leaf-diff
+       ;; :children is always empty
+       #{:children :loop-id :o-tag :line :tag :atom :assignable?}
+       (ppdiff
          (-> (ast (fn [a] a)) :methods first :body :ret)
          (-> (taj (fn [a] a)) :ret :methods first :body :ret))))
   )
@@ -232,9 +234,13 @@
          (taj (:a nil 1))))))
 
 (deftest LetExpr-test
-  ;;FIXME
-  #_(is (= nil
-         (ppdiff
+  (is (= #{:loop-locals :loop-id :file :o-tag :column :line :once :context :tag :atom :assignable?}
+         (leaf-diff
+           (-> (ast (let [a 1] a)) :fn :methods first :body :ret :body :ret)
+           (-> (taj (let [a 1] a)) :body :ret))))
+  (is (= #{:loop-locals :body? :loop-id :file :o-tag :column :line :once :top-level :context :form 
+           :tag :atom :assignable? :raw-forms}
+         (leaf-diff
            (-> (ast (let [a 1] a)) :fn :methods first :body :ret)
            (-> (taj (let [a 1] a)))))))
 
@@ -357,13 +363,12 @@
 
 (deftest NewInstanceExpr-test
   (is (=
-       ;; :class-name is a redefined class with the same name
-       #{:loop-locals :loop-id :name :line :once :context :class-name :form :tag}
+       #{:loop-locals :loop-id :line :once :context :class-name :form :tag}
         (leaf-diff
           (-> (ast (deftype A [])) :fn :methods first :body :ret :body :statements first)
           (-> (taj (deftype A [])) :body :statements first))))
   (is (=
-        #{:loop-locals :loop-id :name :o-tag :line :once :context :class-name :form :tag :atom}
+        #{:loop-locals :loop-id :o-tag :line :once :context :class-name :form :tag :atom}
         (leaf-diff
           (-> (ast (deftype A [f])) :fn :methods first :body :ret :body :statements first)
           (-> (taj (deftype A [f])) :body :statements first)))))
@@ -371,16 +376,29 @@
 (defprotocol Foo
   (bar [this a]))
 
+#_(require '[clojure.tools.trace :as tr])
+#_(tr/untrace-vars clojure.tools.analyzer.passes.uniquify/-uniquify-locals)
+#_(tr/untrace-vars clojure.tools.analyzer.passes.uniquify/uniquify-locals*)
+
 (deftest NewInstanceMethod-test
   (is (ppdiff
         (-> (ast (deftype A []
                    Foo
                    (bar [this a])))
-            :fn :methods first :body :ret :body :statements first)
+            :fn :methods first :body :ret :body :statements first :methods first)
         (-> (taj (deftype A []
                    Foo
                    (bar [this a])))
-            :body :statements first))))
+            :body :statements first :methods first)))
+  (is (=
+        (-> (ast (deftype A []
+                   Foo
+                   (bar [this a])))
+            :fn :methods first :body :ret :body :statements first emit-form)
+        (-> (taj (deftype A []
+                   Foo
+                   (bar [this a])))
+            :body :statements first emit-form))))
 
 (deftest CaseExpr-test
   (is (ppdiff

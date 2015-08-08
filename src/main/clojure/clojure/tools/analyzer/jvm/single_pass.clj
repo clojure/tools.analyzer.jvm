@@ -316,7 +316,7 @@
        :env (inherit-env init env)
        :tag (.tag lb)
        :atom (atom {})
-       :children []}))
+       :children nil}))
 
   ;  {:op   :binding
   ;   :doc  "Node for a binding symbol"
@@ -375,12 +375,12 @@
       (assert (symbol? form))
       (assert (contains? (:locals env) form))
       ;(prn "LocalBindingExpr" env)
-      (assoc ((:locals env) form)
+      (assoc (dissoc ((:locals env) form)
+                     :init)
              :op :local
              ;; form has new metadata
-             :form form
-             :val form
-             :env env)))
+             :env env
+             :children [])))
 
   ;; Methods
   ; {:op   :static-call
@@ -786,13 +786,13 @@
                        (field Compiler$ObjMethod argLocals obm))]
       {:op :method
        :env (env-location env obm)
-       :this (assoc this :local :this)
+       :this (assoc this :local :this :op :binding)
        :name name
        :loop-id loop-id
        :fixed-arity (count params)
        :params params
        :body body
-       :children [:then :params :body]}))
+       :children [:this :params :body]}))
 
   ; {:op   :fn-method
   ;  :doc  "Node for an arity method in a fn* expression"
@@ -912,21 +912,25 @@
                                 :mutable nil))
                        (field Compiler$ObjExpr fields expr))
           ;_ (prn "before name")
-          name (symbol (.name expr))
+          name (symbol (str (:ns env)) (peek (string/split (.name expr) #"\.")))
           ;_ (prn "after name")
           class-name (.compiledClass expr) ;or  #_(.internalName expr) ?
           interfaces (remove
                        #{Object}
                        (concat
-                         [clojure.lang.IType]
                          (map (fn [^java.lang.reflect.Method m]
                                 (.getDeclaringClass m))
-                              (vals (field Compiler$NewInstanceExpr mmap expr)))))]
+                              (vals (field Compiler$NewInstanceExpr mmap expr)))
+                         [clojure.lang.IType]))]
+      ;(prn :compiled-class (.compiledClass expr))
+      ;(prn :internal-name (.internalName expr))
+      ;(prn :this-name (.thisName expr))
+      ;(prn "name" name)
       ;(prn "mmap" (field Compiler$NewInstanceExpr mmap expr))
       {:op :deftype
        :form (list* 'deftype* name class-name
                     [] ;; TODO
-                    :implements (map emit-form/class->sym interfaces)
+                    :implements (mapv emit-form/class->sym interfaces)
                     (map emit-form/emit-form methods))
        :name name
        :env (env-location env expr)
