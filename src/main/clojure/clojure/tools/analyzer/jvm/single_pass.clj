@@ -1179,24 +1179,35 @@
   ; :doc  "Node for a try special-form expression"
   ; :keys  [[:form "`(try body* catch* finally?)`"]
   ;         ^:children
+  ;         [:body "Synthetic :do AST node (with :body? `true`) representing the body of this try expression"]
+  ;         ^:children
   ;         [:catches "A vector of :catch AST nodes representing the catch clauses of this try expression"]
   ;         ^:optional ^:children
   ;         [:finally "Synthetic :do AST node (with :body? `true`) representing the final clause of this try expression"]]}
   Compiler$TryExpr
   (analysis->map
     [expr env opt]
-    (let [try-expr (analysis->map (.tryExpr expr) env opt)
+    (let [try-expr (-> (analysis->map (.tryExpr expr) (assoc env :in-try true) opt)
+                       (assoc :body? true))
+          catch-exprs (mapv #(analysis->map % env opt) (.catchExprs expr))
           finally-expr (when-let [finally-expr (.finallyExpr expr)]
-                         (analysis->map finally-expr env opt))
-          catch-exprs (mapv #(analysis->map % env opt) (.catchExprs expr))]
+                         (analysis->map finally-expr env opt))]
       {:op :try
+       :form (list* 'try 
+                    (emit-form/emit-form try-expr)
+                    (concat (map emit-form/emit-form catch-exprs)
+                            (when finally-expr
+                              [(list 'finally (emit-form/emit-form finally-expr))])))
        :env env
-       :try-expr try-expr
-       :finally-expr finally-expr
+       :body try-expr
        :catches catch-exprs
+       ;; can be nil like in TA
+       :finally finally-expr
        ;:ret-local (.retLocal expr)
        ;:finally-local (.finallyLocal expr)
-       })))
+       :children (into [:body :catches]
+                       (when finally-expr
+                         [:finally]))}))
 
   ;; RecurExpr
   Compiler$RecurExpr

@@ -487,6 +487,29 @@
          (ast (set! *warn-on-reflection* true))
          (taj (set! *warn-on-reflection* true))))))
 
+(deftest TryExpr-test
+  ;; body
+  (is 
+    (= 
+      #{:no-recur :loop-locals :loop-id :line :once :context :form}
+      (leaf-diff
+        (-> (ast (try)) :fn :methods first :body :ret 
+            :body)
+        (-> (taj (try)) 
+            :body))))
+  ;; empty catches
+  (is 
+    (= (-> (ast (try)) :fn :methods first :body :ret 
+           :catches)
+       (-> (taj (try)) 
+           :catches)))
+  (is 
+    (= #{:no-recur :loop-locals :loop-id :o-tag :line :once :top-level :context :form}
+       (leaf-diff
+         (-> (ast (try)) :fn :methods first :body :ret)
+         (-> (taj (try))))))
+  )
+
 (defmacro juxt-ast [f]
   `(do (time (si/analyze-one (ana.jvm/empty-env) '~f))
        (time (si/analyze-form '~f))
