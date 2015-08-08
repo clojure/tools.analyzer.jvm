@@ -531,6 +531,15 @@
           (-> (ast (loop [] (recur))) :fn :methods first :body :ret)
           (-> (taj (loop [] (recur)))))))
 
+(deftest LetFnExpr-test
+  (is (=
+        (-> (ast (letfn [])) :fn :methods first :body :ret :bindings)
+        (-> (taj (letfn [])) :bindings)))
+  ;;FIXME
+  (is (ppdiff
+        (-> (ast (letfn [(a [])])) :fn :methods first :body :ret :bindings)
+        (-> (taj (letfn [(a [])])) :bindings))))
+
 (defmacro juxt-ast [f]
   `(do (time (si/analyze-one (ana.jvm/empty-env) '~f))
        (time (si/analyze-form '~f))

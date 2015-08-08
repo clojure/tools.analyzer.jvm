@@ -351,20 +351,45 @@
 
   ;; letfn
   Compiler$LetFnExpr
+  ; {:op   :letfn
+  ;  :doc  "Node for a letfn* special-form expression"
+  ;  :keys  [[:form "`(letfn* [binding*] body*)`"]
+  ;          ^:children
+  ;          [:bindings "A vector of :binding AST nodes with :local :letfn"]
+  ;          ^:children
+  ;          [:body "Synthetic :do node (with :body? `true`) representing the body of the letfn expression"]]}
   (analysis->map
     [expr env opt]
-    (let [body (analysis->map (.body expr) env opt)
-          binding-inits (map analysis->map (.bindingInits expr) (repeat env) (repeat opt))]
-      (merge
-        {:op :letfn
-         :env (inherit-env body env)
-         :body body
-         :binding-inits binding-inits}
-        (when (:children opt)
-          {:children [[[:binding-inits] {:exprs? true}]
-                      [[:body] {}]]})
-        (when (:java-obj opt)
-          {:Expr-obj expr}))))
+    (let [binding-inits (mapv #(-> (analysis->map % env opt)
+                                   (assoc :local :letfn
+                                          :op :binding))
+                              (.bindingInits expr))
+          benv (update-in env [:locals] merge
+                          (into {}
+                                (map 
+                                  (fn [{:keys [name] :as b}]
+                                    [name
+                                     {:op :binding :env env
+                                      :name name
+                                      :form name
+                                      :local :letfn}])
+                                  binding-inits)))
+          binding-inits (mapv #(assoc % :env benv) binding-inits)
+          body (-> (analysis->map (.body expr) 
+                                  (update-in env [:locals] merge 
+                                             (zipmap (map :name binding-inits) binding-inits))
+                                  opt)
+                   (assoc :body? true))]
+      {:op :letfn
+       :form (list 'letfn*
+                   (mapv (fn [b]
+                           (list* (:name b) (map emit-form/emit-form (:methods (:init b)))))
+                         binding-inits)
+                   (emit-form/emit-form body))
+       :env (inherit-env body env)
+       :bindings binding-inits
+       :body body
+       :children [:bindings :body]}))
 
   ;; LocalBindingExpr
   Compiler$LocalBindingExpr
@@ -884,6 +909,12 @@
                           [variadic-method]))
           this-name (when-let [nme (.thisName expr)]
                       (symbol nme))
+          this (when this-name
+                 {:op :binding
+                  :env env
+                  :form this-name
+                  :name this-name
+                  :local :fn})
           fixed-arities (seq (map :fixed-arity methods-no-variadic))
           max-fixed-arity (when fixed-arities (apply max fixed-arities))]
       (merge
@@ -897,7 +928,10 @@
          :o-tag clojure.lang.AFunction #_(.tag expr)
          :max-fixed-arity max-fixed-arity
          :once once
-         :children [:methods]}
+         :children (vec
+                     (concat (when this-name
+                               [:local])
+                             [:methods]))}
         (when this-name
           ;; FIXME what is a :binding?
           {:local {:op :binding
