@@ -10,17 +10,21 @@
             [clojure.set :as set]))
 
 (defn leaf-keys [m]
-  (reduce (fn [ks [k v]]
-            (cond
-              (map? v) (set/union ks (leaf-keys v))
+  (cond
+    (map? m)
+    (reduce (fn [ks [k v]]
+              (cond
+                (map? v) (set/union ks (leaf-keys v))
 
-              (and (vector? v)
-                   (every? map? v))
-              (apply set/union ks (map leaf-keys v))
+                (and (vector? v)
+                     (every? map? v))
+                (apply set/union ks (map leaf-keys v))
 
-              :else (conj ks k)))
-          #{}
-          m))
+                :else (conj ks k)))
+            #{}
+            m)
+    (coll? m) (apply set/union (map leaf-keys m))
+    :else #{}))
 
 (defn leaf-diff [x y]
   (apply set/union
@@ -381,15 +385,53 @@
 #_(tr/untrace-vars clojure.tools.analyzer.passes.uniquify/uniquify-locals*)
 
 (deftest NewInstanceMethod-test
-  (is (ppdiff
-        (-> (ast (deftype A []
-                   Foo
-                   (bar [this a])))
-            :fn :methods first :body :ret :body :statements first :methods first)
-        (-> (taj (deftype A []
-                   Foo
-                   (bar [this a])))
-            :body :statements first :methods first)))
+  ; :this
+  (is 
+    ;; :children is nil and absent
+    (= #{:loop-locals :children :this :loop-id :o-tag :line :once :context :tag :atom}
+       (leaf-diff
+         (-> (ast (deftype A []
+                    Foo
+                    (bar [this a])))
+             :fn :methods first :body :ret :body :statements first :methods first :this)
+         (-> (taj (deftype A []
+                    Foo
+                    (bar [this a])))
+             :body :statements first :methods first :this))))
+  (is 
+    (= #{:loop-id :o-tag :line :once :form :tag :atom}
+       (leaf-diff
+         (-> (ast (deftype A []
+                    Foo
+                    (bar [this a])))
+             :fn :methods first :body :ret :body :statements first :methods first :body)
+         (-> (taj (deftype A []
+                    Foo
+                    (bar [this a])))
+             :body :statements first :methods first :body))))
+  (is 
+    (= #{:loop-locals :children :loop-id :o-tag :line :once :context :tag :atom}
+       (leaf-diff
+         (-> (ast (deftype A []
+                    Foo
+                    (bar [this a])))
+             :fn :methods first :body :ret :body :statements first :methods first :params first)
+         (-> (taj (deftype A []
+                    Foo
+                    (bar [this a])))
+             :body :statements first :methods first :params first))))
+  (is 
+    (= #{:loop-locals :children :interface :this :locals :ns :loop-id :name :file 
+         :op :o-tag :column :methods :line :once :context :form :tag :atom :local}
+       (leaf-diff
+         (-> (ast (deftype A []
+                    Foo
+                    (bar [this a])))
+             :fn :methods first :body :ret :body :statements first :methods first)
+         (-> (taj (deftype A []
+                    Foo
+                    (bar [this a])))
+             :body :statements first :methods first))))
   (is (=
         (-> (ast (deftype A []
                    Foo
@@ -401,9 +443,42 @@
             :body :statements first emit-form))))
 
 (deftest CaseExpr-test
-  (is (ppdiff
-        (-> (ast (case 1 2 3)) :fn :methods first :body :ret :body :ret :test)
-        (-> (taj (case 1 2 3)) :body :ret :test))))
+  (is 
+    (= #{:loop-locals :children :ns :loop-id :name :file :val :type :op :o-tag :literal? 
+         :column :line :once :top-level :context :form :tag :atom :local :assignable?}
+       (leaf-diff
+         (-> (ast (case 1 2 3)) :fn :methods first :body :ret :body :ret :test)
+         (-> (taj (case 1 2 3)) :body :ret :test))))
+  ;shift
+  (is
+    (= (-> (ast (case 1 2 3)) :fn :methods first :body :ret :body :ret :shift)
+       (-> (taj (case 1 2 3)) :body :ret :shift)))
+  ;mask
+  (is
+    (= (-> (ast (case 1 2 3)) :fn :methods first :body :ret :body :ret :mask)
+       (-> (taj (case 1 2 3)) :body :ret :mask)))
+  ;low
+  (is
+    (= (-> (ast (case 1 2 3)) :fn :methods first :body :ret :body :ret :low)
+       (-> (taj (case 1 2 3)) :body :ret :low)))
+  ;high
+  (is
+    (= (-> (ast (case 1 2 3)) :fn :methods first :body :ret :body :ret :high)
+       (-> (taj (case 1 2 3)) :body :ret :high)))
+  ;switch-type
+  (is
+    (= (-> (ast (case 1 2 3)) :fn :methods first :body :ret :body :ret :switch-type)
+       (-> (taj (case 1 2 3)) :body :ret :switch-type)))
+  ;test-type
+  (is
+    (= (-> (ast (case 1 2 3)) :fn :methods first :body :ret :body :ret :test-type)
+       (-> (taj (case 1 2 3)) :body :ret :test-type)))
+  ;skip-check?
+  (is
+    (= (-> (ast (case 1 2 3)) :fn :methods first :body :ret :body :ret :skip-check?)
+       (-> (taj (case 1 2 3)) :body :ret :skip-check?)))
+  ;;FIXME more tests for children
+  )
 
 (defmacro juxt-ast [f]
   `(do (time (si/analyze-one (ana.jvm/empty-env) '~f))

@@ -9,4 +9,5 @@
                  [org.clojure/core.memoize "0.5.7"]
                  [org.clojure/tools.reader "1.0.0-alpha1"]
                  [org.clojure/tools.analyzer "0.6.8-SNAPSHOT"]
-                 [org.ow2.asm/asm-all "4.2"]])
+                 [org.ow2.asm/asm-all "4.2"]]
+  :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"})

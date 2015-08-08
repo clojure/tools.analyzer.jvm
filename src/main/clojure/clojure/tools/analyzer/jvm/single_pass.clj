@@ -778,15 +778,31 @@
   (analysis->map
     [obm env opt]
     (let [loop-id (gensym "loop_")
-          body (assoc (analysis->map (.body obm) (assoc env :loop-id loop-id) opt)
+          this (-> (analysis->map ((field Compiler$ObjMethod indexlocals obm) 0) env opt)
+                   (assoc :local :this
+                          :op :binding)
+                   (dissoc :env))
+          penv (update-in env [:locals] assoc (:name this) this)
+          ;; FIXME use transients
+          params (vec
+                   (map-indexed 
+                     #(-> (analysis->map %2 penv opt)
+                          (assoc :local :arg
+                                 :op :binding
+                                 :arg-id %1
+                                 :variadic? false)
+                          (dissoc :children))
+                     (field Compiler$ObjMethod argLocals obm)))
+          menv (-> penv
+                   (update-in [:locals] merge (zipmap (map :name params) params))
+                   (assoc :loop-locals (count params)))
+          body (assoc (analysis->map (.body obm) (assoc menv :loop-id loop-id) opt)
                       :body? true)
-          name (symbol (field Compiler$NewInstanceMethod name obm))
-          this (analysis->map ((field Compiler$ObjMethod indexlocals obm) 0) env opt)
-          params (mapv #(analysis->map % env opt)
-                       (field Compiler$ObjMethod argLocals obm))]
+          name (symbol (field Compiler$NewInstanceMethod name obm))]
       {:op :method
        :env (env-location env obm)
-       :this (assoc this :local :this :op :binding)
+       :this (assoc this :op :binding)
+       :bridges ()
        :name name
        :loop-id loop-id
        :fixed-arity (count params)
@@ -1126,16 +1142,14 @@
     [expr env opt]
     (let [target (analysis->map (.target expr) env opt)
           val (analysis->map (.val expr) env opt)]
-      (merge
-        {:op :set!
-         :env env
-         :target target
-         :val val}
-        (when (:children opt)
-          {:children [[[:target] {}] 
-                      [[:val] {}]]})
-        (when (:java-obj opt)
-          {:Expr-obj expr}))))
+      {:op :set!
+       :form (list 'set! 
+                   (emit-form/emit-form target)
+                   (emit-form/emit-form val))
+       :env env
+       :target target
+       :val val
+       :children [:target :val]}))
 
   ;;TryExpr
   Compiler$TryExpr$CatchClause
