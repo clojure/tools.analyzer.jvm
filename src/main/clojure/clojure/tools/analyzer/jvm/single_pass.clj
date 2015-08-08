@@ -1159,21 +1159,49 @@
 
   ;;TryExpr
   Compiler$TryExpr$CatchClause
+  ;{:op   :catch
+  ; :doc  "Node for a catch expression"
+  ; :keys [[:form "`(catch class local body*)`"]
+  ;        ^:children
+  ;        [:class "A :const AST node with :type :class representing the type of exception to catch"]
+  ;        ^:children
+  ;        [:local "The :binding AST node for the caught exception"]
+  ;        ^:children
+  ;        [:body "Synthetic :do AST node (with :body? `true`)  representing the body of the catch clause"]]}
   (analysis->map
     [ctch env opt]
-    (let [local-binding (analysis->map (.lb ctch) env opt)
-          handler (analysis->map (.handler ctch) env opt)]
-      (merge
-        {:op :catch
-         :env env
-         :class (.c ctch)
-         :local-binding local-binding
-         :handler handler}
-        (when (:children opt)
-          {:children [[[:local-binding] {}]
-                      [[:handler] {}]]})
-        (when (:java-obj opt)
-          {:CatchClause-obj ctch}))))
+    (let [local-binding (-> (analysis->map (.lb ctch) env opt)
+                            (assoc 
+                              :local :catch
+                              :op :binding)
+                            (dissoc :children))
+          c (.c ctch)
+          cls {:op :const
+               :env env
+               :type :class
+               :literal? true
+               :form (emit-form/class->sym c)
+               :val c
+               :tag Class
+               :o-tag Class}
+          handler (assoc (analysis->map (.handler ctch) 
+                                        (-> env
+                                            (update-in [:locals]
+                                                       assoc (:name local-binding)
+                                                       local-binding)
+                                            (assoc :no-recur true))
+                                        opt)
+                         :body? true)]
+      {:op :catch
+       :form (list 'catch 
+                   (emit-form/emit-form cls)
+                   (emit-form/emit-form local-binding)
+                   (emit-form/emit-form handler))
+       :env env
+       :class cls
+       :local local-binding
+       :body handler
+       :children [:class :local :body]}))
 
   ;{:op   :try
   ; :doc  "Node for a try special-form expression"
@@ -1191,7 +1219,8 @@
                        (assoc :body? true))
           catch-exprs (mapv #(analysis->map % env opt) (.catchExprs expr))
           finally-expr (when-let [finally-expr (.finallyExpr expr)]
-                         (analysis->map finally-expr env opt))]
+                         (assoc (analysis->map finally-expr env opt)
+                                :body? true))]
       {:op :try
        :form (list* 'try 
                     (emit-form/emit-form try-expr)
@@ -1210,21 +1239,24 @@
                          [:finally]))}))
 
   ;; RecurExpr
+  ; {:op   :recur
+  ;  :doc  "Node for a recur special-form expression"
+  ;  :keys [[:form "`(recur expr*)`"]
+  ;         ^:children
+  ;         [:exprs "A vector of AST nodes representing the new bound values for the loop binding on the next loop iteration"]
+  ;         [:loop-id "Unique symbol identifying the enclosing loop target"]]}
   Compiler$RecurExpr
   (analysis->map
     [expr env opt]
-    (let [loop-locals (map analysis->map (.loopLocals expr) (repeat env) (repeat opt))
-          args (map analysis->map (.args expr) (repeat env) (repeat opt))]
-      (merge
-        {:op :recur
-         :env (env-location env expr)
-         :loop-locals loop-locals
-         :args args}
-        (when (:children opt)
-          {:children [[[:loop-locals] {:exprs? true}]
-                      [[:args] {:exprs? true}]]})
-        (when (:java-obj opt)
-          {:Expr-obj expr}))))
+    (let [;loop-locals (map analysis->map (.loopLocals expr) (repeat env) (repeat opt))
+          args (mapv #(analysis->map % env opt) (.args expr))]
+      {:op :recur
+       :form (list* 'recur (map emit-form/emit-form args))
+       :env (env-location env expr)
+       ;:loop-locals loop-locals
+       :loop-id (:loop-id env)
+       :exprs args
+       :children [:exprs]}))
 
   Compiler$MethodParamExpr
   (analysis->map

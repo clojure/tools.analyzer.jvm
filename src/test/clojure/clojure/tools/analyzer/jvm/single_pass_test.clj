@@ -508,7 +508,24 @@
        (leaf-diff
          (-> (ast (try)) :fn :methods first :body :ret)
          (-> (taj (try))))))
+  (is 
+    (= #{:no-recur :loop-locals :loop-id :o-tag :line :once :top-level :context :form}
+       (leaf-diff
+         (-> (ast (try (finally))) :fn :methods first :body :ret)
+         (-> (taj (try (finally))))))))
+
+(deftest CatchExpr-test
+  (is 
+    (= #{:loop-locals :ns :loop-id :file :column :line :once :context :tag :atom}
+       (leaf-diff
+         (-> (ast (try (catch Exception e))) :fn :methods first :body :ret
+             :catches first :body :ret)
+         (-> (taj (try (catch Exception e))) 
+             :catches first :body :ret))))
   )
+
+;(deftest RecurExpr-test
+;  (is (= (ast (
 
 (defmacro juxt-ast [f]
   `(do (time (si/analyze-one (ana.jvm/empty-env) '~f))
