@@ -280,12 +280,13 @@
                    (assoc-in env [:locals name] (u/dissoc-env bind-expr))
                    (conj binds bind-expr)))
           (let [body-env (assoc env :context (if loop? :ctx/return context))
-                body (analysis->map (.body expr)
-                                    (merge body-env
-                                           (when loop?
-                                             {:loop-id     loop-id
-                                              :loop-locals (count binds)}))
-                                    opt)]
+                body (assoc (analysis->map (.body expr)
+                                           (merge body-env
+                                                  (when loop?
+                                                    {:loop-id     loop-id
+                                                     :loop-locals (count binds)}))
+                                           opt)
+                            :body? true)]
             {:op (if loop? :loop :let)
              :form (list (if loop? 'loop* 'let*) 'TODO)
              :env (inherit-env body top-env)
@@ -1261,6 +1262,7 @@
   Compiler$MethodParamExpr
   (analysis->map
     [expr env opt]
+    (assert nil "NYI MethodParamExpr")
     (let []
       (merge
         {:op :method-param

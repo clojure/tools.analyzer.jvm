@@ -242,7 +242,7 @@
          (leaf-diff
            (-> (ast (let [a 1] a)) :fn :methods first :body :ret :body :ret)
            (-> (taj (let [a 1] a)) :body :ret))))
-  (is (= #{:loop-locals :body? :loop-id :file :o-tag :column :line :once :top-level :context :form 
+  (is (= #{:loop-locals :loop-id :file :o-tag :column :line :once :top-level :context :form 
            :tag :atom :assignable? :raw-forms}
          (leaf-diff
            (-> (ast (let [a 1] a)) :fn :methods first :body :ret)
@@ -524,8 +524,12 @@
              :catches first :body :ret))))
   )
 
-;(deftest RecurExpr-test
-;  (is (= (ast (
+(deftest RecurExpr-test
+  (is (= 
+        #{}
+        (leaf-diff
+          (-> (ast (loop [] (recur))) :fn :methods first :body :ret)
+          (-> (taj (loop [] (recur)))))))
 
 (defmacro juxt-ast [f]
   `(do (time (si/analyze-one (ana.jvm/empty-env) '~f))
