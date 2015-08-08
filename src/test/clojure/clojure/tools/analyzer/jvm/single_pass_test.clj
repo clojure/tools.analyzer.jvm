@@ -480,6 +480,13 @@
   ;;FIXME more tests for children
   )
 
+(deftest AssignExpr-test
+  (is 
+    (= #{:o-tag :line :tag :arglists :assignable?}
+       (leaf-diff
+         (ast (set! *warn-on-reflection* true))
+         (taj (set! *warn-on-reflection* true))))))
+
 (defmacro juxt-ast [f]
   `(do (time (si/analyze-one (ana.jvm/empty-env) '~f))
        (time (si/analyze-form '~f))

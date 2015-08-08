@@ -1137,6 +1137,12 @@
        }))
 
   ;; AssignExpr (set!)
+  ; {:op   :set!
+  ;  :doc  "Node for a set! special-form expression"
+  ;  :keys [[:form "`(set! target val)`"]
+  ;         ^:children
+  ;         [:target "An AST node representing the target of the set! expression, must be :assignable?"]
+  ;         [:val "An AST node representing the new value for the target"]]}
   Compiler$AssignExpr
   (analysis->map
     [expr env opt]
@@ -1169,27 +1175,28 @@
         (when (:java-obj opt)
           {:CatchClause-obj ctch}))))
 
+  ;{:op   :try
+  ; :doc  "Node for a try special-form expression"
+  ; :keys  [[:form "`(try body* catch* finally?)`"]
+  ;         ^:children
+  ;         [:catches "A vector of :catch AST nodes representing the catch clauses of this try expression"]
+  ;         ^:optional ^:children
+  ;         [:finally "Synthetic :do AST node (with :body? `true`) representing the final clause of this try expression"]]}
   Compiler$TryExpr
   (analysis->map
     [expr env opt]
     (let [try-expr (analysis->map (.tryExpr expr) env opt)
           finally-expr (when-let [finally-expr (.finallyExpr expr)]
                          (analysis->map finally-expr env opt))
-          catch-exprs (map analysis->map (.catchExprs expr) (repeat env) (repeat opt))]
-      (merge
-        {:op :try
-         :env env
-         :try-expr try-expr
-         :finally-expr finally-expr
-         :catch-exprs catch-exprs
-         :ret-local (.retLocal expr)
-         :finally-local (.finallyLocal expr)}
-        (when (:children opt)
-          {:children [[[:try-expr] {}]
-                      [[:finally-expr] {}]
-                      [[:catch-exprs] {:exprs? true}]]})
-        (when (:java-obj opt)
-          {:Expr-obj expr}))))
+          catch-exprs (mapv #(analysis->map % env opt) (.catchExprs expr))]
+      {:op :try
+       :env env
+       :try-expr try-expr
+       :finally-expr finally-expr
+       :catches catch-exprs
+       ;:ret-local (.retLocal expr)
+       ;:finally-local (.finallyLocal expr)
+       })))
 
   ;; RecurExpr
   Compiler$RecurExpr
