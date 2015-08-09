@@ -476,38 +476,55 @@
           {:validated? true}))))
 
   ;; Fields
+  ;{:op   :static-field
+  ; :doc  "Node for a static field access"
+  ; :keys [[:form "`Class/field`"]
+  ;        [:class "The Class the static field belongs to"]
+  ;        [:field "The symbol name of the static field"]
+  ;        ^:optional
+  ;        [:assignable? "`true` if the static field is set!able"]]}
   Compiler$StaticFieldExpr
   (analysis->map
     [expr env opt]
-    (let []
-      (merge
-        {:op :static-field
-         :env (env-location env expr)
-         :class (field Compiler$StaticFieldExpr c expr)
-         :field-name (field Compiler$StaticFieldExpr fieldName expr)
-         :field (when-let [field (field Compiler$StaticFieldExpr field expr)]
-                  (@#'reflect/field->map field))
-         :tag (field Compiler$StaticFieldExpr tag expr)}
-        (when (:java-obj opt)
-          {:Expr-obj expr}))))
+    (let [tag (field Compiler$StaticFieldExpr tag expr)
+          c (field Compiler$StaticFieldExpr c expr)
+          fstr (field Compiler$StaticFieldExpr fieldName expr)]
+      {:op :static-field
+       :form (list '. (emit-form/class->sym c)
+                   (symbol (str "-" fstr)))
+       :env (env-location env expr)
+       :class c
+       :field (symbol fstr)
+       ;:field (when-let [field (field Compiler$StaticFieldExpr field expr)]
+       ;         (@#'reflect/field->map field))
+       :tag tag
+       :o-tag tag}))
 
   Compiler$InstanceFieldExpr
+  ; {:op   :instance-field
+  ;  :doc  "Node for an instance field access"
+  ;  :keys  [[:form "`(.-field instance)`"]
+  ;          [:field "Symbol naming the field to access"]
+  ;          ^:children
+  ;          [:instance "An AST node representing the instance to lookup the symbol on"]
+  ;          [:assignable? "`true` if the field is set!able"]
+  ;          [:class "The class the field belongs to"]]}
   (analysis->map
     [expr env opt]
-    (let [target (analysis->map (field Compiler$InstanceFieldExpr target expr) env opt)]
-      (merge
-        {:op :instance-field
-         :env (env-location env expr)
-         :target target
-         :target-class (field Compiler$InstanceFieldExpr targetClass expr)
-         :field (when-let [field (field Compiler$InstanceFieldExpr field expr)]
-                  (@#'reflect/field->map field))
-         :field-name (field Compiler$InstanceFieldExpr fieldName expr)
-         :tag (field Compiler$InstanceFieldExpr tag expr)}
-        (when (:children opt)
-          {:children [[[:target] {}]]})
-        (when (:java-obj opt)
-          {:Expr-obj expr}))))
+    (let [target (analysis->map (field Compiler$InstanceFieldExpr target expr) env opt)
+          fstr (field Compiler$InstanceFieldExpr fieldName expr)
+          tag (field Compiler$InstanceFieldExpr tag expr)]
+      {:op :instance-field
+       :form (list (symbol (str ".-" fstr)) (emit-form/emit-form target))
+       :env (env-location env expr)
+       :instance target
+       :class (field Compiler$InstanceFieldExpr targetClass expr)
+       ;:field (when-let [field (field Compiler$InstanceFieldExpr field expr)]
+       ;         (@#'reflect/field->map field))
+       :field (symbol fstr)
+       :tag tag
+       :o-tag tag
+       :children [:instance]}))
 
   ; {:op   :new
   ;  :doc  "Node for a new special-form expression"
@@ -817,7 +834,7 @@
                                  :op :binding
                                  :arg-id %1
                                  :variadic? false)
-                          (dissoc :children))
+                          (dissoc :children :init))
                      (field Compiler$ObjMethod argLocals obm)))
           menv (-> penv
                    (update-in [:locals] merge (zipmap (map :name params) params))
@@ -934,8 +951,7 @@
                              [:methods]))}
         (when this-name
           ;; FIXME what is a :binding?
-          {:local {:op :binding
-                   :name this-name}}))))
+          {:local this}))))
 
   ;; NewInstanceExpr
   ; {:op   :deftype
@@ -955,12 +971,19 @@
     ;(prn "NewInstanceExpr")
     (let [methods (mapv #(analysis->map % env opt) (field Compiler$NewInstanceExpr methods expr))
           ;_ (prn "fields")
+          ;; don't know what a MethodParamExpr is, just use the key
           fields (mapv (fn [kv]
-                         ;(prn kv)
-                         (assoc (analysis->map (val kv) env opt)
-                                :op :binding
-                                :local :field
-                                :mutable nil))
+                         (let [name (first kv)]
+                           ;(analysis->map (val kv) env opt)
+                           {:op :binding
+                            :env env
+                            :name name
+                            :form name
+                            :local :field
+                            :mutable (when (#{:unsynchronized-mutable
+                                              :volatile-mutable}
+                                             (meta name))
+                                       true)}))
                        (field Compiler$ObjExpr fields expr))
           ;_ (prn "before name")
           name (symbol (str (:ns env)) (peek (string/split (.name expr) #"\.")))
@@ -1293,10 +1316,10 @@
        :exprs args
        :children [:exprs]}))
 
+;; thrown away by NewInstanceMethod
   Compiler$MethodParamExpr
   (analysis->map
     [expr env opt]
-    (assert nil "NYI MethodParamExpr")
     (let []
       (merge
         {:op :method-param

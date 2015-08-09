@@ -215,7 +215,7 @@
   (is (=
        ;; :children is always empty
        #{:children :loop-id :o-tag :line :tag :atom :assignable?}
-       (ppdiff
+       (leaf-diff
          (-> (ast (fn [a] a)) :methods first :body :ret)
          (-> (taj (fn [a] a)) :ret :methods first :body :ret))))
   )
@@ -310,6 +310,13 @@
          (ast (Long/valueOf "1"))
          (taj (Long/valueOf "1"))))))
 
+(deftest StaticFieldExpr-test
+  (is 
+    (= 
+      #{:o-tag :column :line :form :tag :assignable? :raw-forms}
+      (leaf-diff (ast Long/MAX_VALUE)
+                 (taj Long/MAX_VALUE)))))
+
 (deftest InstanceMethodExpr-test
   (is (=
        ;; constructors inherit :line and :column
@@ -317,6 +324,19 @@
        (leaf-diff
          (-> (ast (.getName (java.io.File. "a"))) :instance)
          (-> (taj (.getName (java.io.File. "a"))) :instance)))))
+
+(deftype Inst [abc])
+
+(deftest InstanceFieldExpr-test
+  (is 
+    (= 
+      #{:children :loop-id :o-tag :m-or-f :column :line :context :form :tag :atom :assignable? :raw-forms}
+      (leaf-diff
+        (-> (ast (fn [^Inst a] (.abc a)))
+            :methods first :body :ret)
+        (-> (taj (fn [^Inst a] (.abc a)))
+            :ret
+            :methods first :body :ret)))))
 
 (deftest SetExpr-test
   (is (=
@@ -369,13 +389,19 @@
   (is (=
        #{:loop-locals :loop-id :line :once :context :class-name :form :tag}
         (leaf-diff
-          (-> (ast (deftype A [])) :fn :methods first :body :ret :body :statements first)
-          (-> (taj (deftype A [])) :body :statements first))))
+          (-> (ast (deftype A1 [])) :fn :methods first :body :ret :body :statements first)
+          (-> (taj (deftype A1 [])) :body :statements first))))
+  (is (=
+        #{:loop-locals :loop-id :o-tag :line :once :context :tag :atom}
+        (leaf-diff
+          (-> (ast (deftype A2 [f])) :fn :methods first :body :ret :body :statements first :fields)
+          (-> (taj (deftype A2 [f])) :body :statements first :fields))))
   (is (=
         #{:loop-locals :loop-id :o-tag :line :once :context :class-name :form :tag :atom}
         (leaf-diff
-          (-> (ast (deftype A [f])) :fn :methods first :body :ret :body :statements first)
-          (-> (taj (deftype A [f])) :body :statements first)))))
+          (-> (ast (deftype A3 [f])) :fn :methods first :body :ret :body :statements first)
+          (-> (taj (deftype A3 [f])) :body :statements first))))
+  )
 
 (defprotocol Foo
   (bar [this a]))
@@ -388,7 +414,7 @@
   ; :this
   (is 
     ;; :children is nil and absent
-    (= #{:loop-locals :children :this :loop-id :o-tag :line :once :context :tag :atom}
+    (= #{:children :this :ns :file :o-tag :column :line :context :tag :atom}
        (leaf-diff
          (-> (ast (deftype A []
                     Foo
@@ -399,24 +425,24 @@
                     (bar [this a])))
              :body :statements first :methods first :this))))
   (is 
-    (= #{:loop-id :o-tag :line :once :form :tag :atom}
+    (= #{:loop-locals :children :ns :loop-id :name :file :op :o-tag :column :line :once :context :form :tag :atom :local}
        (leaf-diff
-         (-> (ast (deftype A []
+         (-> (ast (deftype Ab []
                     Foo
                     (bar [this a])))
              :fn :methods first :body :ret :body :statements first :methods first :body)
-         (-> (taj (deftype A []
+         (-> (taj (deftype Ab []
                     Foo
                     (bar [this a])))
              :body :statements first :methods first :body))))
   (is 
     (= #{:loop-locals :children :loop-id :o-tag :line :once :context :tag :atom}
        (leaf-diff
-         (-> (ast (deftype A []
+         (-> (ast (deftype Abc []
                     Foo
                     (bar [this a])))
              :fn :methods first :body :ret :body :statements first :methods first :params first)
-         (-> (taj (deftype A []
+         (-> (taj (deftype Abc []
                     Foo
                     (bar [this a])))
              :body :statements first :methods first :params first))))
@@ -424,20 +450,20 @@
     (= #{:loop-locals :children :interface :this :locals :ns :loop-id :name :file 
          :op :o-tag :column :methods :line :once :context :form :tag :atom :local}
        (leaf-diff
-         (-> (ast (deftype A []
+         (-> (ast (deftype Abcd []
                     Foo
                     (bar [this a])))
              :fn :methods first :body :ret :body :statements first :methods first)
-         (-> (taj (deftype A []
+         (-> (taj (deftype Abcd []
                     Foo
                     (bar [this a])))
              :body :statements first :methods first))))
   (is (=
-        (-> (ast (deftype A []
+        (-> (ast (deftype Abcde []
                    Foo
                    (bar [this a])))
             :fn :methods first :body :ret :body :statements first emit-form)
-        (-> (taj (deftype A []
+        (-> (taj (deftype Abcde []
                    Foo
                    (bar [this a])))
             :body :statements first emit-form))))
@@ -526,19 +552,24 @@
 
 (deftest RecurExpr-test
   (is (= 
-        #{}
+        #{:loop-locals :loop-id :ignore-tag :o-tag :column :line :once :top-level :context :form :tag :raw-forms}
         (leaf-diff
           (-> (ast (loop [] (recur))) :fn :methods first :body :ret)
-          (-> (taj (loop [] (recur)))))))
+          (-> (taj (loop [] (recur))))))))
 
 (deftest LetFnExpr-test
   (is (=
         (-> (ast (letfn [])) :fn :methods first :body :ret :bindings)
         (-> (taj (letfn [])) :bindings)))
   ;;FIXME
-  (is (ppdiff
-        (-> (ast (letfn [(a [])])) :fn :methods first :body :ret :bindings)
-        (-> (taj (letfn [(a [])])) :bindings))))
+  (is (=
+       #{:loop-locals :locals :ns :loop-id :name :file :op :o-tag :column :line 
+         :once :context :form :tag :arglists :atom :local :raw-forms}
+       (leaf-diff
+         (-> (ast (letfn [(a [])])) :fn :methods first :body :ret :bindings)
+         (-> (taj (letfn [(a [])])) :bindings))))
+  (is (= (-> (ast (letfn [(a [])])) :fn :methods first :body :ret emit-form)
+         (-> (taj (letfn [(a [])])) emit-form))))
 
 (defmacro juxt-ast [f]
   `(do (time (si/analyze-one (ana.jvm/empty-env) '~f))
