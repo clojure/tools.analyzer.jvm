@@ -325,18 +325,17 @@
          (-> (ast (.getName (java.io.File. "a"))) :instance)
          (-> (taj (.getName (java.io.File. "a"))) :instance)))))
 
-(deftype Inst [abc])
-
 (deftest InstanceFieldExpr-test
   (is 
-    (= 
-      #{:children :loop-id :o-tag :m-or-f :column :line :context :form :tag :atom :assignable? :raw-forms}
-      (leaf-diff
-        (-> (ast (fn [^Inst a] (.abc a)))
-            :methods first :body :ret)
-        (-> (taj (fn [^Inst a] (.abc a)))
-            :ret
-            :methods first :body :ret)))))
+    (do (deftype Inst [abc])
+        (= 
+          #{:children :loop-id :o-tag :m-or-f :column :line :context :form :tag :atom :assignable? :raw-forms}
+          (leaf-diff
+            (-> (ast (fn [^Inst a] (.abc a)))
+                :methods first :body :ret)
+            (-> (taj (fn [^Inst a] (.abc a)))
+                :ret
+                :methods first :body :ret))))))
 
 (deftest SetExpr-test
   (is (=
@@ -403,16 +402,16 @@
           (-> (taj (deftype A3 [f])) :body :statements first))))
   )
 
-(defprotocol Foo
-  (bar [this a]))
 
 #_(require '[clojure.tools.trace :as tr])
 #_(tr/untrace-vars clojure.tools.analyzer.passes.uniquify/-uniquify-locals)
 #_(tr/untrace-vars clojure.tools.analyzer.passes.uniquify/uniquify-locals*)
 
 (deftest NewInstanceMethod-test
+  (defprotocol Foo
+    (bar [this a]))
   ; :this
-  (is 
+  (is
     ;; :children is nil and absent
     (= #{:children :this :ns :file :o-tag :column :line :context :tag :atom}
        (leaf-diff
@@ -424,7 +423,7 @@
                     Foo
                     (bar [this a])))
              :body :statements first :methods first :this))))
-  (is 
+  (is
     (= #{:loop-locals :children :ns :loop-id :name :file :op :o-tag :column :line :once :context :form :tag :atom :local}
        (leaf-diff
          (-> (ast (deftype Ab []
@@ -435,7 +434,7 @@
                     Foo
                     (bar [this a])))
              :body :statements first :methods first :body))))
-  (is 
+  (is
     (= #{:loop-locals :children :loop-id :o-tag :line :once :context :tag :atom}
        (leaf-diff
          (-> (ast (deftype Abc []
@@ -446,7 +445,7 @@
                     Foo
                     (bar [this a])))
              :body :statements first :methods first :params first))))
-  (is 
+  (is
     (= #{:loop-locals :children :interface :this :locals :ns :loop-id :name :file 
          :op :o-tag :column :methods :line :once :context :form :tag :atom :local}
        (leaf-diff
@@ -570,6 +569,9 @@
          (-> (taj (letfn [(a [])])) :bindings))))
   (is (= (-> (ast (letfn [(a [])])) :fn :methods first :body :ret emit-form)
          (-> (taj (letfn [(a [])])) emit-form))))
+
+(deftest ns-form-test
+  (is (-> (ast (ns foo)) emit-form)))
 
 (defmacro juxt-ast [f]
   `(do (time (si/analyze-one (ana.jvm/empty-env) '~f))

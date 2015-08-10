@@ -38,12 +38,17 @@
 
 (declare analyze-one)
 
+(defn analyze
+  ([form] (analyze form (ana.jvm/empty-env) {}))
+  ([form env] (analyze form env {}))
+  ([form env opts]
+   (env/ensure (ana.jvm/global-env)
+     (-> (analyze-one (merge env (select-keys (meta form) [:line :column :ns :file])) form opts)
+         uniquify-locals))))
+
 (defn analyze-form
   ([form] (analyze-form form {}))
-  ([form opt]
-   (env/ensure (ana.jvm/global-env)
-     (-> (analyze-one (merge (taj/empty-env) (select-keys (meta form) [:line :column :ns :file])) form opt)
-         uniquify-locals))))
+  ([form opt] (analyze form (ana.jvm/empty-env) opt)))
 
 (defmacro ast
   "Returns the abstract syntax tree representation of the given form,
@@ -399,7 +404,8 @@
     (let [b (analysis->map (.b expr) env opt)
           form (:name b)]
       (assert (symbol? form))
-      (assert (contains? (:locals env) form))
+      (assert (contains? (:locals env) form)
+              (str form))
       ;(prn "LocalBindingExpr" env)
       (assoc (dissoc ((:locals env) form)
                      :init)
@@ -916,14 +922,7 @@
   Compiler$FnExpr
   (analysis->map
     [expr env opt]
-    (let [variadic-method (when-let [variadic-method (.variadicMethod expr)]
-                            (analysis->map variadic-method env opt))
-          once (field-accessor Compiler$ObjExpr 'onceOnly expr)
-          menv (assoc env :once once)
-          methods-no-variadic (mapv #(analysis->map % menv opt) (.methods expr))
-          methods (into methods-no-variadic
-                        (when variadic-method
-                          [variadic-method]))
+    (let [once (field-accessor Compiler$ObjExpr 'onceOnly expr)
           this-name (when-let [nme (.thisName expr)]
                       (symbol nme))
           this (when this-name
@@ -932,6 +931,16 @@
                   :form this-name
                   :name this-name
                   :local :fn})
+          menv (assoc env :once once)
+          menv (if this
+                 (update-in menv [:locals] assoc (:name this) this)
+                 menv)
+          variadic-method (when-let [variadic-method (.variadicMethod expr)]
+                            (analysis->map variadic-method menv opt))
+          methods-no-variadic (mapv #(analysis->map % menv opt) (.methods expr))
+          methods (into methods-no-variadic
+                        (when variadic-method
+                          [variadic-method]))
           fixed-arities (seq (map :fixed-arity methods-no-variadic))
           max-fixed-arity (when fixed-arities (apply max fixed-arities))]
       (merge
