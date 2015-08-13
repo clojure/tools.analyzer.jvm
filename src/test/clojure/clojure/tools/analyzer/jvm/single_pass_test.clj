@@ -105,7 +105,7 @@
            :type :nil, :literal? true, :val nil, :form nil, :top-level true})))
 
 (deftest BooleanExpr-test
-  (is (= #{:tag :o-tag}
+  (is (= #{:tag :o-tag :eval-fn}
          (leaf-diff
            (ast true)
            (taj true))
@@ -124,47 +124,29 @@
 
 
 (deftest ConstantExpr-test
-  (is (= (ast 'sym)
-         (taj 'sym)
-         #_{:op :quote
-          :tag clojure.lang.Symbol
-          :literal? true
-          :top-level true
-          :o-tag clojure.lang.Symbol
-          :env {:context :ctx/expr, 
-                :locals {}, 
-                :ns 'clojure.tools.analyzer.jvm.single-pass-test
-                :file "clojure/tools/analyzer/jvm/single_pass_test.clj"}, 
-          :form '(quote sym)
-          :expr
-          {:val 'sym, 
-           :tag clojure.lang.Symbol
-           :o-tag clojure.lang.Symbol
-           :form 'sym
-           :type :symbol,
-           :op :const, 
-           :env {:context :ctx/expr, 
-                 :locals {}, 
-                 :ns 'clojure.tools.analyzer.jvm.single-pass-test
-                 :file "clojure/tools/analyzer/jvm/single_pass_test.clj"}, 
-           :literal? true}
-          :children [:expr]}))
-  ;; FIXME 'nil doesn't do what you'd expect
-  #_(is (= (ast 'nil)
-         (taj 'nil)))
-  ;; FIXME '1 doesn't do what you'd expect
-  (is (= (:op (ast '1))
-         (taj '''1)))
+  ;; these don't match
+  (is (and (= (emit-form (ast 'nil))
+              'nil)
+           (= (emit-form (taj 'nil))
+              '(quote nil))))
+  ;; but they evaluate to the same thing anyway
+  (is (= ((:eval-fn (ast 'nil)))
+         (eval (emit-form (ast 'nil)))
+         (eval (emit-form (taj 'nil)))))
+  (is (= (emit-form (ast ''nil))
+         (emit-form (taj ''nil))))
+  (is (= ((:eval-fn (ast ''nil)))
+         (eval (emit-form (ast ''nil)))
+         (eval (emit-form (taj ''nil)))))
   ;; (not= #"" #""), so :val and :form will not match
   (is (let [[l] (diff (ast '#"")
                       (taj '#""))]
-        (= #{:val :form}
+        (= #{:val :form :eval-fn}
            (leaf-keys l))))
-  ;; Difference: tag for Compiler is APersistentMap, but t.a.j is PersistentArrayMap
-  ; single quote is lost in Compiler
-  (is (ppdiff
-        (ast '{:a 1})
-        (taj '{:a 1})))
+  (is (= #{:eval-fn}
+         (leaf-diff
+           (ast '{:a 1})
+           (taj '{:a 1}))))
   (is (= ((:eval-fn (ast 'refer)))
          (eval (emit-form (ast 'refer)))
          (eval (emit-form (taj 'refer)))))
@@ -183,59 +165,65 @@
   (is (= ((:eval-fn (ast ''1)))
          (eval (emit-form (ast ''1)))
          (eval (emit-form (taj ''1)))))
-  (is (ppdiff
-        (ast ''1)
-        (taj ''1)))
+  (is (= #{:o-tag :tag :eval-fn}
+         (leaf-diff
+           (ast ''1)
+           (taj ''1))))
   (is (= ((:eval-fn (ast {:a ''1})))
          (eval (emit-form (ast {:a ''1})))
          (eval (emit-form (taj {:a ''1})))))
-  (is (= (emit-form (ast {:a ''1}))
-         (emit-form (taj {:a ''1}))))
+  ;; subtle difference
+  (is (and (= (emit-form (ast {:a ''1}))
+              '(quote {:a (quote 1)}))
+           (= (emit-form (taj {:a ''1}))
+              '{:a (quote (quote 1))})))
+  (is (= ((:eval-fn (ast {:a ''1})))
+         (eval (emit-form (ast {:a ''1})))
+         (eval (emit-form (taj {:a ''1})))))
+  (is (= ((:eval-fn (ast {:a '''1})))
+         (eval (emit-form (ast {:a '''1})))
+         (eval (emit-form (taj {:a '''1})))))
   (is (= ((:eval-fn (ast {:a 1})))
          (eval (emit-form (ast {:a 1})))
          (eval (emit-form (taj {:a '1})))))
-  (is (= (eval (emit-form (ast {:a '1})))
+  (is (= ((:eval-fn (ast {:a '1})))
+         (eval (emit-form (ast {:a '1})))
          (eval (emit-form (taj {:a 1})))))
   (is (= #{:eval-fn}
-         (ppdiff
+         (leaf-diff
            (ast 'refer)
            (taj 'refer))))
   (is (= #{:eval-fn}
-         (ppdiff
+         (leaf-diff
            (ast ':refer)
            (taj ':refer))))
-  (is (= #{:eval-fn}
-         (ppdiff
-           (ast {:a 'refer})
-           (taj {:a 'refer}))))
-  (is (= (:op (taj {:a 'refer}))
-         :const))
-  (is (= (:form (taj {:a '1}))
-         :const))
-  (is (= (:form (ast {:a '1}))
-         :quote))
-  (is (= :quote
-         (:op (ast '{:a 1}))))
-  (is (= :quote
-         (:op (ast {:a 1}))))
-  (is (= (:op (taj '1))
-         (:op (ast '1))))
-  (is (= (:op (taj 1))
-         (:op (ast 1))))
+  (is (and
+        (= (:op (ast {:a 'refer}))
+           :quote)
+        (= (:op (taj {:a 'refer}))
+           :const)))
+  ;; these are identical for some reason
   (is (= (emit-form (ast '{:a 1}))
-         (emit-form (ast {:a 1}))))
+         (emit-form (ast {:a 1}))
+         (emit-form (taj '{:a 1}))))
   (is (= :quote
          (:op (ast ''{:a 1}))))
-  (is (= :quote
-         (emit-form (ast {:a '(ns fooblah)}))))
-  ;;FIXME
-  #_(is (= (taj '"")
-         (ast '"")))
-  ;;FIXME
-  #_(is (= (ast 1N)
-         (taj 1N)))
-  (is (= (ast '1N)
-         (taj '1N)))
+  (is (= (emit-form (ast {:a '(ns fooblah)}))
+         (emit-form (taj {:a '(ns fooblah)}))))
+  (is (and (= (emit-form (ast '""))
+              '"")
+           (= (emit-form (taj '""))
+              '(quote ""))))
+  (is (= ((:eval-fn (ast '"")))
+         (eval (emit-form (ast '"")))
+         (eval (emit-form (taj '"")))))
+  (is (and (= (emit-form (ast 1N))
+              '(quote 1N))
+           (= (emit-form (taj 1N))
+              '1N)))
+  (is (= ((:eval-fn (ast '1N)))
+         (eval (emit-form (ast '1N)))
+         (eval (emit-form (taj '1N)))))
   )
 
 

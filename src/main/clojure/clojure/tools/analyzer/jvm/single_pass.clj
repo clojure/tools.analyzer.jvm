@@ -230,9 +230,7 @@
     [expr env opt]
     (let [val (.eval expr)
           ; used as :form for emit-form
-          parsed-val (parse-constant val)
           _ (prn "Constant val" val)
-          _ (prn "Constant parsed val" parsed-val (class parsed-val))
           ;; t.a.j is much more specific with things like maps. 
           ;; eg. Compiler returns APersistentMap, but t.a.j has PersistentArrayMap
           tag (tag-for-val val)
@@ -245,16 +243,14 @@
                  :type (u/classify val)
                  :env env
                  :val val}]
-      (if (quoted-list? parsed-val)
-        {:op :quote
-         :form parsed-val
-         :literal? true
-         :env env
-         :tag tag
-         :o-tag tag
-         :expr inner
-         :children [:expr]}
-        inner))))
+      {:op :quote
+       :form (list 'quote val)
+       :literal? true
+       :env env
+       :tag tag
+       :o-tag tag
+       :expr inner
+       :children [:expr]})))
 
 (extend-protocol AnalysisToMap
 
