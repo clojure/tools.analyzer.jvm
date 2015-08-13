@@ -363,7 +363,7 @@
     (let [init (when-let [init (.init lb)]
                  (analysis->map init env opt))
           form (.sym lb)
-          tag (.tag lb)]
+          tag (ju/maybe-class (.tag lb))]
       {:op :local
        :name form
        :form form
@@ -484,7 +484,7 @@
           method (when-let [method (field Compiler$StaticMethodExpr method expr)]
                    (@#'reflect/method->map method))
           method-name (symbol (field Compiler$StaticMethodExpr methodName expr))
-          tag (field Compiler$StaticMethodExpr tag expr)
+          tag (ju/maybe-class (field Compiler$StaticMethodExpr tag expr))
           c (field Compiler$StaticMethodExpr c expr)]
       (merge
         {:op :static-call
@@ -519,7 +519,7 @@
           method-name (symbol (field Compiler$InstanceMethodExpr methodName expr))
           method (when-let [method (field Compiler$InstanceMethodExpr method expr)]
                    (@#'reflect/method->map method))
-          tag (field Compiler$InstanceMethodExpr tag expr)]
+          tag (ju/maybe-class (field Compiler$InstanceMethodExpr tag expr))]
       (merge
         {:op :instance-call
          :form (list '. (emit-form/emit-form target)
@@ -545,7 +545,7 @@
   Compiler$StaticFieldExpr
   (analysis->map
     [expr env opt]
-    (let [tag (field Compiler$StaticFieldExpr tag expr)
+    (let [tag (ju/maybe-class (field Compiler$StaticFieldExpr tag expr))
           c (field Compiler$StaticFieldExpr c expr)
           fstr (field Compiler$StaticFieldExpr fieldName expr)]
       {:op :static-field
@@ -572,7 +572,7 @@
     [expr env opt]
     (let [target (analysis->map (field Compiler$InstanceFieldExpr target expr) env opt)
           fstr (field Compiler$InstanceFieldExpr fieldName expr)
-          tag (field Compiler$InstanceFieldExpr tag expr)]
+          tag (ju/maybe-class (field Compiler$InstanceFieldExpr tag expr))]
       {:op :instance-field
        :form (list (symbol (str ".-" fstr)) (emit-form/emit-form target))
        :env (env-location env expr)
@@ -755,7 +755,7 @@
     (let [fexpr (analysis->map (field Compiler$InvokeExpr fexpr expr) env opt)
           args (mapv #(analysis->map % env opt) (field Compiler$InvokeExpr args expr))
           env (env-location env expr)
-          tag (field Compiler$InvokeExpr tag expr)
+          tag (ju/maybe-class (field Compiler$InvokeExpr tag expr))
           form (list* (emit-form/emit-form fexpr) (map emit-form/emit-form args))]
       (cond
         ;; TAJ always compiles :keyword-invoke sites where possible, Compiler.java
@@ -842,7 +842,7 @@
     [expr env opt]
     (let [^clojure.lang.Var var (.var expr)
           meta (meta var)
-          tag (.tag expr)]
+          tag (ju/maybe-class (.tag expr))]
       {:op :var
        :env env
        :var var
@@ -1016,7 +1016,7 @@
                           [variadic-method]))
           fixed-arities (seq (map :fixed-arity methods-no-variadic))
           max-fixed-arity (when fixed-arities (apply max fixed-arities))
-          tag (.tag expr)]
+          tag (ju/maybe-class(.tag expr))]
       (merge
         {:op :fn
          :env (env-location env expr)
@@ -1082,7 +1082,7 @@
                                 (.getDeclaringClass m))
                               (vals (field Compiler$NewInstanceExpr mmap expr)))
                          [clojure.lang.IType]))
-          tag (.tag expr)]
+          tag (ju/maybe-class (.tag expr))]
       ;(prn :compiled-class (.compiledClass expr))
       ;(prn :internal-name (.internalName expr))
       ;(prn :this-name (.thisName expr))
