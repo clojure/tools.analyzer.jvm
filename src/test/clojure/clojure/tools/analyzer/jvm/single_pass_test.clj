@@ -645,8 +645,13 @@
 
 (deftest ns-form-test
   (is (-> (ast (ns foo)) emit-form))
-  (is (-> (ast {:form '(ns foo)}) :val))
+  #_(is (-> (ast {:form '(ns foo)}) :val))
   )
+
+(deftest KeywordInvoke-test
+  (is (= ((:eval-fn (ast (#(:a %) {:a 1}))))
+         (eval (emit-form (ast (#(:a %) {:a 1}))))
+         (eval (emit-form (taj (#(:a %) {:a 1})))))))
 
 (defmacro juxt-ast [f]
   `(do (time (si/analyze-one (ana.jvm/empty-env) '~f))

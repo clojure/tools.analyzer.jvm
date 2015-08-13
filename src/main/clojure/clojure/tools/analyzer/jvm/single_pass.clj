@@ -729,13 +729,6 @@
   ;         [:args "A vector of AST nodes representing the args to the function"]
   ;         ^:optional
   ;         [:meta "Map of metadata attached to the invoke :form"]]}
-  ; {:op   :keyword-invoke
-  ;  :doc  "Node for an invoke expression where the fn is a not-namespaced keyword and thus a keyword callsite can be emitted"
-  ;  :keys [[:form "`(:k instance)`"]
-  ;         ^:children
-  ;         [:keyword "An AST node representing the keyword to lookup in the instance"]
-  ;         ^:children
-  ;         [:target "An AST node representing the instance to lookup the keyword in"]]}
   Compiler$InvokeExpr
   (analysis->map
     [expr env opt]
@@ -745,9 +738,12 @@
           tag (field Compiler$InvokeExpr tag expr)
           form (list* (emit-form/emit-form fexpr) (map emit-form/emit-form args))]
       (cond
-        (and (== 1 (count args))
+        ;; TAJ always compiles :keyword-invoke sites where possible, Compiler.java
+        ;; only compiles when inside a function body. We follow Compiler.java, there's
+        ;; not much difference anyway, except for the TEJ output.
+        #_(and (== 1 (count args))
              (keyword? (:val fexpr)))
-        {:op :keyword-invoke
+        #_{:op :keyword-invoke
          :form form
          :env env
          :keyword fexpr
@@ -773,22 +769,30 @@
         ;(when-let [m (field Compiler$InvokeExpr onMethod expr)]
         ;  {:method (@#'reflect/method->map m)})
 
+  ; {:op   :keyword-invoke
+  ;  :doc  "Node for an invoke expression where the fn is a not-namespaced keyword and thus a keyword callsite can be emitted"
+  ;  :keys [[:form "`(:k instance)`"]
+  ;         ^:children
+  ;         [:keyword "An AST node representing the keyword to lookup in the instance"]
+  ;         ^:children
+  ;         [:target "An AST node representing the instance to lookup the keyword in"]]}
   Compiler$KeywordInvokeExpr
   (analysis->map
     [expr env opt]
-    (assert nil "KeywordExpr")
-    #_(let [target (analysis->map (field Compiler$KeywordInvokeExpr target expr) env opt)
-          kw (analysis->map (field Compiler$KeywordInvokeExpr kw expr) env opt)]
-      (merge
-        {:op :keyword-invoke
-         :env (env-location env expr)
-         :kw kw
-         :tag (field Compiler$KeywordInvokeExpr tag expr)
-         :target target}
-        (when (:children opt)
-          {:children [[[:target] {}]]})
-        (when (:java-obj opt)
-          {:Expr-obj expr}))))
+    (let [target (analysis->map (field Compiler$KeywordInvokeExpr target expr) env opt)
+          _ (prn "before kw")
+          kw (analysis->map (field Compiler$KeywordInvokeExpr kw expr) env opt)
+          tag (ju/maybe-class (field Compiler$KeywordInvokeExpr tag expr))
+          _ (prn "after tag")
+          form (list (emit-form/emit-form kw) (emit-form/emit-form target))]
+      {:op :keyword-invoke
+       :form form
+       :env (env-location env expr)
+       :keyword kw
+       :tag tag
+       :o-tag tag
+       :target target
+       :children [:keyword :target]}))
 
   ;; TheVarExpr
   ; {:op   :the-var
