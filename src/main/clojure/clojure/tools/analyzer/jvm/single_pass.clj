@@ -800,10 +800,8 @@
   (analysis->map
     [expr env opt]
     (let [target (analysis->map (field Compiler$KeywordInvokeExpr target expr) env opt)
-          _ (prn "before kw")
           kw (analysis->map (field Compiler$KeywordInvokeExpr kw expr) env opt)
           tag (ju/maybe-class (field Compiler$KeywordInvokeExpr tag expr))
-          _ (prn "after tag")
           form (list (emit-form/emit-form kw) (emit-form/emit-form target))]
       {:op :keyword-invoke
        :form form
