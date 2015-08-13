@@ -153,16 +153,81 @@
   #_(is (= (ast 'nil)
          (taj 'nil)))
   ;; FIXME '1 doesn't do what you'd expect
-  #_(is (= (ast '1)
-         (taj '1)))
+  (is (= (:op (ast '1))
+         (taj '''1)))
   ;; (not= #"" #""), so :val and :form will not match
   (is (let [[l] (diff (ast '#"")
                       (taj '#""))]
         (= #{:val :form}
            (leaf-keys l))))
   ;; Difference: tag for Compiler is APersistentMap, but t.a.j is PersistentArrayMap
-  (is (= (taj '{:a 1})
-         (ast '{:a 1})))
+  ; single quote is lost in Compiler
+  (is (ppdiff
+        (ast '{:a 1})
+        (taj '{:a 1})))
+  (is (= ((:eval-fn (ast 'refer)))
+         (eval (emit-form (ast 'refer)))
+         (eval (emit-form (taj 'refer)))))
+  (is (= ((:eval-fn (ast '{})))
+         (eval (emit-form (ast '{})))
+         (eval (emit-form (taj '{})))))
+  (is (= ((:eval-fn (ast {})))
+         (eval (emit-form (ast {})))
+         (eval (emit-form (taj {})))))
+  (is (= ((:eval-fn (ast {:a 1})))
+         (eval (emit-form (ast {:a 1})))
+         (eval (emit-form (taj {:a 1})))))
+  (is (= ((:eval-fn (ast {:a '1})))
+         (eval (emit-form (ast {:a '1})))
+         (eval (emit-form (taj {:a '1})))))
+  (is (= ((:eval-fn (ast ''1)))
+         (eval (emit-form (ast ''1)))
+         (eval (emit-form (taj ''1)))))
+  (is (ppdiff
+        (ast ''1)
+        (taj ''1)))
+  (is (= ((:eval-fn (ast {:a ''1})))
+         (eval (emit-form (ast {:a ''1})))
+         (eval (emit-form (taj {:a ''1})))))
+  (is (= (emit-form (ast {:a ''1}))
+         (emit-form (taj {:a ''1}))))
+  (is (= ((:eval-fn (ast {:a 1})))
+         (eval (emit-form (ast {:a 1})))
+         (eval (emit-form (taj {:a '1})))))
+  (is (= (eval (emit-form (ast {:a '1})))
+         (eval (emit-form (taj {:a 1})))))
+  (is (= #{:eval-fn}
+         (ppdiff
+           (ast 'refer)
+           (taj 'refer))))
+  (is (= #{:eval-fn}
+         (ppdiff
+           (ast ':refer)
+           (taj ':refer))))
+  (is (= #{:eval-fn}
+         (ppdiff
+           (ast {:a 'refer})
+           (taj {:a 'refer}))))
+  (is (= (:op (taj {:a 'refer}))
+         :const))
+  (is (= (:form (taj {:a '1}))
+         :const))
+  (is (= (:form (ast {:a '1}))
+         :quote))
+  (is (= :quote
+         (:op (ast '{:a 1}))))
+  (is (= :quote
+         (:op (ast {:a 1}))))
+  (is (= (:op (taj '1))
+         (:op (ast '1))))
+  (is (= (:op (taj 1))
+         (:op (ast 1))))
+  (is (= (emit-form (ast '{:a 1}))
+         (emit-form (ast {:a 1}))))
+  (is (= :quote
+         (:op (ast ''{:a 1}))))
+  (is (= :quote
+         (emit-form (ast {:a '(ns fooblah)}))))
   ;;FIXME
   #_(is (= (taj '"")
          (ast '"")))
@@ -254,6 +319,8 @@
        (leaf-diff
          (ast (Exception.))
          (taj (Exception.)))))
+  (is (= (emit-form (ast (Exception.)))
+         '(new java.lang.Exception)))
   (is 
     (= #{:line :raw-forms}
        (leaf-diff
@@ -262,14 +329,25 @@
          (taj (java.io.File. "a"))))))
 
 (deftest VarExpr-test
-  (is (= #{:tag :o-tag}
+  (is (= #{:tag :o-tag :eval-fn}
          (leaf-diff
            (ast +)
-           (taj +)))))
+           (taj +))))
+  (is (=
+       (:op (ast +))
+       (:op (taj +))))
+  (is (=
+       (:form (ast +))
+       (emit-form (ast +))
+       'clojure.core/+)))
 
 (deftest TheVarExpr-test
   (is (= (ast #'+)
-         (taj #'+))))
+         (taj #'+)))
+  (is (= (:form (ast #'+))
+         (emit-form (ast #'+))
+         '(var clojure.core/+)))
+  )
 
 (deftest InstanceOfExpr-test
   (is (= 
@@ -294,7 +372,14 @@
 (deftest MetaExpr-test
   (is (= 
         (:op (ast ^:a #()))
-        (:op (taj ^:a #())))))
+        (:op (taj ^:a #()))))
+  (is (= 
+        (emit-form (:meta (ast ^:a #())))
+        (emit-form (:meta (taj ^:a #())))))
+  (is 
+    (= {:a true}
+       (meta (emit-form (ast ^:a #())))))
+  )
 
 (deftest IfExpr-test
   (is 
@@ -571,7 +656,9 @@
          (-> (taj (letfn [(a [])])) emit-form))))
 
 (deftest ns-form-test
-  (is (-> (ast (ns foo)) emit-form)))
+  (is (-> (ast (ns foo)) emit-form))
+  (is (-> (ast {:form '(ns foo)}) :val))
+  )
 
 (defmacro juxt-ast [f]
   `(do (time (si/analyze-one (ana.jvm/empty-env) '~f))

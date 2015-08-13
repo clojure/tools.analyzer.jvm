@@ -12,8 +12,12 @@
                          Compiler$NewInstanceExpr Compiler$MetaExpr Compiler$BodyExpr Compiler$ImportExpr Compiler$AssignExpr
                          Compiler$TryExpr$CatchClause Compiler$TryExpr Compiler$C Compiler$LocalBindingExpr Compiler$RecurExpr
                          Compiler$MapExpr Compiler$IfExpr Compiler$KeywordInvokeExpr Compiler$InstanceFieldExpr Compiler$InstanceOfExpr
-                         Compiler$CaseExpr Compiler$Expr Compiler$SetExpr Compiler$MethodParamExpr Compiler$KeywordExpr
+                         Compiler$CaseExpr Compiler$Expr Compiler$SetExpr Compiler$MethodParamExpr 
+
+                         Compiler$LiteralExpr
+                         Compiler$KeywordExpr
                          Compiler$ConstantExpr Compiler$NumberExpr Compiler$NilExpr Compiler$BooleanExpr Compiler$StringExpr
+
                          Compiler$ObjMethod Compiler$Expr))
   (:require [clojure.reflect :as reflect]
             [clojure.java.io :as io]
@@ -174,15 +178,35 @@
           :val v#
           :form v#}))))
 
-(literal-dispatch Compiler$KeywordExpr :keyword)
-(literal-dispatch Compiler$NumberExpr :number)
-(literal-dispatch Compiler$StringExpr :string)
-(literal-dispatch Compiler$NilExpr :nil)
-(literal-dispatch Compiler$BooleanExpr :bool)
+#_(literal-dispatch Compiler$KeywordExpr :keyword)
+#_(literal-dispatch Compiler$NumberExpr :number)
+#_(literal-dispatch Compiler$StringExpr :string)
+#_(literal-dispatch Compiler$NilExpr :nil)
+#_(literal-dispatch Compiler$BooleanExpr :bool)
+
 (literal-dispatch Compiler$EmptyExpr nil)
 
+(defn quoted-list? [val]
+  (boolean
+    (and (list? val)
+         (#{2} (count val))
+         (#{'quote} (first val)))))
+
+(defn parse-constant [val]
+  (cond
+    (list? val) (if (or (empty? val)
+                        (quoted-list? val))
+                  val
+                  (list 'quote val))
+    (coll? val) (into (empty val)
+                      (for [[k v] val]
+                        [(parse-constant k)
+                         (parse-constant v)]))
+    (symbol? val) (list 'quote val)
+    :else val))
+
 (extend-protocol AnalysisToMap
-  Compiler$ConstantExpr
+  Compiler$LiteralExpr
   (analysis->map
     [expr env opt]
     (let [val (.eval expr)
@@ -198,14 +222,39 @@
                  :type (u/classify val)
                  :env env
                  :val val}]
-      {:op :quote
-       :form (list 'quote val)
-       :literal? true
-       :env env
-       :tag tag
-       :o-tag tag
-       :expr inner
-       :children [:expr]})))
+      inner))
+
+  ;; a ConstantExpr is always originally quoted.
+  Compiler$ConstantExpr
+  (analysis->map
+    [expr env opt]
+    (let [val (.eval expr)
+          ; used as :form for emit-form
+          parsed-val (parse-constant val)
+          _ (prn "Constant val" val)
+          _ (prn "Constant parsed val" parsed-val (class parsed-val))
+          ;; t.a.j is much more specific with things like maps. 
+          ;; eg. Compiler returns APersistentMap, but t.a.j has PersistentArrayMap
+          tag (tag-for-val val)
+                #_(method-accessor (class expr) 'getJavaClass expr [])
+          inner {:op :const
+                 :form val
+                 :tag tag
+                 :o-tag tag
+                 :literal? true
+                 :type (u/classify val)
+                 :env env
+                 :val val}]
+      (if (quoted-list? parsed-val)
+        {:op :quote
+         :form parsed-val
+         :literal? true
+         :env env
+         :tag tag
+         :o-tag tag
+         :expr inner
+         :children [:expr]}
+        inner))))
 
 (extend-protocol AnalysisToMap
 
@@ -757,7 +806,7 @@
       {:op :the-var
        :tag clojure.lang.Var
        :o-tag clojure.lang.Var
-       :form (list 'var (.sym var))
+       :form (list 'var (symbol (str (ns-name (.ns var))) (str (.sym var))))
        :env env
        :var var}))
 
@@ -781,7 +830,8 @@
        :tag tag
        :assignable? (boolean (:dynamic meta))
        :arglists (:arglists meta)
-       :form (.sym var)}))
+       :form (symbol (str (ns-name (.ns var)))
+                     (str (.sym var)))}))
 
   ;; UnresolvedVarExpr
   Compiler$UnresolvedVarExpr
@@ -1349,21 +1399,30 @@
 (defn- analyze*
   "Must be called after binding the appropriate Compiler and RT dynamic Vars."
   ([env form] (analyze* env form {}))
-  ([env form opt]
+  ([env form opts]
    (let [context (keyword->Context (:context env))
          expr-ast (try
                     (Compiler/analyze context form)
                     (catch RuntimeException e
-                      (throw (repl/root-cause e))))
-         ;_ (method-accessor (class expr-ast) 'eval expr-ast [])
-         ]
-     (-> (analysis->map expr-ast 
-                        (merge env
-                               (when-let [file (and (not= *file* "NO_SOURCE_FILE")
-                                                    *file*)]
-                                 {:file file}))
-                        opt)
-         (assoc :top-level true)))))
+                      (throw (repl/root-cause e))))]
+     (with-bindings (merge {Compiler/LOADER     (RT/makeClassLoader)
+                            ;#'ana/macroexpand-1 macroexpand-1
+                            ;#'ana/create-var    create-var
+                            ;#'ana/parse         parse
+                            ;#'ana/var?          var?
+                            ;#'elides            (merge {:fn    #{:line :column :end-line :end-column :file :source}
+                            ;                            :reify #{:line :column :end-line :end-column :file :source}}
+                            ;                           elides)
+                            #'*ns*              (the-ns (:ns env))}
+                           (:bindings opts))
+       (-> (analysis->map expr-ast 
+                          (merge env
+                                 (when-let [file (and (not= *file* "NO_SOURCE_FILE")
+                                                      *file*)]
+                                   {:file file}))
+                          opts)
+           (assoc :top-level true
+                  :eval-fn #(method-accessor (class expr-ast) 'eval expr-ast [])))))))
 
 (defn analyze-one
   "Analyze a single form"
@@ -1453,7 +1512,7 @@
              out []]
         (if (identical? form eof)
           out
-          (let [env {:ns {:name (ns-name *ns*)}
+          (let [env {:ns (ns-name *ns*)
                      :source-path source-path
                      :locals {}}
                 expr-ast (Compiler/analyze (keyword->Context :eval) form)
