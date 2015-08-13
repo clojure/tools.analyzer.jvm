@@ -230,7 +230,7 @@
     [expr env opt]
     (let [val (.eval expr)
           ; used as :form for emit-form
-          _ (prn "Constant val" val)
+          ;_ (prn "Constant val" val)
           ;; t.a.j is much more specific with things like maps. 
           ;; eg. Compiler returns APersistentMap, but t.a.j has PersistentArrayMap
           tag (tag-for-val val)
