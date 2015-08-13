@@ -342,6 +342,8 @@
              :env (inherit-env body top-env)
              :bindings binds
              :body body
+             :tag (:tag body)
+             :o-tag (:o-tag body)
              :children [:bindings :body]})))))
 
   ;{:op   :local
@@ -360,12 +362,14 @@
     [lb env opt]
     (let [init (when-let [init (.init lb)]
                  (analysis->map init env opt))
-          form (.sym lb)]
+          form (.sym lb)
+          tag (.tag lb)]
       {:op :local
        :name form
        :form form
        :env (inherit-env init env)
-       :tag (.tag lb)
+       :tag tag
+       :o-tag tag
        :atom (atom {})
        :children nil}))
 
@@ -395,6 +399,8 @@
        :form name
        :name name
        :env (inherit-env init env)
+       :tag (:tag init)
+       :o-tag (:o-tag init)
        :local :unknown
        :init init
        :children [:init]}))
@@ -439,6 +445,8 @@
        :env (inherit-env body env)
        :bindings binding-inits
        :body body
+       :tag (:tag body)
+       :o-tag (:o-tag body)
        :children [:bindings :body]}))
 
   ;; LocalBindingExpr
@@ -631,6 +639,8 @@
        :env env
        :form `#{~@(map emit-form/emit-form keys)}
        :items keys
+       :tag clojure.lang.IPersistentSet
+       :o-tag clojure.lang.IPersistentSet
        :children [:items]}))
 
   ;; vector literal
@@ -647,6 +657,8 @@
        :env env
        :form `[~@(map emit-form/emit-form args)]
        :items args
+       :tag clojure.lang.IPersistentVector
+       :o-tag clojure.lang.IPersistentVector
        :children [:items]}))
 
   ;; map literal
@@ -675,6 +687,8 @@
                      vs))
        :keys ks
        :vals vs
+       :tag clojure.lang.IPersistentMap
+       :o-tag clojure.lang.IPersistentMap
        :children [:keys :vals]}))
 
   ;; Untyped
@@ -686,6 +700,8 @@
        :env env
        :form (list 'monitor-enter (emit-form/emit-form target))
        :target target
+       :tag nil
+       :o-tag nil
        :children [:target]}))
 
   Compiler$MonitorExitExpr
@@ -702,6 +718,8 @@
          :env env
          :form (list 'monitor-exit (emit-form/emit-form target))
          :target target
+         :tag nil
+         :o-tag nil
          :children [:target]})))
 
   Compiler$ThrowExpr
@@ -717,6 +735,8 @@
        :form (list 'throw (emit-form/emit-form exception))
        :env env
        :exception exception
+       :tag nil
+       :o-tag nil
        :children [:exception]}))
 
   ;; Invokes
@@ -828,6 +848,7 @@
        :var var
        :meta meta
        :tag tag
+       :o-tag tag
        :assignable? (boolean (:dynamic meta))
        :arglists (:arglists meta)
        :form (symbol (str (ns-name (.ns var)))
@@ -907,6 +928,8 @@
        :fixed-arity (count params)
        :params params
        :body body
+       :tag (:tag body)
+       :o-tag (:o-tag body)
        :children [:this :params :body]}))
 
   ; {:op   :fn-method
@@ -992,16 +1015,20 @@
                         (when variadic-method
                           [variadic-method]))
           fixed-arities (seq (map :fixed-arity methods-no-variadic))
-          max-fixed-arity (when fixed-arities (apply max fixed-arities))]
+          max-fixed-arity (when fixed-arities (apply max fixed-arities))
+          tag (.tag expr)]
       (merge
         {:op :fn
          :env (env-location env expr)
-         ;FIXME
-         ;:form (list 'fn* (map emit-form/emit-form methods))
+         :form (list* 'fn* 
+                      (concat
+                        (when this
+                          [(emit-form/emit-form this)])
+                        (map emit-form/emit-form methods)))
          :methods methods
          :variadic? (boolean variadic-method)
-         :tag   clojure.lang.AFunction #_(.tag expr)
-         :o-tag clojure.lang.AFunction #_(.tag expr)
+         :tag   tag
+         :o-tag tag
          :max-fixed-arity max-fixed-arity
          :once once
          :children (vec
@@ -1054,7 +1081,8 @@
                          (map (fn [^java.lang.reflect.Method m]
                                 (.getDeclaringClass m))
                               (vals (field Compiler$NewInstanceExpr mmap expr)))
-                         [clojure.lang.IType]))]
+                         [clojure.lang.IType]))
+          tag (.tag expr)]
       ;(prn :compiled-class (.compiledClass expr))
       ;(prn :internal-name (.internalName expr))
       ;(prn :this-name (.thisName expr))
@@ -1081,7 +1109,8 @@
        ;(Vec Symbol)
        ;:hinted-fields (field Compiler$ObjExpr hintedFields expr)
        ;:covariants (field Compiler$NewInstanceExpr covariants expr)
-       :tag (.tag expr)
+       :tag tag
+       :o-tag tag
        :children [:fields :methods]}))
 
   ;; InstanceOfExpr
@@ -1117,12 +1146,19 @@
   (analysis->map
     [expr env opt]
     (let [meta (analysis->map (.meta expr) env opt)
+          meta (if (#{:quote} (:op meta))
+                 (:expr meta)
+                 meta)
+          _ (assert (#{:const :map} (:op meta))
+                    (str "MetaExpr :meta must be a :const or :map node"))
           the-expr (analysis->map (.expr expr) env opt)]
       {:op :with-meta
        :env env
        :form (emit-form/emit-form the-expr) ;FIXME add meta
        :meta meta
        :expr the-expr
+       :tag (:tag the-expr)
+       :o-tag (:o-tag the-expr)
        :children [:meta :children]}))
 
   ;; do
@@ -1166,13 +1202,17 @@
     [expr env opt]
     (let [test (analysis->map (.testExpr expr) env opt)
           then (analysis->map (.thenExpr expr) env opt)
-          else (analysis->map (.elseExpr expr) env opt)]
+          else (analysis->map (.elseExpr expr) env opt)
+          tag (when (.hasJavaClass expr)
+                (.getJavaClass expr))]
       {:op :if
        :env (env-location env expr)
        :form (list* 'if (map emit-form/emit-form [test then else]))
        :test test
        :then then
        :else else
+       :tag tag
+       :o-tag tag
        :children [:test :then :else]}))
 
   ;; case
@@ -1219,7 +1259,9 @@
                                                   :then     then-expr
                                                   :children [:then]})]))
                                 [[] []] tests-map)
-          default (analysis->map (.defaultExpr expr) env opt)]
+          default (analysis->map (.defaultExpr expr) env opt)
+          tag (when (.hasJavaClass expr)
+                (.getJavaClass expr))]
       {:op :case
        :env (env-location env expr)
        :test (assoc the-expr :case-test true)
@@ -1233,6 +1275,8 @@
        :switch-type (.switchType expr)
        :test-type (.testType expr)
        :skip-check? (.skipCheck expr)
+       :tag tag
+       :o-tag tag
        :children [:test :tests :thens :default]}))
 
 
@@ -1250,6 +1294,8 @@
        :env env
        :form (list 'clojure.core/import* c)
        :class c
+       :tag nil
+       :o-tag nil
        ; :validated? true ?
        }))
 
@@ -1264,7 +1310,9 @@
   (analysis->map
     [expr env opt]
     (let [target (analysis->map (.target expr) env opt)
-          val (analysis->map (.val expr) env opt)]
+          val (analysis->map (.val expr) env opt)
+          tag (when (.hasJavaClass expr)
+                (.getJavaClass expr))]
       {:op :set!
        :form (list 'set! 
                    (emit-form/emit-form target)
@@ -1272,6 +1320,8 @@
        :env env
        :target target
        :val val
+       :tag tag
+       :o-tag tag
        :children [:target :val]}))
 
   ;;TryExpr
@@ -1337,7 +1387,9 @@
           catch-exprs (mapv #(analysis->map % env opt) (.catchExprs expr))
           finally-expr (when-let [finally-expr (.finallyExpr expr)]
                          (assoc (analysis->map finally-expr env opt)
-                                :body? true))]
+                                :body? true))
+          tag (when (.hasJavaClass expr)
+                (.getJavaClass expr))]
       {:op :try
        :form (list* 'try 
                     (emit-form/emit-form try-expr)
@@ -1351,6 +1403,8 @@
        :finally finally-expr
        ;:ret-local (.retLocal expr)
        ;:finally-local (.finallyLocal expr)
+       :tag tag
+       :o-tag tag
        :children (into [:body :catches]
                        (when finally-expr
                          [:finally]))}))
@@ -1366,13 +1420,16 @@
   (analysis->map
     [expr env opt]
     (let [;loop-locals (map analysis->map (.loopLocals expr) (repeat env) (repeat opt))
-          args (mapv #(analysis->map % env opt) (.args expr))]
+          args (mapv #(analysis->map % env opt) (.args expr))
+          tag (.getJavaClass expr)]
       {:op :recur
        :form (list* 'recur (map emit-form/emit-form args))
        :env (env-location env expr)
        ;:loop-locals loop-locals
        :loop-id (:loop-id env)
        :exprs args
+       :tag tag
+       :o-tag tag
        :children [:exprs]}))
 
 ;; thrown away by NewInstanceMethod

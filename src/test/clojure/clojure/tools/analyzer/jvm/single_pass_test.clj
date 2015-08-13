@@ -362,11 +362,15 @@
         (:op (ast ^:a #()))
         (:op (taj ^:a #()))))
   (is (= 
-        (emit-form (:meta (ast ^:a #())))
-        (emit-form (:meta (taj ^:a #())))))
+        {:a true}
+        (select-keys (emit-form (:meta (ast ^:a #()))) [:a])
+        (select-keys (emit-form (:meta (taj ^:a #()))) [:a])))
   (is 
     (= {:a true}
        (meta (emit-form (ast ^:a #())))))
+  (is 
+    (= (meta (eval (emit-form (ast ^:a #()))))
+       {:a true}))
   )
 
 (deftest IfExpr-test
