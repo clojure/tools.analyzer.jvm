@@ -1451,31 +1451,50 @@
 (defmethod keyword->Context :ctx/return    [_] Compiler$C/RETURN)
 ;; :eval Compiler$C/EVAL
 
+;; requires clojure 1.7
+(defn ^:private analyzer-bindings-one [env]
+  {Compiler/LOADER (RT/makeClassLoader)
+   Compiler/SOURCE_PATH (:file env)
+   Compiler/SOURCE (:file env)
+   Compiler/METHOD nil
+   Compiler/LOCAL_ENV nil
+   Compiler/LOOP_LOCALS nil
+   Compiler/NEXT_LOCAL_NUM 0
+   #'*ns* (:ns env)
+   RT/READEVAL true
+   Compiler/LINE_BEFORE (:line env)
+   Compiler/LINE_AFTER (:line env)
+   RT/UNCHECKED_MATH @RT/UNCHECKED_MATH
+   #'*warn-on-reflection* *warn-on-reflection*
+   Compiler/COLUMN_BEFORE (:column env)
+   Compiler/COLUMN_AFTER (:column env)
+   RT/DATA_READERS @RT/DATA_READERS})
+
 (defn- analyze*
   "Must be called after binding the appropriate Compiler and RT dynamic Vars."
   ([env form] (analyze* env form {}))
   ([env form opts]
    (let [context (keyword->Context (:context env))
+         env (merge env
+                    (when-let [file (and (not= *file* "NO_SOURCE_FILE")
+                                         *file*)]
+                      {:file file}))
          expr-ast (try
-                    (Compiler/analyze context form)
+                    (with-bindings (analyzer-bindings-one env)
+                      (Compiler/analyze context form))
                     (catch RuntimeException e
                       (throw (repl/root-cause e))))]
-     (with-bindings (merge {Compiler/LOADER     (RT/makeClassLoader)
-                            ;#'ana/macroexpand-1 macroexpand-1
+     (with-bindings (merge {;#'ana/macroexpand-1 macroexpand-1
                             ;#'ana/create-var    create-var
                             ;#'ana/parse         parse
                             ;#'ana/var?          var?
                             ;#'elides            (merge {:fn    #{:line :column :end-line :end-column :file :source}
                             ;                            :reify #{:line :column :end-line :end-column :file :source}}
                             ;                           elides)
-                            #'*ns*              (the-ns (:ns env))}
+                            ;#'*ns*              (the-ns (:ns env))
+                            }
                            (:bindings opts))
-       (-> (analysis->map expr-ast 
-                          (merge env
-                                 (when-let [file (and (not= *file* "NO_SOURCE_FILE")
-                                                      *file*)]
-                                   {:file file}))
-                          opts)
+       (-> (analysis->map expr-ast env opts)
            (assoc :top-level true
                   :eval-fn #(method-accessor (class expr-ast) 'eval expr-ast [])))))))
 
