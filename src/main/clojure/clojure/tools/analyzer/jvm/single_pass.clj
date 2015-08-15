@@ -1454,20 +1454,20 @@
 ;; requires clojure 1.7
 (defn ^:private analyzer-bindings-one [env]
   {Compiler/LOADER (RT/makeClassLoader)
-   Compiler/SOURCE_PATH (:file env)
-   Compiler/SOURCE (:file env)
+   Compiler/SOURCE_PATH (or (:file env) "NO_SOURCE_PATH")
+   Compiler/SOURCE (or (:file env) "NO_SOURCE_PATH")
    Compiler/METHOD nil
    Compiler/LOCAL_ENV nil
    Compiler/LOOP_LOCALS nil
    Compiler/NEXT_LOCAL_NUM 0
    #'*ns* (the-ns (:ns env))
    RT/READEVAL true
-   Compiler/LINE_BEFORE (:line env)
-   Compiler/LINE_AFTER (:line env)
+   Compiler/LINE_BEFORE (or (:line env) 1)
+   Compiler/LINE_AFTER (or (:line env) 1)
    RT/UNCHECKED_MATH @RT/UNCHECKED_MATH
    #'*warn-on-reflection* *warn-on-reflection*
-   Compiler/COLUMN_BEFORE (:column env)
-   Compiler/COLUMN_AFTER (:column env)
+   Compiler/COLUMN_BEFORE (or (:column env) 1)
+   Compiler/COLUMN_AFTER (or (:column env) 1)
    RT/DATA_READERS @RT/DATA_READERS})
 
 (defn- analyze*
