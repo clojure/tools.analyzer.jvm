@@ -42,82 +42,30 @@
   (pprint (diff x y)))
 
 (deftest KeywordExpr-test
-  (is (= (ast :abc)
-         (taj :abc)
-         #_{:val :abc, 
-          :tag clojure.lang.Keyword
-          :o-tag clojure.lang.Keyword
-          :form :abc
-          :type :keyword, 
-          :op :const, 
-          :top-level true
-          :env {:context :ctx/expr
-                :ns 'clojure.tools.analyzer.jvm.single-pass-test,
-                :file "clojure/tools/analyzer/jvm/single_pass_test.clj",
-                :locals {}},
-          :literal? true})))
+  (is (= (dissoc (ast :abc) :eval-fn)
+         (taj :abc))))
 
 (deftest NumberExpr-test
-  (is (= (ast 1.2)
-         (taj 1.2)
-         #_{:op :const, 
-          :tag Double/TYPE
-          :o-tag Double/TYPE
-          :env {:context :ctx/expr, 
-                :locals {}, 
-                :ns 'clojure.tools.analyzer.jvm.single-pass-test
-                :file "clojure/tools/analyzer/jvm/single_pass_test.clj"}, 
-          :type :number, 
-          :literal? true, 
-          :val 1.2, 
-          :form 1.2, 
-          :top-level true}))
-  (is (= (ast 1)
+  (is (= (dissoc (ast 1.2) :eval-fn)
+         (taj 1.2)))
+  (is (= (dissoc (ast 1) :eval-fn)
          (taj 1)))
   )
 
 (deftest StringExpr-test
-  (is (= (ast "abc")
-         (taj "abc")
-         #_{:op :const, 
-          :tag String
-          :o-tag String
-          :env {:context :ctx/expr, 
-                :locals {}, 
-                :ns 'clojure.tools.analyzer.jvm.single-pass-test
-                :file "clojure/tools/analyzer/jvm/single_pass_test.clj"}, 
-          :type :string, 
-          :literal? true, 
-          :val "abc", 
-          :form "abc", 
-          :top-level true})))
+  (is (= (dissoc (ast "abc") :eval-fn)
+         (taj "abc"))))
 
 (deftest NilExpr-test
-  (is (= (ast nil)
-         (taj nil)
-         #_'{:op :const, 
-           :tag nil
-           :o-tag nil
-           :env {:context :ctx/expr, 
-                 :locals {}, 
-                 :ns clojure.tools.analyzer.jvm.single-pass-test
-                 :file "clojure/tools/analyzer/jvm/single_pass_test.clj"}, 
-           :type :nil, :literal? true, :val nil, :form nil, :top-level true})))
+  (is (= (dissoc (ast nil) :eval-fn)
+         (taj nil))))
 
 (deftest BooleanExpr-test
   (is (= #{:tag :o-tag :eval-fn}
          (leaf-diff
            (ast true)
-           (taj true))
-         #_{:op :const, 
-          :tag Boolean
-          :o-tag Boolean
-          :env {:context :ctx/expr, 
-                :locals {}, 
-                :ns 'clojure.tools.analyzer.jvm.single-pass-test
-                :file "clojure/tools/analyzer/jvm/single_pass_test.clj"}, 
-          :type :bool, :literal? true, :val true, :form true, :top-level true}))
-  (is (= #{:tag :o-tag}
+           (taj true))))
+  (is (= #{:tag :o-tag :eval-fn}
          (leaf-diff
            (ast false)
            (taj false)))))
@@ -208,8 +156,10 @@
          (emit-form (taj '{:a 1}))))
   (is (= :quote
          (:op (ast ''{:a 1}))))
-  (is (= (emit-form (ast {:a '(ns fooblah)}))
-         (emit-form (taj {:a '(ns fooblah)}))))
+  (is (and (= (emit-form (ast {:a '(ns fooblah)}))
+              '(quote {:a (ns fooblah)}))
+           (= (emit-form (taj {:a '(ns fooblah)}))
+              '{:a (quote (ns fooblah))})))
   (is (and (= (emit-form (ast '""))
               '"")
            (= (emit-form (taj '""))
@@ -229,7 +179,7 @@
 
 (deftest DefExpr-test
   ;; FIXME :tag is different
-  (is (= #{:line :tag}
+  (is (= #{:line :tag :eval-fn}
          (leaf-diff (taj (def a 1))
                     (ast (def a 1)))))
   ;; FIXME :doc is not a node
@@ -238,30 +188,30 @@
 
 (deftest BodyExpr-test
   ;; Compiler prints (do nil) instead of (do).
-  (is (= #{:form :line}
+  (is (= #{:form :line :eval-fn}
          (leaf-diff
            (ast (do))
            (taj (do)))))
-  (is (= #{:line}
+  (is (= #{:line :eval-fn}
          (leaf-diff
            (ast (do 1))
            (taj (do 1)))))
   ;; inner column is wrong since Compiler's BodyExpr does not remember it
-  (is (= #{:line :column}
+  (is (= #{:line :column :eval-fn}
          (leaf-diff
            (ast (do (do 1)))
            (taj (do (do 1)))))))
 
 (deftest FnExpr-test
   (is (=
-       #{:loop-id :o-tag :line :column :form :tag :arglists :top-level}
+       #{:loop-id :o-tag :line :column :form :tag :arglists :top-level :eval-fn}
        (leaf-diff
          ;; taj is wrapped in implicit do?
          (ast (fn []))
          (:ret (taj (fn []))))))
   (is (=
        ;; :children is always empty
-       #{:children :loop-id :arglist :o-tag :column :line :top-level :form :tag :arglists :atom}
+       #{:children :loop-id :arglist :o-tag :column :line :top-level :form :tag :arglists :atom :eval-fn}
        (leaf-diff
          (ast (fn [a]))
          (:ret (taj (fn [a]))))))
@@ -271,21 +221,26 @@
        (leaf-diff
          (-> (ast (fn [a] a)) :methods first :body :ret)
          (-> (taj (fn [a] a)) :ret :methods first :body :ret))))
+  (is (=
+       (meta 
+         (first
+           (second (emit-form (ast (fn ^:a []))))))
+       {:a true}))
   )
 
 (deftest InvokeExpr-test
   (is (=
-       #{:body? :loop-id :o-tag :column :line :form :tag :arglists :raw-forms}
+       #{:body? :loop-id :o-tag :column :line :form :tag :arglists :raw-forms :eval-fn}
        (leaf-diff
          (ast ((do (fn []))))
          (taj ((fn []))))))
+  ;; TAJ is more agressive with :keyword-invoke
+  (is (and (= (:op (ast (:a nil)))
+              :invoke)
+           (= (:op (taj (:a nil)))
+              :keyword-invoke)))
   (is (=
-       #{:o-tag :column :line :tag}
-       (leaf-diff
-         (ast (:a nil))
-         (taj (:a nil)))))
-  (is (=
-       #{:o-tag :column :line :tag}
+       #{:o-tag :column :line :tag :eval-fn}
        (leaf-diff
          (ast (:a nil 1))
          (taj (:a nil 1))))))
@@ -303,21 +258,21 @@
 
 (deftest NewExpr-test
   (is 
-    (= #{:line :form :raw-forms}
+    (= #{:line :form :raw-forms :eval-fn}
        (leaf-diff
          (ast (Exception.))
          (taj (Exception.)))))
   (is (= (emit-form (ast (Exception.)))
          '(new java.lang.Exception)))
   (is 
-    (= #{:line :raw-forms}
+    (= #{:line :raw-forms :eval-fn}
        (leaf-diff
          ;; fully qualified :form isn't different
          (ast (java.io.File. "a"))
          (taj (java.io.File. "a"))))))
 
 (deftest VarExpr-test
-  (is (= #{:tag :o-tag :eval-fn}
+  (is (= #{:tag :o-tag :eval-fn :form}
          (leaf-diff
            (ast +)
            (taj +))))
@@ -327,11 +282,20 @@
   (is (=
        (:form (ast +))
        (emit-form (ast +))
-       'clojure.core/+)))
+       'clojure.core/+))
+  (is (=
+       (meta (emit-form (ast +)))
+       nil))
+  (is (=
+       (meta (emit-form (ast ^Integer +)))
+       {:tag 'Integer}))
+  )
 
 (deftest TheVarExpr-test
-  (is (= (ast #'+)
-         (taj #'+)))
+  (is (= #{:form :eval-fn}
+         (leaf-diff
+           (ast #'+)
+           (taj #'+))))
   (is (= (:form (ast #'+))
          (emit-form (ast #'+))
          '(var clojure.core/+)))
@@ -339,20 +303,19 @@
 
 (deftest InstanceOfExpr-test
   (is (= 
-        #{:column :line :form}
+        #{:column :line :form :eval-fn}
         (leaf-diff
           (ast (instance? Object 1))
           (taj (instance? Object 1))))))
 
 (deftest EmptyExpr-test
-  (is (= (ast {})
+  (is (= (dissoc (ast {}) :eval-fn)
          (taj {})))
-  (is (= (ast [])
+  (is (= (dissoc (ast []) :eval-fn)
          (taj [])))
-  (is (= (ast #{})
+  (is (= (dissoc (ast #{}) :eval-fn)
          (taj #{})))
-  ;; TODO annotate-tag's logic for ISeq
-  (is (= #{:tag :o-tag}
+  (is (= #{:tag :o-tag :eval-fn}
          (leaf-diff 
            (ast ())
            (taj ())))))
@@ -375,14 +338,15 @@
 
 (deftest IfExpr-test
   (is 
-    (= #{:o-tag :line :tag}
+    ;; why is tag different but not o-tag?
+    (= #{:line :tag :eval-fn}
        (leaf-diff
          (ast (if 1 2 3))
          (taj (if 1 2 3))))))
 
 (deftest StaticMethodExpr-test
   (is (=
-       #{:o-tag :line :tag :raw-forms}
+       #{:o-tag :line :tag :raw-forms :eval-fn}
        (leaf-diff
          (ast (Long/valueOf "1"))
          (taj (Long/valueOf "1"))))))
@@ -390,7 +354,7 @@
 (deftest StaticFieldExpr-test
   (is 
     (= 
-      #{:o-tag :column :line :form :tag :assignable? :raw-forms}
+      #{:o-tag :column :line :form :tag :assignable? :raw-forms :eval-fn}
       (leaf-diff (ast Long/MAX_VALUE)
                  (taj Long/MAX_VALUE)))))
 
@@ -406,7 +370,7 @@
   (is 
     (do (deftype Inst [abc])
         (= 
-          #{:children :loop-id :o-tag :m-or-f :column :line :context :form :tag :atom :assignable? :raw-forms}
+          #{:children :loop-id :o-tag :m-or-f :column :line :class :context :form :tag :atom :assignable? :raw-forms}
           (leaf-diff
             (-> (ast (fn [^Inst a] (.abc a)))
                 :methods first :body :ret)
@@ -416,54 +380,54 @@
 
 (deftest SetExpr-test
   (is (=
-       #{:o-tag :column :line :tag}
+       #{:o-tag :column :line :tag :eval-fn}
        (leaf-diff
          (ast #{(if 1 2 3)})
          (taj #{(if 1 2 3)})))))
 
 (deftest VectorExpr-test
   (is (=
-       #{:o-tag :column :line :tag}
+       #{:o-tag :column :line :tag :eval-fn}
        (leaf-diff
          (ast [(if 1 2 3)])
          (taj [(if 1 2 3)])))))
 
 (deftest MapExpr-test
   (is (=
-       #{:o-tag :column :line :tag}
+       #{:o-tag :column :line :tag :eval-fn}
        (leaf-diff
          (ast {'a (if 'a 'b 'c)})
          (taj {'a (if 'a 'b 'c)})))))
 
 (deftest MonitorEnter-ExitExpr-test
   (is 
-    (= #{:line :top-level}
+    (= #{:tag :o-tag :line :top-level :eval-fn}
        (leaf-diff
          (ast (monitor-enter 1))
          (taj (monitor-enter 1)))))
   (is 
-    (= #{:line :top-level}
+    (= #{:tag :o-tag :line :top-level :eval-fn}
        (leaf-diff
          (ast (monitor-exit 1))
          (taj (monitor-exit 1))))))
 
 (deftest ThrowExpr-Test
   (is (=
-       #{:loop-locals :loop-id :ignore-tag :column :line :once :top-level :context :form :raw-forms}
+       #{:loop-locals :loop-id :ignore-tag :o-tag :column :line :once :top-level :context :form :tag :raw-forms}
        (leaf-diff
          (-> (ast (throw (Exception.))) :fn :methods first :body :ret)
          (taj (throw (Exception.)))))))
 
 (deftest ImportExpr-test
   (is (= 
-        #{:line :tag :validated? :raw-forms}
+        #{:o-tag :line :tag :eval-fn :validated? :raw-forms}
         (leaf-diff
           (ast (import 'java.lang.Object))
           (taj (import 'java.lang.Object))))))
 
 (deftest NewInstanceExpr-test
   (is (=
-       #{:loop-locals :loop-id :line :once :context :class-name :form :tag}
+       #{:loop-locals :loop-id :o-tag :line :once :context :class-name :tag}
         (leaf-diff
           (-> (ast (deftype A1 [])) :fn :methods first :body :ret :body :statements first)
           (-> (taj (deftype A1 [])) :body :statements first))))
@@ -473,7 +437,7 @@
           (-> (ast (deftype A2 [f])) :fn :methods first :body :ret :body :statements first :fields)
           (-> (taj (deftype A2 [f])) :body :statements first :fields))))
   (is (=
-        #{:loop-locals :loop-id :o-tag :line :once :context :class-name :form :tag :atom}
+        #{:loop-locals :loop-id :o-tag :line :once :context :class-name :tag :atom}
         (leaf-diff
           (-> (ast (deftype A3 [f])) :fn :methods first :body :ret :body :statements first)
           (-> (taj (deftype A3 [f])) :body :statements first))))
@@ -534,7 +498,8 @@
                     Foo
                     (bar [this a])))
              :body :statements first :methods first))))
-  (is (=
+  ;; order of :implements is different
+  #_(is (ppdiff 
         (-> (ast (deftype Abcde []
                    Foo
                    (bar [this a])))
@@ -542,7 +507,22 @@
         (-> (taj (deftype Abcde []
                    Foo
                    (bar [this a])))
-            :body :statements first emit-form))))
+            :body :statements first emit-form)))
+  (is (=
+        (->> (ast (deftype Abcde []
+                   Foo
+                   (^:foo bar [this a])))
+            :fn :methods first :body :ret :body :statements first emit-form
+            (drop 6) first first meta)
+        {:foo true}))
+  (is (=
+        (->> (ast (deftype Abcde []
+                   Foo
+                   (bar ^:foo [this a])))
+            :fn :methods first :body :ret :body :statements first emit-form
+            (drop 6) first second meta)
+        {:foo true}))
+  )
 
 (deftest CaseExpr-test
   (is 
@@ -584,7 +564,7 @@
 
 (deftest AssignExpr-test
   (is 
-    (= #{:o-tag :line :tag :arglists :assignable?}
+    (= #{:o-tag :line :form :tag :eval-fn :arglists :assignable?}
        (leaf-diff
          (ast (set! *warn-on-reflection* true))
          (taj (set! *warn-on-reflection* true))))))
@@ -606,19 +586,20 @@
        (-> (taj (try)) 
            :catches)))
   (is 
-    (= #{:no-recur :loop-locals :loop-id :o-tag :line :once :top-level :context :form}
+    (= #{:no-recur :loop-locals :loop-id :line :once :top-level :context :form :tag}
        (leaf-diff
          (-> (ast (try)) :fn :methods first :body :ret)
          (-> (taj (try))))))
   (is 
-    (= #{:no-recur :loop-locals :loop-id :o-tag :line :once :top-level :context :form}
+    (= #{:no-recur :loop-locals :loop-id :line :once :top-level :context :form :tag}
        (leaf-diff
          (-> (ast (try (finally))) :fn :methods first :body :ret)
          (-> (taj (try (finally))))))))
 
 (deftest CatchExpr-test
   (is 
-    (= #{:loop-locals :ns :loop-id :file :column :line :once :context :tag :atom}
+    ;; FIXME why is :ns different?
+    (= #{:loop-locals :ns :loop-id :file :o-tag :column :line :once :context :tag :atom}
        (leaf-diff
          (-> (ast (try (catch Exception e))) :fn :methods first :body :ret
              :catches first :body :ret)
@@ -637,7 +618,6 @@
   (is (=
         (-> (ast (letfn [])) :fn :methods first :body :ret :bindings)
         (-> (taj (letfn [])) :bindings)))
-  ;;FIXME
   (is (=
        #{:loop-locals :locals :ns :loop-id :name :file :op :o-tag :column :line 
          :once :context :form :tag :arglists :atom :local :raw-forms}

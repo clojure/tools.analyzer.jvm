@@ -840,7 +840,8 @@
     [expr env opt]
     (let [^clojure.lang.Var var (.var expr)
           meta (meta var)
-          tag (ju/maybe-class (.tag expr))]
+          tag-sym (.tag expr)
+          tag (ju/maybe-class tag-sym)]
       {:op :var
        :env env
        :var var
@@ -849,8 +850,11 @@
        :o-tag tag
        :assignable? (boolean (:dynamic meta))
        :arglists (:arglists meta)
-       :form (symbol (str (ns-name (.ns var)))
-                     (str (.sym var)))}))
+       :form (with-meta
+               (symbol (str (ns-name (.ns var)))
+                       (str (.sym var)))
+               (when tag-sym
+                 {:tag tag-sym}))}))
 
   ;; UnresolvedVarExpr
   Compiler$UnresolvedVarExpr
@@ -894,8 +898,9 @@
   ;         [:body "Synthetic :do node (with :body? `true`) representing the body of this method"]]}
   Compiler$NewInstanceMethod
   (analysis->map
-    [obm env opt]
+    [obm env {:keys [new-instance-method-form] :as opt}]
     (let [loop-id (gensym "loop_")
+          opt (dissoc opt :new-instance-method-form)
           this (-> (analysis->map ((field Compiler$ObjMethod indexlocals obm) 0) env opt)
                    (assoc :local :this
                           :op :binding)
@@ -928,6 +933,7 @@
        :body body
        :tag (:tag body)
        :o-tag (:o-tag body)
+       :form new-instance-method-form
        :children [:this :params :body]}))
 
   ; {:op   :fn-method
@@ -942,8 +948,10 @@
   ;         [:body "Synthetic :do node (with :body? `true`) representing the body of this fn-method"]]}
   Compiler$FnMethod
   (analysis->map
-    [obm env opt]
+    [obm env {:keys [fn-method-forms] :as opt}]
+    (assert (map? fn-method-forms))
     (let [loop-id (gensym "loop_")
+          opt (dissoc opt :fn-method-forms)
           rest-param (when-let [rest-param (.restParm obm)]
                        (assoc (analysis->map rest-param env opt)
                               :variadic? true
@@ -959,6 +967,9 @@
           params-expr (into required-params
                             (when rest-param
                               [rest-param]))
+          form (get fn-method-forms (if rest-param
+                                      (inc (count required-params))
+                                      (count required-params)))
           ;_ (prn "params-expr" (map :op params-expr))
           body-env (into (update-in env [:locals]
                                     merge (zipmap (map :name params-expr) (map u/dissoc-env params-expr)))
@@ -968,6 +979,7 @@
           body (analysis->map (.body obm) body-env opt)]
       (merge
         {:op :fn-method
+         :form form
          :loop-id loop-id
          :variadic? (boolean rest-param)
          :params params-expr
@@ -994,6 +1006,22 @@
   (analysis->map
     [expr env opt]
     (let [once (field-accessor Compiler$ObjExpr 'onceOnly expr)
+          src (field-accessor Compiler$ObjExpr 'src expr)
+          _ (prn "FnExpr src" src)
+          fn-method-forms
+          (into {}
+                (let [ms (next src)
+                      ms (if (symbol? (first ms))
+                           (next ms)
+                           ms)
+                      ms (if (vector? (first ms))
+                           (list ms)
+                           ms)]
+                  (map
+                    (fn [[ps :as m]]
+                      (assert (vector? ps))
+                      [(count (remove #{'&} ps)) m])
+                    ms)))
           this-name (when-let [nme (.thisName expr)]
                       (symbol nme))
           this (when this-name
@@ -1007,14 +1035,14 @@
                  (update-in menv [:locals] assoc (:name this) this)
                  menv)
           variadic-method (when-let [variadic-method (.variadicMethod expr)]
-                            (analysis->map variadic-method menv opt))
-          methods-no-variadic (mapv #(analysis->map % menv opt) (.methods expr))
+                            (analysis->map variadic-method menv (assoc opt :fn-method-forms fn-method-forms)))
+          methods-no-variadic (mapv #(analysis->map % menv (assoc opt :fn-method-forms fn-method-forms)) (.methods expr))
           methods (into methods-no-variadic
                         (when variadic-method
                           [variadic-method]))
           fixed-arities (seq (map :fixed-arity methods-no-variadic))
           max-fixed-arity (when fixed-arities (apply max fixed-arities))
-          tag (ju/maybe-class(.tag expr))]
+          tag (.getJavaClass expr)]
       (merge
         {:op :fn
          :env (env-location env expr)
@@ -1053,7 +1081,13 @@
   (analysis->map
     [expr env opt]
     ;(prn "NewInstanceExpr")
-    (let [methods (mapv #(analysis->map % env opt) (field Compiler$NewInstanceExpr methods expr))
+    (let [src (field-accessor Compiler$ObjExpr 'src expr)
+          _ (prn "NewInstanceExpr src" src)
+          ms (drop 6 src)
+          _ (prn "NewInstanceMs src" ms)
+          methods (mapv #(analysis->map %1 env (assoc opt :new-instance-method-form %2))
+                        (field Compiler$NewInstanceExpr methods expr)
+                        ms)
           ;_ (prn "fields")
           ;; don't know what a MethodParamExpr is, just use the key
           fields (mapv (fn [kv]
@@ -1080,17 +1114,14 @@
                                 (.getDeclaringClass m))
                               (vals (field Compiler$NewInstanceExpr mmap expr)))
                          [clojure.lang.IType]))
-          tag (ju/maybe-class (.tag expr))]
+          tag (.getJavaClass expr)]
       ;(prn :compiled-class (.compiledClass expr))
       ;(prn :internal-name (.internalName expr))
       ;(prn :this-name (.thisName expr))
       ;(prn "name" name)
       ;(prn "mmap" (field Compiler$NewInstanceExpr mmap expr))
       {:op :deftype
-       :form (list* 'deftype* name class-name
-                    [] ;; TODO
-                    :implements (mapv emit-form/class->sym interfaces)
-                    (map emit-form/emit-form methods))
+       :form src
        :name name
        :env (env-location env expr)
        :methods methods
