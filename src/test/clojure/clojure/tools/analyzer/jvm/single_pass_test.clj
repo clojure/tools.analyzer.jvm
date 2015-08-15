@@ -657,16 +657,17 @@
          (eval (emit-form (ast (#(:a %) {:a 1}))))
          (eval (emit-form (taj (#(:a %) {:a 1})))))))
 
-(defmacro juxt-ast [f]
-  `(do (time (si/analyze-one (ana.jvm/empty-env) '~f))
-       (time (si/analyze-form '~f))
-       (time (ast ~f))
+#_(defmacro juxt-ast [f]
+  `(do (time (ast ~f))
        (time (taj ~f))
        nil))
 
 #_(juxt-ast
   (defn foo [{:keys [a b c]}]
     [(inc a) (+ b c)]))
+
+#_(ast (defn foo [{:keys [a b c]}]
+       [(inc a) (+ b c)]))
 
 #_(juxt-ast
   (doseq [{:keys [a b c]} [1 2 3]

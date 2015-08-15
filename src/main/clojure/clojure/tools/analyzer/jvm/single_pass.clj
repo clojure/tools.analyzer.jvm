@@ -1,7 +1,7 @@
 (ns clojure.tools.analyzer.jvm.single-pass
   "Interface to clojure.lang.Compiler/analyze.
 
-  Entry point `analyze-path` and `analyze-one`"
+  Entry point `analyze`"
   (:refer-clojure :exclude [macroexpand])
   (:import (java.io LineNumberReader InputStreamReader PushbackReader)
            (clojure.lang RT LineNumberingPushbackReader Compiler$DefExpr Compiler$LocalBinding Compiler$BindingInit Compiler$LetExpr
@@ -40,14 +40,14 @@
   Otherwise, AST is unevaluated. Defaults to false."
   false)
 
-(declare analyze-one)
+(declare analyze*)
 
 (defn analyze
   ([form] (analyze form (ana.jvm/empty-env) {}))
   ([form env] (analyze form env {}))
   ([form env opts]
    (env/ensure (ana.jvm/global-env)
-     (-> (analyze-one (merge env (select-keys (meta form) [:line :column :ns :file])) form opts)
+     (-> (analyze* (merge env (select-keys (meta form) [:line :column :ns :file])) form opts)
          uniquify-locals))))
 
 (defn analyze-form
@@ -1460,7 +1460,7 @@
    Compiler/LOCAL_ENV nil
    Compiler/LOOP_LOCALS nil
    Compiler/NEXT_LOCAL_NUM 0
-   #'*ns* (:ns env)
+   #'*ns* (the-ns (:ns env))
    RT/READEVAL true
    Compiler/LINE_BEFORE (:line env)
    Compiler/LINE_AFTER (:line env)
@@ -1497,11 +1497,6 @@
        (-> (analysis->map expr-ast env opts)
            (assoc :top-level true
                   :eval-fn #(method-accessor (class expr-ast) 'eval expr-ast [])))))))
-
-(defn analyze-one
-  "Analyze a single form"
-  ([env form] (analyze-one env form {}))
-  ([env form opt] (analyze* env form opt)))
 
 (defn forms-seq
   "Lazy seq of forms in a Clojure or ClojureScript file."
