@@ -480,9 +480,16 @@
   Compiler$StaticMethodExpr
   (analysis->map
     [expr env opt]
-    (let [args (mapv #(analysis->map % env opt) (field Compiler$StaticMethodExpr args expr))
-          method (when-let [method (field Compiler$StaticMethodExpr method expr)]
-                   (@#'reflect/method->map method))
+    (let [^java.lang.reflect.Method
+          rmethod (field Compiler$StaticMethodExpr method expr)
+          ptypes (when rmethod
+                   (.getParameterTypes rmethod))
+          method (when rmethod
+                   (@#'reflect/method->map rmethod))
+          args (mapv #(merge (analysis->map %1 env opt)
+                             (when %2 {:tag %2 :o-tag %2}))
+                     (field Compiler$StaticMethodExpr args expr)
+                     (.getParameterTypes rmethod))
           method-name (symbol (field Compiler$StaticMethodExpr methodName expr))
           tag (ju/maybe-class (field Compiler$StaticMethodExpr tag expr))
           c (field Compiler$StaticMethodExpr c expr)]
@@ -497,7 +504,8 @@
          :o-tag tag
          :children [:args]}
         (when method
-          {:validated? true}))))
+          {:validated? true
+           :reflected-method method}))))
 
   Compiler$InstanceMethodExpr
   ;  {:op   :instance-call
@@ -514,11 +522,19 @@
   ;          [:class "If :validated? the class or interface the method belongs to"]]}
   (analysis->map
     [expr env opt]
-    (let [target (analysis->map (field Compiler$InstanceMethodExpr target expr) env opt)
-          args (mapv #(analysis->map % env opt) (field Compiler$InstanceMethodExpr args expr))
+    (let [^java.lang.reflect.Method
+          rmethod (field Compiler$StaticMethodExpr method expr)
+          method (when rmethod
+                   (@#'reflect/method->map rmethod))
+          target (merge (analysis->map (field Compiler$InstanceMethodExpr target expr) env opt)
+                        (when rmethod
+                          {:tag (.getDeclaringClass rmethod)
+                           :o-tag (.getDeclaringClass rmethod)}))
+          args (mapv #(merge (analysis->map %1 env opt)
+                             (when %2 {:tag %2 :o-tag %2}))
+                     (field Compiler$InstanceMethodExpr args expr)
+                     (.getParameterTypes rmethod))
           method-name (symbol (field Compiler$InstanceMethodExpr methodName expr))
-          method (when-let [method (field Compiler$InstanceMethodExpr method expr)]
-                   (@#'reflect/method->map method))
           tag (ju/maybe-class (field Compiler$InstanceMethodExpr tag expr))]
       (merge
         {:op :instance-call
@@ -532,7 +548,8 @@
          :o-tag tag
          :children [:instance :args]}
         (when method
-          {:validated? true}))))
+          {:validated? true
+           :reflected-method method}))))
 
   ;; Fields
   ;{:op   :static-field
@@ -545,19 +562,25 @@
   Compiler$StaticFieldExpr
   (analysis->map
     [expr env opt]
-    (let [tag (ju/maybe-class (field Compiler$StaticFieldExpr tag expr))
+    (let [^java.lang.reflect.Field
+          rfield (field Compiler$StaticFieldExpr field expr)
+          mfield (when rfield
+                   (@#'reflect/field->map rfield))
+          tag (ju/maybe-class (field Compiler$StaticFieldExpr tag expr))
           c (field Compiler$StaticFieldExpr c expr)
           fstr (field Compiler$StaticFieldExpr fieldName expr)]
-      {:op :static-field
-       :form (list '. (emit-form/class->sym c)
-                   (symbol (str "-" fstr)))
-       :env (env-location env expr)
-       :class c
-       :field (symbol fstr)
-       ;:field (when-let [field (field Compiler$StaticFieldExpr field expr)]
-       ;         (@#'reflect/field->map field))
-       :tag tag
-       :o-tag tag}))
+      (merge
+        {:op :static-field
+         :form (list '. (emit-form/class->sym c)
+                     (symbol (str "-" fstr)))
+         :env (env-location env expr)
+         :class c
+         :field (symbol fstr)
+         :tag tag
+         :o-tag tag}
+        (when rfield
+          {:validated? true
+           :reflected-field mfield}))))
 
   Compiler$InstanceFieldExpr
   ; {:op   :instance-field
@@ -570,20 +593,29 @@
   ;          [:class "The class the field belongs to"]]}
   (analysis->map
     [expr env opt]
-    (let [target (analysis->map (field Compiler$InstanceFieldExpr target expr) env opt)
+    (let [^java.lang.reflect.Field
+          rfield (field Compiler$StaticFieldExpr field expr)
+          mfield (when rfield
+                   (@#'reflect/field->map rfield))
+          target (merge (analysis->map (field Compiler$InstanceFieldExpr target expr) env opt)
+                        (when rfield
+                          {:tag (.getDeclaringClass rfield)
+                           :o-tag (.getDeclaringClass rfield)}))
           fstr (field Compiler$InstanceFieldExpr fieldName expr)
           tag (ju/maybe-class (field Compiler$InstanceFieldExpr tag expr))]
-      {:op :instance-field
-       :form (list (symbol (str ".-" fstr)) (emit-form/emit-form target))
-       :env (env-location env expr)
-       :instance target
-       :class (field Compiler$InstanceFieldExpr targetClass expr)
-       ;:field (when-let [field (field Compiler$InstanceFieldExpr field expr)]
-       ;         (@#'reflect/field->map field))
-       :field (symbol fstr)
-       :tag tag
-       :o-tag tag
-       :children [:instance]}))
+      (merge
+        {:op :instance-field
+         :form (list (symbol (str ".-" fstr)) (emit-form/emit-form target))
+         :env (env-location env expr)
+         :instance target
+         :class (field Compiler$InstanceFieldExpr targetClass expr)
+         :field (symbol fstr)
+         :tag tag
+         :o-tag tag
+         :children [:instance]}
+        (when rfield
+          {:validated? true
+           :reflected-field mfield}))))
 
   ; {:op   :new
   ;  :doc  "Node for a new special-form expression"
@@ -597,7 +629,15 @@
   Compiler$NewExpr
   (analysis->map
     [expr env opt]
-    (let [args (mapv #(analysis->map % env opt) (.args expr))
+    (let [^java.lang.reflect.Constructor
+          rctor (.ctor expr)
+          ctor (when rctor
+                 (@#'reflect/constructor->map rctor))
+          args (mapv #(merge (analysis->map %1 env opt)
+                             (when rctor
+                               {:tag %2 :o-tag %2}))
+                     (.args expr)
+                     (.getParameterTypes rctor))
           c (.c expr)
           cls {:op :const
                :env env
@@ -606,9 +646,7 @@
                :form (emit-form/class->sym c)
                :val c
                :tag Class
-               :o-tag Class}
-          ctor (when-let [ctor (.ctor expr)]
-                 (@#'reflect/constructor->map ctor))]
+               :o-tag Class}]
       (merge
         {:op :new
          :form (list* 'new (emit-form/emit-form cls) (map emit-form/emit-form args))
@@ -623,7 +661,8 @@
          :o-tag c
          :children [:class :args]}
         (when ctor
-          {:validated? true}))))
+          {:validated? true
+           :reflected-ctor ctor}))))
 
   ;; set literal
   ; {:op   :set
@@ -970,6 +1009,7 @@
           form (get fn-method-forms (if rest-param
                                       (inc (count required-params))
                                       (count required-params)))
+          _ (prn "method" form)
           ;_ (prn "params-expr" (map :op params-expr))
           body-env (into (update-in env [:locals]
                                     merge (zipmap (map :name params-expr) (map u/dissoc-env params-expr)))
@@ -1034,13 +1074,13 @@
           menv (if this
                  (update-in menv [:locals] assoc (:name this) this)
                  menv)
-          variadic-method (when-let [variadic-method (.variadicMethod expr)]
-                            (analysis->map variadic-method menv (assoc opt :fn-method-forms fn-method-forms)))
-          methods-no-variadic (mapv #(analysis->map % menv (assoc opt :fn-method-forms fn-method-forms)) (.methods expr))
-          methods (into methods-no-variadic
-                        (when variadic-method
-                          [variadic-method]))
-          fixed-arities (seq (map :fixed-arity methods-no-variadic))
+          ;variadic-method (when-let [variadic-method (.variadicMethod expr)]
+          ;                  (analysis->map variadic-method menv (assoc opt :fn-method-forms fn-method-forms)))
+          methods (mapv #(analysis->map % menv (assoc opt :fn-method-forms fn-method-forms)) (.methods expr))
+          ;methods (into methods-no-variadic
+          ;              (when variadic-method
+          ;                [variadic-method]))
+          fixed-arities (seq (keep :fixed-arity methods))
           max-fixed-arity (when fixed-arities (apply max fixed-arities))
           tag (.getJavaClass expr)]
       (merge
@@ -1052,7 +1092,7 @@
                           [(emit-form/emit-form this)])
                         (map emit-form/emit-form methods)))
          :methods methods
-         :variadic? (boolean variadic-method)
+         :variadic? (boolean (.variadicMethod expr))
          :tag   tag
          :o-tag tag
          :max-fixed-arity max-fixed-arity

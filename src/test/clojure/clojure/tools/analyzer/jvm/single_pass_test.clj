@@ -226,7 +226,8 @@
          (first
            (second (emit-form (ast (fn ^:a []))))))
        {:a true}))
-  )
+  (is (= (emit-form (ast (fn [& body])))
+         (emit-form (taj (fn [& body]))))))
 
 (deftest InvokeExpr-test
   (is (=
@@ -636,6 +637,9 @@
   (is (= ((:eval-fn (ast (#(:a %) {:a 1}))))
          (eval (emit-form (ast (#(:a %) {:a 1}))))
          (eval (emit-form (taj (#(:a %) {:a 1})))))))
+
+(deftest defmacro-test
+  (is (eval (emit-form (ast (defmacro foob [& body]))))))
 
 #_(defmacro juxt-ast [f]
   `(do (time (ast ~f))
