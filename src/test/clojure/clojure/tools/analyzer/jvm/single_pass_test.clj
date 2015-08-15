@@ -259,14 +259,14 @@
 
 (deftest NewExpr-test
   (is 
-    (= #{:line :form :raw-forms :eval-fn}
+    (= #{:name :declaring-class :line :form :eval-fn :flags :raw-forms}
        (leaf-diff
          (ast (Exception.))
          (taj (Exception.)))))
   (is (= (emit-form (ast (Exception.)))
          '(new java.lang.Exception)))
   (is 
-    (= #{:line :raw-forms :eval-fn}
+    (= #{:name :declaring-class :parameter-types :line :eval-fn :flags :raw-forms}
        (leaf-diff
          ;; fully qualified :form isn't different
          (ast (java.io.File. "a"))
@@ -347,7 +347,7 @@
 
 (deftest StaticMethodExpr-test
   (is (=
-       #{:o-tag :line :tag :raw-forms :eval-fn}
+       #{:return-type :name :o-tag :declaring-class :parameter-types :line :exception-types :tag :eval-fn :flags :raw-forms}
        (leaf-diff
          (ast (Long/valueOf "1"))
          (taj (Long/valueOf "1"))))))
@@ -355,14 +355,14 @@
 (deftest StaticFieldExpr-test
   (is 
     (= 
-      #{:o-tag :column :line :form :tag :assignable? :raw-forms :eval-fn}
+      #{:name :type :o-tag :declaring-class :column :line :form :tag :eval-fn :flags :validated? :assignable? :raw-forms}
       (leaf-diff (ast Long/MAX_VALUE)
                  (taj Long/MAX_VALUE)))))
 
 (deftest InstanceMethodExpr-test
   (is (=
        ;; constructors inherit :line and :column
-       #{:column :line :raw-forms}
+       #{:name :declaring-class :column :parameter-types :line :flags :raw-forms}
        (leaf-diff
          (-> (ast (.getName (java.io.File. "a"))) :instance)
          (-> (taj (.getName (java.io.File. "a"))) :instance)))))
@@ -371,7 +371,8 @@
   (is 
     (do (deftype Inst [abc])
         (= 
-          #{:children :loop-id :o-tag :m-or-f :column :line :class :context :form :tag :atom :assignable? :raw-forms}
+          #{:children :loop-id :name :type :o-tag :declaring-class :m-or-f :column :line :class :context 
+            :form :tag :atom :flags :validated? :assignable? :raw-forms}
           (leaf-diff
             (-> (ast (fn [^Inst a] (.abc a)))
                 :methods first :body :ret)
@@ -414,7 +415,8 @@
 
 (deftest ThrowExpr-Test
   (is (=
-       #{:loop-locals :loop-id :ignore-tag :o-tag :column :line :once :top-level :context :form :tag :raw-forms}
+       #{:loop-locals :loop-id :name :ignore-tag :o-tag :declaring-class :column :line :once :top-level :context
+         :form :tag :flags :raw-forms}
        (leaf-diff
          (-> (ast (throw (Exception.))) :fn :methods first :body :ret)
          (taj (throw (Exception.)))))))
