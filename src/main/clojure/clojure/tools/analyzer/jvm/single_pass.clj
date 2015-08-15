@@ -1490,15 +1490,15 @@
    Compiler/METHOD nil
    Compiler/LOCAL_ENV nil
    Compiler/LOOP_LOCALS nil
-   Compiler/NEXT_LOCAL_NUM 0
+   Compiler/NEXT_LOCAL_NUM (int 0)
    #'*ns* (the-ns (:ns env))
    RT/READEVAL true
-   Compiler/LINE_BEFORE (or (:line env) 1)
-   Compiler/LINE_AFTER (or (:line env) 1)
+   Compiler/LINE_BEFORE (int (or (:line env) 1))
+   Compiler/LINE_AFTER (int (or (:line env) 1))
    RT/UNCHECKED_MATH @RT/UNCHECKED_MATH
    #'*warn-on-reflection* *warn-on-reflection*
-   Compiler/COLUMN_BEFORE (or (:column env) 1)
-   Compiler/COLUMN_AFTER (or (:column env) 1)
+   Compiler/COLUMN_BEFORE (int (or (:column env) 1))
+   Compiler/COLUMN_AFTER (int (or (:column env) 1))
    RT/DATA_READERS @RT/DATA_READERS})
 
 (defn- analyze*
