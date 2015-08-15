@@ -1545,7 +1545,7 @@
   "Must be called after binding the appropriate Compiler and RT dynamic Vars."
   ([env form] (analyze* env form {}))
   ([env form opts]
-   (let [context (keyword->Context (:context env))
+   (let [context Compiler$C/EVAL #_ (keyword->Context (:context env))
          env (merge env
                     (when-let [file (and (not= *file* "NO_SOURCE_FILE")
                                          *file*)]

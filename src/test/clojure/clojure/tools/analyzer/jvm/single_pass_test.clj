@@ -643,6 +643,19 @@
 (deftest defmacro-test
   (is (eval (emit-form (ast (defmacro foob [& body]))))))
 
+(deftest multi-test
+  (is (emit-form (ast (let []))))
+  (is (eval (emit-form (ast (defmulti blah first))))))
+
+(emit-form
+(ast
+(let* [v__4413__auto__ (def nth-path-multimethod)]
+  (clojure.core/when-not 
+    (clojure.core/and (.hasRoot v__4413__auto__) 
+                      (clojure.core/instance? clojure.lang.MultiFn (clojure.core/deref v__4413__auto__))) 
+    (def nth-path-multimethod (new clojure.lang.MultiFn "nth-path-multimethod" first :default #'clojure.core/global-hierarchy))))
+))
+
 #_(defmacro juxt-ast [f]
   `(do (time (ast ~f))
        (time (taj ~f))
