@@ -1009,7 +1009,7 @@
           form (get fn-method-forms (if rest-param
                                       (inc (count required-params))
                                       (count required-params)))
-          _ (prn "method" form)
+          ;_ (prn "method" form)
           ;_ (prn "params-expr" (map :op params-expr))
           body-env (into (update-in env [:locals]
                                     merge (zipmap (map :name params-expr) (map u/dissoc-env params-expr)))
@@ -1047,7 +1047,7 @@
     [expr env opt]
     (let [once (field-accessor Compiler$ObjExpr 'onceOnly expr)
           src (field-accessor Compiler$ObjExpr 'src expr)
-          _ (prn "FnExpr src" src)
+          ;_ (prn "FnExpr src" src)
           fn-method-forms
           (into {}
                 (let [ms (next src)
@@ -1122,9 +1122,9 @@
     [expr env opt]
     ;(prn "NewInstanceExpr")
     (let [src (field-accessor Compiler$ObjExpr 'src expr)
-          _ (prn "NewInstanceExpr src" src)
+          ;_ (prn "NewInstanceExpr src" src)
           ms (drop 6 src)
-          _ (prn "NewInstanceMs src" ms)
+          ;_ (prn "NewInstanceMs src" ms)
           methods (mapv #(analysis->map %1 env (assoc opt :new-instance-method-form %2))
                         (field Compiler$NewInstanceExpr methods expr)
                         ms)
