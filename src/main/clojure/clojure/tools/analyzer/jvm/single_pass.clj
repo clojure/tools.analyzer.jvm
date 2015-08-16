@@ -489,7 +489,9 @@
           args (mapv #(merge (analysis->map %1 env opt)
                              (when %2 {:tag %2 :o-tag %2}))
                      (field Compiler$StaticMethodExpr args expr)
-                     (.getParameterTypes rmethod))
+                     (if rmethod
+                       (.getParameterTypes rmethod)
+                       (repeat nil)))
           method-name (symbol (field Compiler$StaticMethodExpr methodName expr))
           tag (ju/maybe-class (field Compiler$StaticMethodExpr tag expr))
           c (field Compiler$StaticMethodExpr c expr)]
@@ -524,7 +526,7 @@
     [expr env opt]
     (let [^java.lang.reflect.Method
           rmethod (field Compiler$InstanceMethodExpr method expr)
-          _ (prn rmethod)
+          ;_ (prn rmethod)
           method (when rmethod
                    (@#'reflect/method->map rmethod))
           cls (some-> rmethod .getDeclaringClass)
