@@ -497,7 +497,6 @@
         {:op :static-call
          :env (env-location env expr)
          :form (list '. c (list* method-name (map emit-form/emit-form args)))
-         :class c
          :method method-name
          :args args
          :tag tag
@@ -505,6 +504,7 @@
          :children [:args]}
         (when method
           {:validated? true
+           :class c
            :reflected-method method}))))
 
   Compiler$InstanceMethodExpr
@@ -524,16 +524,20 @@
     [expr env opt]
     (let [^java.lang.reflect.Method
           rmethod (field Compiler$InstanceMethodExpr method expr)
+          _ (prn rmethod)
           method (when rmethod
                    (@#'reflect/method->map rmethod))
+          cls (some-> rmethod .getDeclaringClass)
           target (merge (analysis->map (field Compiler$InstanceMethodExpr target expr) env opt)
-                        (when rmethod
-                          {:tag (.getDeclaringClass rmethod)
-                           :o-tag (.getDeclaringClass rmethod)}))
+                        (when cls
+                          {:tag cls
+                           :o-tag cls}))
           args (mapv #(merge (analysis->map %1 env opt)
                              (when %2 {:tag %2 :o-tag %2}))
                      (field Compiler$InstanceMethodExpr args expr)
-                     (.getParameterTypes rmethod))
+                     (if rmethod
+                       (.getParameterTypes rmethod)
+                       (repeat nil)))
           method-name (symbol (field Compiler$InstanceMethodExpr methodName expr))
           tag (ju/maybe-class (field Compiler$InstanceMethodExpr tag expr))]
       (merge
@@ -549,6 +553,7 @@
          :children [:instance :args]}
         (when method
           {:validated? true
+           :class cls
            :reflected-method method}))))
 
   ;; Fields
