@@ -1127,30 +1127,31 @@
     [expr env opt]
     ;(prn "NewInstanceExpr")
     (let [src (field-accessor Compiler$ObjExpr 'src expr)
-          ;_ (prn "NewInstanceExpr src" src)
-          ms (drop 6 src)
-          ;_ (prn "NewInstanceMs src" ms)
-          methods (mapv #(analysis->map %1 env (assoc opt :new-instance-method-form %2))
+          reify? (= 'reify* (first src))
+          ord-fields (when (not reify?)
+                       (nth src 3))
+          _ (assert (or reify?
+                        (vector? ord-fields)) ord-fields)
+          ms (drop (if reify? 2 6) src)
+          ;; don't know what a MethodParamExpr is, just use the key
+          fields (mapv (fn [name]
+                         {:pre [(symbol? name)]}
+                         {:op :binding
+                          :env env
+                          :name name
+                          :form name
+                          :local :field
+                          :mutable (when (#{:unsynchronized-mutable
+                                            :volatile-mutable}
+                                           (meta name))
+                                     true)})
+                       ord-fields)
+          menv (update-in env [:locals] merge (into {}
+                                                    (map (juxt :name identity) fields))) 
+          methods (mapv #(analysis->map %1 menv (assoc opt :new-instance-method-form %2))
                         (field Compiler$NewInstanceExpr methods expr)
                         ms)
-          ;_ (prn "fields")
-          ;; don't know what a MethodParamExpr is, just use the key
-          fields (mapv (fn [kv]
-                         (let [name (first kv)]
-                           ;(analysis->map (val kv) env opt)
-                           {:op :binding
-                            :env env
-                            :name name
-                            :form name
-                            :local :field
-                            :mutable (when (#{:unsynchronized-mutable
-                                              :volatile-mutable}
-                                             (meta name))
-                                       true)}))
-                       (field Compiler$ObjExpr fields expr))
-          ;_ (prn "before name")
           name (symbol (str (:ns env)) (peek (string/split (.name expr) #"\.")))
-          ;_ (prn "after name")
           class-name (.compiledClass expr) ;or  #_(.internalName expr) ?
           interfaces (remove
                        #{Object}
@@ -1165,7 +1166,7 @@
       ;(prn :this-name (.thisName expr))
       ;(prn "name" name)
       ;(prn "mmap" (field Compiler$NewInstanceExpr mmap expr))
-      {:op :deftype
+      {:op (if reify? :reify :deftype)
        :form src
        :name name
        :env (env-location env expr)
