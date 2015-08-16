@@ -642,7 +642,9 @@
                              (when rctor
                                {:tag %2 :o-tag %2}))
                      (.args expr)
-                     (.getParameterTypes rctor))
+                     (if rctor
+                       (.getParameterTypes rctor)
+                       (repeat nil)))
           c (.c expr)
           cls {:op :const
                :env env
