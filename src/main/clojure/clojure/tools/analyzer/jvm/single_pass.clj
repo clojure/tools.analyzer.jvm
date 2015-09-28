@@ -13,12 +13,7 @@
                          Compiler$TryExpr$CatchClause Compiler$TryExpr Compiler$C Compiler$LocalBindingExpr Compiler$RecurExpr
                          Compiler$MapExpr Compiler$IfExpr Compiler$KeywordInvokeExpr Compiler$InstanceFieldExpr Compiler$InstanceOfExpr
                          Compiler$CaseExpr Compiler$Expr Compiler$SetExpr Compiler$MethodParamExpr 
-
-                         Compiler$LiteralExpr
-                         Compiler$KeywordExpr
-                         Compiler$ConstantExpr Compiler$NumberExpr Compiler$NilExpr Compiler$BooleanExpr Compiler$StringExpr
-
-                         Compiler$ObjMethod Compiler$Expr))
+                         Compiler$LiteralExpr Compiler$ConstantExpr Compiler$ObjMethod Compiler$Expr))
   (:require [clojure.reflect :as reflect]
             [clojure.java.io :as io]
             [clojure.repl :as repl]
@@ -178,12 +173,6 @@
           :val v#
           :form v#}))))
 
-#_(literal-dispatch Compiler$KeywordExpr :keyword)
-#_(literal-dispatch Compiler$NumberExpr :number)
-#_(literal-dispatch Compiler$StringExpr :string)
-#_(literal-dispatch Compiler$NilExpr :nil)
-#_(literal-dispatch Compiler$BooleanExpr :bool)
-
 (literal-dispatch Compiler$EmptyExpr nil)
 
 (defn quoted-list? [val]
@@ -337,6 +326,7 @@
                                                      :loop-locals (count binds)}))
                                            opt)
                             :body? true)]
+            (assert (vector? binds))
             {:op (if loop? :loop :let)
              :form (list (if loop? 'loop* 'let*) 'TODO)
              :env (inherit-env body top-env)

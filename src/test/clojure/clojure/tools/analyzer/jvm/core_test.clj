@@ -108,3 +108,24 @@
 (deftest analyze+eval-context-test
   (let [do-ast (ana.jvm/analyze+eval '(do 1 2 3))]
     (is (= :ctx/statement (-> do-ast :statements first :env :context)))))
+
+(do
+  (ast1
+    (fn
+      [x]
+      (pos? (rem x x))))
+  nil)
+
+(do
+  (ast1
+    (fn
+      [x]
+      (pos? (rem x x))))
+  nil)
+(do
+  (ast1
+    (defn foo
+      [x y]
+      (rem x y)))
+  nil)
+>>>>>>> WIP

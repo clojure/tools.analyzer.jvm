@@ -227,7 +227,10 @@
            (second (emit-form (ast (fn ^:a []))))))
        {:a true}))
   (is (= (emit-form (ast (fn [& body])))
-         (emit-form (taj (fn [& body]))))))
+         (emit-form (taj (fn [& body])))))
+  (is (= (-> (ast (fn [foo] foo)) :methods first :params first :name)
+         (-> (ast (fn [foo] foo)) :methods first :body :ret :name)
+         'foo__#0)))
 
 (deftest InvokeExpr-test
   (is (=
@@ -255,7 +258,10 @@
            :tag :atom :assignable? :raw-forms}
          (leaf-diff
            (-> (ast (let [a 1] a)) :fn :methods first :body :ret)
-           (-> (taj (let [a 1] a)))))))
+           (-> (taj (let [a 1] a))))))
+  (is (= (-> (ast (let [a 1] a)) :fn :methods first :body :ret :bindings first :name)
+         (-> (ast (let [a 1] a)) :fn :methods first :body :ret :body :ret :name)
+         'a__#0)))
 
 (deftest NewExpr-test
   (is 
@@ -647,7 +653,7 @@
   (is (emit-form (ast (let []))))
   (is (eval (emit-form (ast (defmulti blah first))))))
 
-(emit-form
+#_(emit-form
 (ast
 (let* [v__4413__auto__ (def nth-path-multimethod)]
   (clojure.core/when-not 

@@ -85,10 +85,12 @@
                                    (source-info (:env ast)))))))))))
 
 (defn validate-call [{:keys [class instance method args tag env op] :as ast}]
+  (prn "validate-call" class method)
   (let [argc (count args)
         instance? (= :instance-call op)
         f (if instance? u/instance-methods u/static-methods)
         tags (mapv :tag args)]
+    (prn tags)
     (if-let [matching-methods (seq (f class method argc))]
       (let [[m & rest :as matching] (try-best-match tags matching-methods)]
         (if m
