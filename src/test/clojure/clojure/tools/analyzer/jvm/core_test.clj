@@ -104,3 +104,7 @@
 
 (deftest eq-no-reflection
   (is (:validated? (-> (ast1 (fn [s] (= s \f))) :methods first :body))))
+
+(deftest analyze+eval-context-test
+  (let [do-ast (ana.jvm/analyze+eval '(do 1 2 3))]
+    (is (= :ctx/statement (-> do-ast :statements first :env :context)))))

@@ -502,7 +502,7 @@
            ;; handle the Gilardi scenario
            (let [[statements ret] (butlast+last (rest mform))
                  statements-expr (mapv (fn [s] (analyze+eval s (-> env
-                                                                (ctx :statement)
+                                                                (ctx :ctx/statement)
                                                                 (assoc :ns (ns-name *ns*)))
                                                             opts))
                                        statements)
