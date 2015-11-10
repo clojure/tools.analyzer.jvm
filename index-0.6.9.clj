@@ -25,7 +25,7 @@
    :name "clojure.tools.analyzer.passes.jvm.annotate-host-info",
    :doc nil}
   {:source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/afb17b6d233b620fc84291903e2a682879f84e4c/src/main/clojure/clojure/tools/analyzer/passes/jvm/annotate_loops.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/af657a83a274c58acec6898841b7543f014e6289/src/main/clojure/clojure/tools/analyzer/passes/jvm/annotate_loops.clj",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm/passes.jvm.annotate-loops-api.html",
    :name "clojure.tools.analyzer.passes.jvm.annotate-loops",
@@ -334,9 +334,9 @@
   {:file
    "src/main/clojure/clojure/tools/analyzer/passes/jvm/annotate_loops.clj",
    :raw-source-url
-   "https://github.com/clojure/tools.analyzer.jvm/raw/afb17b6d233b620fc84291903e2a682879f84e4c/src/main/clojure/clojure/tools/analyzer/passes/jvm/annotate_loops.clj",
+   "https://github.com/clojure/tools.analyzer.jvm/raw/af657a83a274c58acec6898841b7543f014e6289/src/main/clojure/clojure/tools/analyzer/passes/jvm/annotate_loops.clj",
    :source-url
-   "https://github.com/clojure/tools.analyzer.jvm/blob/afb17b6d233b620fc84291903e2a682879f84e4c/src/main/clojure/clojure/tools/analyzer/passes/jvm/annotate_loops.clj#L12",
+   "https://github.com/clojure/tools.analyzer.jvm/blob/af657a83a274c58acec6898841b7543f014e6289/src/main/clojure/clojure/tools/analyzer/passes/jvm/annotate_loops.clj#L12",
    :wiki-url
    "http://clojure.github.com/tools.analyzer.jvm//passes.jvm.annotate-loops-api.html#clojure.tools.analyzer.passes.jvm.annotate-loops/annotate-loops",
    :namespace "clojure.tools.analyzer.passes.jvm.annotate-loops",
