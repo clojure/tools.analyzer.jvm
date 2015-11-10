@@ -27,12 +27,12 @@
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>tools.analyzer</artifactId>
-      <version>0.6.8-SNAPSHOT</version>
+      <version>0.6.7</version>
     </dependency>
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>core.memoize</artifactId>
-      <version>0.5.7</version>
+      <version>0.5.8</version>
     </dependency>
     <dependency>
       <groupId>org.ow2.asm</groupId>
