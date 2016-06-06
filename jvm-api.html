@@ -102,6 +102,9 @@ namespace.
       
     </div>
   </div><div class="toc-section" style="margin-left: 1em;">
+    <a style="margin-top: 3px;" href="#"></a>
+    
+  </div><div class="toc-section" style="margin-left: 1em;">
     <a style="margin-top: 3px;" href="#jvm.utils">jvm.utils</a>
     <div class="toc-entry" style="margin-left: 1em;">
       <a href="#clojure.tools.analyzer.jvm.utils/box" class="toc-entry-anchor">box</a>
@@ -185,6 +188,7 @@ namespace.
     <pre id="var-usage">Usage: (-&gt;ExceptionThrown e)
 </pre>
     <pre id="var-docstr">Positional factory function for class clojure.tools.analyzer.jvm.ExceptionThrown.</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/c20b40be466d0c8846a1e5c77541a319f25f65df/src/main/clojure/clojure/tools/analyzer/jvm.clj#L471">Source</a>
@@ -213,6 +217,7 @@ can be used to configure the behaviour of each pass.
 
 E.g.
 (analyze form env {:bindings  {#'ana/macroexpand-1 my-mexpand-1}})</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/c20b40be466d0c8846a1e5c77541a319f25f65df/src/main/clojure/clojure/tools/analyzer/jvm.clj#L436">Source</a>
@@ -232,6 +237,7 @@ will be caught and the :result field will hold an ExceptionThrown instance
 with the exception in the "e" field.
 
 Useful when analyzing whole files/namespaces.</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/c20b40be466d0c8846a1e5c77541a319f25f65df/src/main/clojure/clojure/tools/analyzer/jvm.clj#L473">Source</a>
@@ -247,6 +253,7 @@ Useful when analyzing whole files/namespaces.</pre>
     <pre id="var-docstr">Analyzes a whole namespace, returns a vector of the ASTs for all the
 top-level ASTs of that namespace.
 Evaluates all the forms.</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/c20b40be466d0c8846a1e5c77541a319f25f65df/src/main/clojure/clojure/tools/analyzer/jvm.clj#L527">Source</a>
@@ -259,6 +266,7 @@ Evaluates all the forms.</pre>
 </pre>
     <pre id="var-docstr">Creates a Var for sym and returns it.
 The Var gets interned in the env namespace.</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/c20b40be466d0c8846a1e5c77541a319f25f65df/src/main/clojure/clojure/tools/analyzer/jvm.clj#L186">Source</a>
@@ -269,6 +277,7 @@ The Var gets interned in the env namespace.</pre>
     <span id="var-type">var</span><br />
     <pre id="var-usage"></pre>
     <pre id="var-docstr">Set of passes that will be run by default on the AST by #'run-passes</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/c20b40be466d0c8846a1e5c77541a319f25f65df/src/main/clojure/clojure/tools/analyzer/jvm.clj#L393">Source</a>
@@ -279,6 +288,7 @@ The Var gets interned in the env namespace.</pre>
     <span id="var-type">var</span><br />
     <pre id="var-usage"></pre>
     <pre id="var-docstr">Default :passes-opts for `analyze`</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/c20b40be466d0c8846a1e5c77541a319f25f65df/src/main/clojure/clojure/tools/analyzer/jvm.clj#L428">Source</a>
@@ -290,6 +300,7 @@ The Var gets interned in the env namespace.</pre>
     <pre id="var-usage">Usage: (empty-env)
 </pre>
     <pre id="var-docstr">Returns an empty env map</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/c20b40be466d0c8846a1e5c77541a319f25f65df/src/main/clojure/clojure/tools/analyzer/jvm.clj#L73">Source</a>
@@ -303,6 +314,7 @@ The Var gets interned in the env namespace.</pre>
 </pre>
     <pre id="var-docstr">If form represents a macro form or an inlineable function,returns its expansion,
 else returns form.</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/c20b40be466d0c8846a1e5c77541a319f25f65df/src/main/clojure/clojure/tools/analyzer/jvm.clj#L123">Source</a>
@@ -316,6 +328,7 @@ else returns form.</pre>
        (macroexpand-all form env opts)
 </pre>
     <pre id="var-docstr">Like clojure.walk/macroexpand-all but correctly handles lexical scope</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/c20b40be466d0c8846a1e5c77541a319f25f65df/src/main/clojure/clojure/tools/analyzer/jvm.clj#L559">Source</a>
@@ -327,6 +340,7 @@ else returns form.</pre>
     <pre id="var-usage">Usage: (parse form env)
 </pre>
     <pre id="var-docstr">Extension to tools.analyzer/-parse for JVM special forms</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/c20b40be466d0c8846a1e5c77541a319f25f65df/src/main/clojure/clojure/tools/analyzer/jvm.clj#L380">Source</a>
@@ -343,6 +357,7 @@ set of passes is required.
 
 Use #'clojure.tools.analyzer.passes/schedule to get a function from a set of passes that
 run-passes can be bound to.</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/c20b40be466d0c8846a1e5c77541a319f25f65df/src/main/clojure/clojure/tools/analyzer/jvm.clj#L418">Source</a>
@@ -353,11 +368,13 @@ run-passes can be bound to.</pre>
     <span id="var-type">var</span><br />
     <pre id="var-usage"></pre>
     <pre id="var-docstr">Set of the special forms for clojure in the JVM</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/c20b40be466d0c8846a1e5c77541a319f25f65df/src/main/clojure/clojure/tools/analyzer/jvm.clj#L51">Source</a>
   </div>
 </div>
+
 <br />
 <h2 id="jvm.utils">jvm.utils</h2>
 <pre id="namespace-docstr"></pre>
@@ -378,6 +395,7 @@ run-passes can be bound to.</pre>
 </pre>
     <pre id="var-docstr">If the argument is a primitive Class, returns its boxed equivalent,
 otherwise returns the argument</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/d89bd7e0188cb2e4d280b025067c89c7d785591b/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L131">Source</a>
@@ -389,6 +407,7 @@ otherwise returns the argument</pre>
     <pre id="var-usage">Usage: (convertible? c1 c2)
 </pre>
     <pre id="var-docstr">Returns true if it's possible to convert from c1 to c2</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/d89bd7e0188cb2e4d280b025067c89c7d785591b/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L177">Source</a>
@@ -399,6 +418,7 @@ otherwise returns the argument</pre>
     <span id="var-type">multimethod</span><br />
     <pre id="var-usage">No usage documentation available</pre>
     <pre id="var-docstr">Takes a Symbol, String or Class and tires to resolve to a matching Class</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/d89bd7e0188cb2e4d280b025067c89c7d785591b/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L66">Source</a>
@@ -410,6 +430,7 @@ otherwise returns the argument</pre>
     <pre id="var-usage">Usage: (numeric? c)
 </pre>
     <pre id="var-docstr">Returns true if the given class is numeric</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/d89bd7e0188cb2e4d280b025067c89c7d785591b/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L161">Source</a>
@@ -421,6 +442,7 @@ otherwise returns the argument</pre>
     <pre id="var-usage">Usage: (prim-or-obj tag)
 </pre>
     <pre id="var-docstr">If the given Class is a primitive, returns that Class, otherwise returns Object</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/d89bd7e0188cb2e4d280b025067c89c7d785591b/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L318">Source</a>
@@ -431,6 +453,7 @@ otherwise returns the argument</pre>
     <span id="var-type">var</span><br />
     <pre id="var-usage"></pre>
     <pre id="var-docstr">Returns non-nil if the argument represents a primitive Class other than Void</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/d89bd7e0188cb2e4d280b025067c89c7d785591b/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L113">Source</a>
@@ -442,6 +465,7 @@ otherwise returns the argument</pre>
     <pre id="var-usage">Usage: (subsumes? c1 c2)
 </pre>
     <pre id="var-docstr">Returns true if c2 is subsumed by c1</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/d89bd7e0188cb2e4d280b025067c89c7d785591b/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L167">Source</a>
@@ -454,6 +478,7 @@ otherwise returns the argument</pre>
 </pre>
     <pre id="var-docstr">Given a vector of arg tags and a collection of methods, tries to return the
 subset of methods that match best the given tags</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/d89bd7e0188cb2e4d280b025067c89c7d785591b/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L333">Source</a>
@@ -466,6 +491,7 @@ subset of methods that match best the given tags</pre>
 </pre>
     <pre id="var-docstr">If the argument is a Class with a primitive equivalent, returns that,
 otherwise returns the argument</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/d89bd7e0188cb2e4d280b025067c89c7d785591b/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L146">Source</a>
@@ -477,6 +503,7 @@ otherwise returns the argument</pre>
     <pre id="var-usage">Usage: (wider-primitive from to)
 </pre>
     <pre id="var-docstr">Given two numeric primitive Classes, returns the wider one</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/d89bd7e0188cb2e4d280b025067c89c7d785591b/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L202">Source</a>
@@ -488,6 +515,7 @@ otherwise returns the argument</pre>
     <pre id="var-usage">Usage: (wider-tag tags)
 </pre>
     <pre id="var-docstr">Given a collection of Classes returns the wider one</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/d89bd7e0188cb2e4d280b025067c89c7d785591b/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L231">Source</a>
@@ -499,6 +527,7 @@ otherwise returns the argument</pre>
     <pre id="var-usage">Usage: (wider-tag* from to)
 </pre>
     <pre id="var-docstr">Given two Classes returns the wider one</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/d89bd7e0188cb2e4d280b025067c89c7d785591b/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L209">Source</a>
@@ -510,6 +539,7 @@ otherwise returns the argument</pre>
     <pre id="var-usage"></pre>
     <pre id="var-docstr">If the argument is a numeric primitive Class, returns a set of primitive Classes
 that are narrower than the given one</pre>
+    <pre id="var-specs"></pre>
     
     
     <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/d89bd7e0188cb2e4d280b025067c89c7d785591b/src/main/clojure/clojure/tools/analyzer/jvm/utils.clj#L192">Source</a>
