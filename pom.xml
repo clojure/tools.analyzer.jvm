@@ -27,12 +27,12 @@
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>tools.analyzer</artifactId>
-      <version>0.6.8-SNAPSHOT</version>
+      <version>0.6.8</version>
     </dependency>
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>core.memoize</artifactId>
-      <version>0.5.8</version>
+      <version>0.5.9</version>
     </dependency>
     <dependency>
       <groupId>org.ow2.asm</groupId>
@@ -42,7 +42,7 @@
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>tools.reader</artifactId>
-      <version>1.0.0-alpha1</version>
+      <version>1.0.0-beta2</version>
     </dependency>
   </dependencies>
 
