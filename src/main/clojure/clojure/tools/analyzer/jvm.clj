@@ -483,6 +483,8 @@
    which by defaults throws the original exception, but can be used to provide
    a replacement return value for the evaluation of the AST.
 
+   Unrolls `do` forms to handle the Gilardi scenario.
+
    Useful when analyzing whole files/namespaces."
   ([form] (analyze+eval form (empty-env) {}))
   ([form env] (analyze+eval form env {}))
