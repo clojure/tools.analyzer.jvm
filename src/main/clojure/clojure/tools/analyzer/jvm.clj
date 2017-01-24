@@ -471,6 +471,9 @@
 
 (deftype ExceptionThrown [e ast])
 
+(defn ^:private throw! [e]
+  (throw (.e ^ExceptionThrown e)))
+
 (defn analyze+eval
   "Like analyze but evals the form after the analysis and attaches the
    returned value in the :result field of the AST node.
@@ -489,7 +492,7 @@
   ([form] (analyze+eval form (empty-env) {}))
   ([form env] (analyze+eval form env {}))
   ([form env {:keys [handle-evaluation-exception]
-              :or {handle-evaluation-exception #(throw (.e ^ExceptionThrown %))}
+              :or {handle-evaluation-exception throw!}
               :as opts}]
      (env/ensure (global-env)
        (update-ns-map!)
