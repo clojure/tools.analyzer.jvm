@@ -464,9 +464,10 @@
                             #'*ns*              (the-ns (:ns env))}
                            (:bindings opts))
        (env/ensure (global-env)
-         (env/with-env (swap! env/*env* mmerge
-                              {:passes-opts (get opts :passes-opts default-passes-opts)})
-           (run-passes (-analyze form env)))))))
+         (doto (env/with-env (mmerge (env/deref-env)
+                                     {:passes-opts (get opts :passes-opts default-passes-opts)})
+                 (run-passes (-analyze form env)))
+           (do (update-ns-map!)))))))
 
 (deftype ExceptionThrown [e ast])
 
