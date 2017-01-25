@@ -269,7 +269,6 @@
 (defn -deftype [name class-name args interfaces]
 
   (doseq [arg [class-name name]]
-    (memo-clear! maybe-class-from-string [(str arg)])
     (memo-clear! members* [arg])
     (memo-clear! members* [(str arg)]))
 

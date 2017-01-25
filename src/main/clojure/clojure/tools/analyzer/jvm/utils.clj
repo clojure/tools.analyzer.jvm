@@ -75,16 +75,15 @@
               .getDescriptor
               (.replace \/ \.)))))
 
-(def maybe-class-from-string
-  (lru (fn maybe-class-from-string [^String s]
-         (or (when-let [maybe-class (and (neg? (.indexOf s "."))
-                                         (not= \[ (first s))
-                                         (if env/*env*
-                                           (u/resolve-sym (symbol s) {:ns (ns-name *ns*)})
-                                           ((ns-map *ns*) (symbol s))))]
-               (when (class? maybe-class) maybe-class))
-             (try (RT/classForName s)
-                  (catch ClassNotFoundException _))))))
+(defn maybe-class-from-string [^String s]
+  (or (when-let [maybe-class (and (neg? (.indexOf s "."))
+                                  (not= \[ (first s))
+                                  (if env/*env*
+                                    (u/resolve-sym (symbol s) {:ns (ns-name *ns*)})
+                                    ((ns-map *ns*) (symbol s))))]
+        (when (class? maybe-class) maybe-class))
+      (try (RT/classForName s)
+           (catch ClassNotFoundException _))))
 
 (defmethod maybe-class :default [_] nil)
 (defmethod maybe-class Class [c] c)
