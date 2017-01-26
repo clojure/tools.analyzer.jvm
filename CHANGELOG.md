@@ -2,6 +2,20 @@ Changelog
 ========================================
 Since tools.analyzer.jvm version are usually cut simultaneously with a tools.analyzer version, check also the tools.analyzer [CHANGELOG](https://github.com/clojure/tools.analyzer/blob/master/CHANGELOG.md) for changes on the corresponding version, since changes in that library will reflect on this one.
 - - -
+
+* Release 0.7.0-alpha1 on 26 Jan 2017
+  * Added handle-evaluation-exception opts to `analyze+eval`
+  * Changed `analyze+eval`'s default behaviour on eval exception
+  * Stop caching maybe-class-from-string as it implicitely relies on dynamic state
+  * Make analyze work from nested invocations -- remove state mutation
+* Release 0.6.10 on 17 Jun 2016
+  * Fix ns munging
+* Release 0.6.9 on 10 Nov 2015
+  * Correctly check for recur on case :then branches
+* Release 0.6.8 on 3 Nov 2015
+  * Fixed eof check in tools.reader usage
+  * Avoid reflection on catch local
+  * Fix context in analyze+eval statement
 * Release 0.6.7 on 23 Apr 2015
   * Add support for reader conditionals
   * Ensure *file* is correctly bound in analyze-ns
