@@ -3,6 +3,7 @@ Changelog
 Since tools.analyzer.jvm version are usually cut simultaneously with a tools.analyzer version, check also the tools.analyzer [CHANGELOG](https://github.com/clojure/tools.analyzer/blob/master/CHANGELOG.md) for changes on the corresponding version, since changes in that library will reflect on this one.
 - - -
 
+* Release 0.7.0 on 14 Feb 2017
 * Release 0.7.0-alpha1 on 26 Jan 2017
   * Added handle-evaluation-exception opts to `analyze+eval`
   * Changed `analyze+eval`'s default behaviour on eval exception
