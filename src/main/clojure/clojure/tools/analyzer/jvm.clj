@@ -241,7 +241,7 @@
                         (not (vector? args))
                         (str "Parameter listing should be a vector, had: " (class args))
                         (not (first args))
-                        (str"Must supply at least one argument for 'this' in: " method))]
+                        (str "Must supply at least one argument for 'this' in: " method))]
     (throw (ex-info error-msg
                     (merge {:form     form
                             :in       (:this env)
