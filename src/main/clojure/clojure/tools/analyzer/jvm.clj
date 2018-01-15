@@ -273,9 +273,9 @@
     (memo-clear! members* [(str arg)]))
 
   (let [interfaces (mapv #(symbol (.getName ^Class %)) interfaces)]
-    (eval (list 'let []
+    (eval (list `let []
                 (list 'deftype* name class-name args :implements interfaces)
-                (list 'import class-name)))))
+                (list `import class-name)))))
 
 (defn parse-reify*
   [[_ interfaces & methods :as form] env]
