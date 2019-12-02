@@ -6,7 +6,7 @@
   :source-paths ["src/main/clojure"]
   :test-paths ["src/test/clojure"]
   :dependencies [[org.clojure/clojure "1.9.0"]
-                 [org.clojure/core.memoize "0.5.9"]
+                 [org.clojure/core.memoize "0.8.2"]
                  [org.clojure/tools.reader "1.3.2"]
                  [org.clojure/tools.analyzer "0.7.0"]
                  [org.ow2.asm/asm "5.2"]]
