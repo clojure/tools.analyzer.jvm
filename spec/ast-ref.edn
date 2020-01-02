@@ -285,7 +285,7 @@
           [:args "A vector of AST nodes representing the arguments passed to the Class constructor"]
           ^:optional
           [:validated? "`true` if the constructor call could be resolved at compile time"]]}
-  {:op   :primitive-invoke
+  {:op   :prim-invoke
    :doc  "Node for an invoke expression that can be optimized using one of the primitive interfaces in IFn"
    :keys [[:form "`(prim-f arg*)`"]
           ^:children
