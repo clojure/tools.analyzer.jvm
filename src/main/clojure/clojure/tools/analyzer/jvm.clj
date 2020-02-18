@@ -89,11 +89,7 @@
     #'clojure.core/while
     #'clojure.core/with-open
     #'clojure.core/with-out-str
-    #'clojure.test/are
-    #'clojure.test/deftest
-    #'clojure.test/is
-    #'clojure.test/testing
-    #'clojure.test/try-expr})
+    })
 
 (def specials
   "Set of the special forms for clojure in the JVM"
