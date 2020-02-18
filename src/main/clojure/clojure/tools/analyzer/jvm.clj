@@ -83,7 +83,6 @@
     #'clojure.core/some->>
     #'clojure.core/sync
     #'clojure.core/time
-    #'clojure.core/vswap!
     #'clojure.core/when
     #'clojure.core/when-let
     #'clojure.core/when-not
