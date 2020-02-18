@@ -92,7 +92,6 @@
     #'clojure.core/with-out-str
     #'clojure.test/are
     #'clojure.test/deftest
-    #'clojure.test/deftest-
     #'clojure.test/is
     #'clojure.test/testing
     #'clojure.test/try-expr})
