@@ -1,11 +1,9 @@
 (ns clojure.tools.analyzer.jvm.passes-test
   (:refer-clojure :exclude [macroexpand-1])
-  (:require [clojure.tools.analyzer.ast :refer :all]
+  (:require [clojure.test :refer [deftest is]]
             [clojure.tools.analyzer.jvm :as ana.jvm]
             [clojure.tools.analyzer.env :as env]
             [clojure.tools.analyzer.passes :refer [schedule]]
-            [clojure.test :refer [deftest is]]
-            [clojure.set :as set]
             [clojure.tools.analyzer.passes.add-binding-atom :refer [add-binding-atom]]
             [clojure.tools.analyzer.passes.collect-closed-overs :refer [collect-closed-overs]]
             [clojure.tools.analyzer.jvm.core-test :refer [ast ast1 e f f1]]
@@ -37,9 +35,9 @@
   (is (= '(:foo {}) (emit-form (ast (:foo {})))))
   (is (= '(try 1 (catch Exception e nil))
          (emit-form (ana.jvm/analyze '(try 1 (catch Exception e))))))
-  (is (= '(try 1 (catch Exception e nil))
+  (is (= '(try 1 (catch java.lang.Exception e nil))
          (emit-form (ana.jvm/analyze '(try 1 (catch Exception e)))
-                    {:qualifed-symbols true})))
+                    {:qualified-symbols true})))
   (is (= '(f [] 1) (emit-form (ast (f [] 1))))))
 
 (deftest annotate-branch-test
@@ -80,7 +78,7 @@
   (is (= Var (-> (ast #'+)  annotate-tag :tag)))
   (is (= Boolean (-> (ast true) annotate-tag :tag)))
   (let [b-ast (-> (ast (let [a 1] a)) add-binding-atom
-                 (postwalk annotate-tag))]
+                (postwalk annotate-tag))]
     (is (= Long/TYPE (-> b-ast :body :ret :tag)))))
 
 (deftest classify-invoke-test
@@ -103,7 +101,7 @@
                      (prewalk (comp validate analyze-host-expr)) :catches first :class :val)))
   (is (-> (ast (set! *warn-on-reflection* true)) validate))
   (is (= true (-> (ast (String. "foo")) (postwalk (comp validate annotate-tag analyze-host-expr))
-              :validated?)))
+                :validated?)))
 
   (let [s-ast (-> (ast (Integer/parseInt "7")) (prewalk annotate-tag) analyze-host-expr validate)]
     (is (:validated? s-ast))
@@ -134,12 +132,12 @@
 
   (is (= String (-> (ast1 String) :val)))
   (is (= 'String (-> (ast1 String) :form)))
-(is (= PersistentVector (-> (ast1 '[]) :tag)))
-(is (= ISeq (-> (ast1 '()) :tag)))
+  (is (= PersistentVector (-> (ast1 '[]) :tag)))
+  (is (= ISeq (-> (ast1 '()) :tag)))
 
   (let [d-ast (ast1 (Double/isInfinite 2))]
     (is (= Boolean/TYPE (-> d-ast :tag)))
-    (is (= Double/TYPE (->> d-ast :args first :tag)))))
+    (is (= Double/TYPE (-> d-ast :args first :tag)))))
 
 ;; checks for specific bugs that have surfaced
 (deftest annotate-case-loop
