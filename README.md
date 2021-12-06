@@ -158,6 +158,6 @@ Developer Information
 
 ## License
 
-Copyright © 2013-2020 Nicola Mometto, Rich Hickey & contributors.
+Copyright © 2013-2021 Nicola Mometto, Rich Hickey & contributors.
 
 Distributed under the Eclipse Public License, the same as Clojure.
