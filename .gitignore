@@ -4,6 +4,7 @@
 /checkouts
 *.jar
 *.class
+.idea
 .lein-deps-sum
 .lein-failures
 .lein-plugins
