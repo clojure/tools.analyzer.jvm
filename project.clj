@@ -9,6 +9,6 @@
                  [org.clojure/core.memoize "1.0.253"]
                  [org.clojure/tools.reader "1.3.6"]
                  [org.clojure/tools.analyzer "1.0.0"]
-                 [org.ow2.asm/asm "5.2"]]
+                 [org.ow2.asm/asm "9.2"]]
   :repositories [["sonatype" "https://oss.sonatype.org/content/repositories/releases"]
                  ["snapshots" "https://oss.sonatype.org/content/repositories/snapshots"]])
