@@ -13,3 +13,6 @@
 .clj-kondo/.cache/
 .lsp/
 .portal/
+.cpcache/
+.calva/output-window/
+
