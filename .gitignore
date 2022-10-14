@@ -10,3 +10,6 @@
 .lein-plugins
 .lein-repl-history
 .nrepl-port
+.clj-kondo/.cache/
+.lsp/
+.portal/
