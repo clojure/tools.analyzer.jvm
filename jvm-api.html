@@ -1,7 +1,7 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>jvm - tools.analyzer.jvm 0.7.4-SNAPSHOT API documentation</title>
+    <title>jvm - tools.analyzer.jvm 1.2.4-SNAPSHOT API documentation</title>
     <link rel="icon" href="static/favicon.png" />
     <link rel="shortcut icon" href="static/favicon.png" />
     <link rel="stylesheet" href="static/clojure.css" type="text/css" media="all" />
@@ -25,7 +25,7 @@ namespace.
       <div id="leftcolumn"><div style="text-align: center;"></div>
 <div class="menu">
   <div class="WikiCustomNav WikiElement wiki">
-    <span class="toc-header"><span id="project-name">tools.analyzer.jvm</span> <span id="version">0.7.4-SNAPSHOT</span> API</span><br />
+    <span class="toc-header"><span id="project-name">tools.analyzer.jvm</span> <span id="version">1.2.4-SNAPSHOT</span> API</span><br />
     <ul>
       <li><a href="index.html" class="wiki_link">Overview</a></li>
       <li><a href="api-index.html" class="wiki_link">API Index</a></li>
@@ -92,6 +92,9 @@ namespace.
       <a href="#clojure.tools.analyzer.jvm/macroexpand-all" class="toc-entry-anchor">macroexpand-all</a>
       
     </div><div class="toc-entry" style="margin-left: 1em;">
+      <a href="#clojure.tools.analyzer.jvm/ns-safe-macro" class="toc-entry-anchor">ns-safe-macro</a>
+      
+    </div><div class="toc-entry" style="margin-left: 1em;">
       <a href="#clojure.tools.analyzer.jvm/parse" class="toc-entry-anchor">parse</a>
       
     </div><div class="toc-entry" style="margin-left: 1em;">
@@ -150,7 +153,7 @@ namespace.
 </div>
 </div>
                 <div id="content-tag"><h1 id="overview">API for <span id="jvm">jvm</span>
-  - <span id="header-project">tools.analyzer.jvm</span> <span id="header-version">0.7.4-SNAPSHOT</span><span id="header-status-block"> (<span id="header-status">in development</span>)</span>
+  - <span id="header-project">tools.analyzer.jvm</span> <span id="header-version">1.2.4-SNAPSHOT</span><span id="header-status-block"> (<span id="header-status">in development</span>)</span>
   </h1>
 
 <br />Full namespace name: <span id="long-name">clojure.tools.analyzer.jvm</span>
@@ -191,7 +194,7 @@ namespace.
     <pre id="var-specs"></pre>
     
     
-    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/622093aff116c2a88faea9d32dd5d50611d504c2/src/main/clojure/clojure/tools/analyzer/jvm.clj#L472">Source</a>
+    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/8a343c87e50281ac2d12e696bd04f7c55c4d00b7/src/main/clojure/clojure/tools/analyzer/jvm.clj#L516">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -220,7 +223,7 @@ E.g.
     <pre id="var-specs"></pre>
     
     
-    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/622093aff116c2a88faea9d32dd5d50611d504c2/src/main/clojure/clojure/tools/analyzer/jvm.clj#L436">Source</a>
+    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/8a343c87e50281ac2d12e696bd04f7c55c4d00b7/src/main/clojure/clojure/tools/analyzer/jvm.clj#L480">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -247,7 +250,7 @@ Useful when analyzing whole files/namespaces.</pre>
     <pre id="var-specs"></pre>
     
     
-    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/622093aff116c2a88faea9d32dd5d50611d504c2/src/main/clojure/clojure/tools/analyzer/jvm.clj#L477">Source</a>
+    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/8a343c87e50281ac2d12e696bd04f7c55c4d00b7/src/main/clojure/clojure/tools/analyzer/jvm.clj#L521">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -263,7 +266,7 @@ Evaluates all the forms.</pre>
     <pre id="var-specs"></pre>
     
     
-    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/622093aff116c2a88faea9d32dd5d50611d504c2/src/main/clojure/clojure/tools/analyzer/jvm.clj#L540">Source</a>
+    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/8a343c87e50281ac2d12e696bd04f7c55c4d00b7/src/main/clojure/clojure/tools/analyzer/jvm.clj#L584">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -276,7 +279,7 @@ The Var gets interned in the env namespace.</pre>
     <pre id="var-specs"></pre>
     
     
-    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/622093aff116c2a88faea9d32dd5d50611d504c2/src/main/clojure/clojure/tools/analyzer/jvm.clj#L187">Source</a>
+    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/8a343c87e50281ac2d12e696bd04f7c55c4d00b7/src/main/clojure/clojure/tools/analyzer/jvm.clj#L231">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -287,7 +290,7 @@ The Var gets interned in the env namespace.</pre>
     <pre id="var-specs"></pre>
     
     
-    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/622093aff116c2a88faea9d32dd5d50611d504c2/src/main/clojure/clojure/tools/analyzer/jvm.clj#L393">Source</a>
+    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/8a343c87e50281ac2d12e696bd04f7c55c4d00b7/src/main/clojure/clojure/tools/analyzer/jvm.clj#L437">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -298,7 +301,7 @@ The Var gets interned in the env namespace.</pre>
     <pre id="var-specs"></pre>
     
     
-    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/622093aff116c2a88faea9d32dd5d50611d504c2/src/main/clojure/clojure/tools/analyzer/jvm.clj#L428">Source</a>
+    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/8a343c87e50281ac2d12e696bd04f7c55c4d00b7/src/main/clojure/clojure/tools/analyzer/jvm.clj#L472">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -310,7 +313,7 @@ The Var gets interned in the env namespace.</pre>
     <pre id="var-specs"></pre>
     
     
-    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/622093aff116c2a88faea9d32dd5d50611d504c2/src/main/clojure/clojure/tools/analyzer/jvm.clj#L74">Source</a>
+    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/8a343c87e50281ac2d12e696bd04f7c55c4d00b7/src/main/clojure/clojure/tools/analyzer/jvm.clj#L117">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -324,7 +327,7 @@ else returns form.</pre>
     <pre id="var-specs"></pre>
     
     
-    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/622093aff116c2a88faea9d32dd5d50611d504c2/src/main/clojure/clojure/tools/analyzer/jvm.clj#L124">Source</a>
+    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/8a343c87e50281ac2d12e696bd04f7c55c4d00b7/src/main/clojure/clojure/tools/analyzer/jvm.clj#L167">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -338,7 +341,18 @@ else returns form.</pre>
     <pre id="var-specs"></pre>
     
     
-    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/622093aff116c2a88faea9d32dd5d50611d504c2/src/main/clojure/clojure/tools/analyzer/jvm.clj#L572">Source</a>
+    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/8a343c87e50281ac2d12e696bd04f7c55c4d00b7/src/main/clojure/clojure/tools/analyzer/jvm.clj#L616">Source</a>
+  </div><div id="var-entry">
+    <br />
+    <hr />
+    <h2 id="clojure.tools.analyzer.jvm/ns-safe-macro">ns-safe-macro</h2>
+    <span id="var-type">var</span><br />
+    <pre id="var-usage"></pre>
+    <pre id="var-docstr">Clojure macros that are known to not alter namespaces</pre>
+    <pre id="var-specs"></pre>
+    
+    
+    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/8a343c87e50281ac2d12e696bd04f7c55c4d00b7/src/main/clojure/clojure/tools/analyzer/jvm.clj#L51">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -350,7 +364,7 @@ else returns form.</pre>
     <pre id="var-specs"></pre>
     
     
-    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/622093aff116c2a88faea9d32dd5d50611d504c2/src/main/clojure/clojure/tools/analyzer/jvm.clj#L380">Source</a>
+    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/8a343c87e50281ac2d12e696bd04f7c55c4d00b7/src/main/clojure/clojure/tools/analyzer/jvm.clj#L424">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -367,7 +381,7 @@ run-passes can be bound to.</pre>
     <pre id="var-specs"></pre>
     
     
-    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/622093aff116c2a88faea9d32dd5d50611d504c2/src/main/clojure/clojure/tools/analyzer/jvm.clj#L418">Source</a>
+    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/8a343c87e50281ac2d12e696bd04f7c55c4d00b7/src/main/clojure/clojure/tools/analyzer/jvm.clj#L462">Source</a>
   </div><div id="var-entry">
     <br />
     <hr />
@@ -378,7 +392,7 @@ run-passes can be bound to.</pre>
     <pre id="var-specs"></pre>
     
     
-    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/622093aff116c2a88faea9d32dd5d50611d504c2/src/main/clojure/clojure/tools/analyzer/jvm.clj#L51">Source</a>
+    <a id="var-source" href="https://github.com/clojure/tools.analyzer.jvm/blob/8a343c87e50281ac2d12e696bd04f7c55c4d00b7/src/main/clojure/clojure/tools/analyzer/jvm.clj#L94">Source</a>
   </div>
 </div>
 
@@ -560,7 +574,7 @@ that are narrower than the given one</pre>
           </div>
 	</div>
 	<div id="foot">
-	  <div id="copyright" style="text-align: center;">Copyright 2007-2019 by Rich Hickey and the various contributors</div>
+	  <div id="copyright" style="text-align: center;">Copyright 2007-2023 by Rich Hickey and the various contributors</div>
 	</div>
       </div>
       <div id="DesignedBy">Logo &amp; site design by <a href="http://www.tomhickey.com" title="Visit Tom Hickey's website.">Tom Hickey</a>.<br />
