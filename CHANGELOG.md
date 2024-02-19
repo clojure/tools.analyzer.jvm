@@ -2,6 +2,8 @@ Changelog
 ========================================
 Since tools.analyzer.jvm version are usually cut simultaneously with a tools.analyzer version, check also the tools.analyzer [CHANGELOG](https://github.com/clojure/tools.analyzer/blob/master/CHANGELOG.md) for changes on the corresponding version, since changes in that library will reflect on this one.
 - - -
+* Release 1.3.0 on 19 Feb 2024
+  * Bumped deps on parent pom, tools.analyzer, core.memoize, tools.reader
 * Release 1.2.3 on 26 Nov 2022
   * Bumped dep on tools.analyzer to 1.1.1
 * Release 1.2.2 on 13 Dec 2021

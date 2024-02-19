@@ -119,7 +119,7 @@ YourKit is kindly supporting open source projects with its full-featured Java Pr
 Releases and Dependency Information
 ========================================
 
-Latest stable release: 1.2.3
+Latest stable release: 1.3.0
 
 * [All Released Versions](https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.clojure%22%20AND%20a%3A%22tools.analyzer.jvm%22)
 * [Development Snapshot Versions](https://oss.sonatype.org/index.html#nexus-search;gav%7Eorg.clojure%7Etools.analyzer.jvm%7E%7E%7E)
@@ -127,7 +127,7 @@ Latest stable release: 1.2.3
 [Leiningen](https://github.com/technomancy/leiningen) dependency information:
 
 ```clojure
-[org.clojure/tools.analyzer.jvm "1.2.3"]
+[org.clojure/tools.analyzer.jvm "1.3.0"]
 ```
 
 [Maven](https://maven.apache.org/) dependency information:
@@ -136,7 +136,7 @@ Latest stable release: 1.2.3
 <dependency>
   <groupId>org.clojure</groupId>
   <artifactId>tools.analyzer.jvm</artifactId>
-  <version>1.2.3</version>
+  <version>1.3.0</version>
 </dependency>
 ```
 
@@ -157,6 +157,6 @@ Developer Information
 
 ## License
 
-Copyright © 2013-2023 Nicola Mometto, Rich Hickey & contributors.
+Copyright © Nicola Mometto, Rich Hickey & contributors.
 
 Distributed under the Eclipse Public License, the same as Clojure.
