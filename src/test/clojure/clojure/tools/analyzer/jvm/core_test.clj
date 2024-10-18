@@ -5,6 +5,7 @@
             [clojure.tools.analyzer.env :as env]
             [clojure.tools.analyzer.passes.elide-meta :refer [elides elide-meta]]
             [clojure.tools.analyzer.ast :refer [postwalk]]
+            [clojure.tools.reader :as r]
             [clojure.test :refer [deftest is]]))
 
 (defprotocol p (f [_]))
@@ -20,13 +21,16 @@
      (env/with-env (ana.jvm/global-env)
        (postwalk (ana/analyze '~form e) elide-meta))))
 
+(defn ana [form]
+  (binding [ana/macroexpand-1 ana.jvm/macroexpand-1
+            ana/create-var    ana.jvm/create-var
+            ana/parse         ana.jvm/parse
+            ana/var?          var?
+            elides            {:all #{:line :column :file}}]
+    (ana.jvm/analyze form e)))
+
 (defmacro ast1 [form]
-  `(binding [ana/macroexpand-1 ana.jvm/macroexpand-1
-             ana/create-var    ana.jvm/create-var
-             ana/parse         ana.jvm/parse
-             ana/var?          var?
-             elides            {:all #{:line :column :file}}]
-     (ana.jvm/analyze '~form e)))
+  `(ana '~form))
 
 (defmacro mexpand [form]
   `(ana.jvm/macroexpand-1 '~form e))
@@ -108,3 +112,6 @@
 (deftest analyze+eval-context-test
   (let [do-ast (ana.jvm/analyze+eval '(do 1 2 3))]
     (is (= :ctx/statement (-> do-ast :statements first :env :context)))))
+
+(deftest array_class
+  (is (ana (r/read-string "(fn [^{:tag int/2} x] (instance? int/2 x))"))))

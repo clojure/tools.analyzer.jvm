@@ -67,13 +67,16 @@
   "Takes a Symbol, String or Class and tires to resolve to a matching Class"
   class)
 
-(defn array-class [element-type]
-  (RT/classForName
-   (str "[" (-> element-type
-              maybe-class
-              Type/getType
-              .getDescriptor
-              (.replace \/ \.)))))
+(defn array-class
+  ([element-type] (array-class 1 element-type))
+  ([n element-type]
+   (RT/classForName
+    (str (apply str (repeat n"["))
+         (-> element-type
+             maybe-class
+             Type/getType
+             .getDescriptor
+             (.replace \/ \.))))))
 
 (defn maybe-class-from-string [^String s]
   (or (when-let [maybe-class (and (neg? (.indexOf s "."))
@@ -90,24 +93,36 @@
 (defmethod maybe-class String [s]
   (maybe-class (symbol s)))
 
+(defn maybe-array-class-sym [x]
+  (let [sname (name x)]
+    (if-let [c (and (= (count sname) 1)
+                    (Character/isDigit (first sname))
+                    (namespace x))]
+      (when-let [c (or (specials c)
+                       (maybe-class-from-string c))]
+        (array-class (Integer/parseInt sname) c)))))
+
 (defmethod maybe-class Symbol [sym]
-  (when-not (namespace sym)
-    (let [sname (name sym)
-          snamec (count sname)]
-      (if-let [base-type (and (.endsWith sname "<>")
-                              (maybe-class (subs sname 0 (- snamec 2))))]
-        (array-class base-type)
-        (if-let [ret (or (specials sname)
-                         (special-arrays sname))]
-          ret
-          (maybe-class-from-string sname))))))
+  (let [sname (name sym)
+        snamec (count sname)]
+    (or (maybe-array-class-sym sym)
+        (when-not (namespace sym)
+          (if-let [base-type (and (.endsWith sname "<>")
+                                  (maybe-class (subs sname 0 (- snamec 2))))]
+            ;; TODO: we're leaking into the syntax
+            (array-class base-type)
+            (if-let [ret (or (specials sname)
+                             (special-arrays sname))]
+              ret
+              (maybe-class-from-string sname)))))))
 
 (defn maybe-class-literal [x]
   (cond
-   (class? x) x
-   (symbol? x) (and (not (namespace x))
-                    (maybe-class-from-string (name x)))
-   (string? x) (maybe-class-from-string x)))
+    (class? x) x
+    (symbol? x) (or (maybe-array-class-sym x)
+                    (and (not (namespace x))
+                         (maybe-class-from-string (name x))))
+    (string? x) (maybe-class-from-string x)))
 
 (def primitive?
   "Returns non-nil if the argument represents a primitive Class other than Void"
