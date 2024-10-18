@@ -67,13 +67,16 @@
   "Takes a Symbol, String or Class and tires to resolve to a matching Class"
   class)
 
-(defn array-class [element-type]
-  (RT/classForName
-   (str "[" (-> element-type
-              maybe-class
-              Type/getType
-              .getDescriptor
-              (.replace \/ \.)))))
+(defn array-class
+  ([element-type] (array-class 1 element-type))
+  ([n element-type]
+   (RT/classForName
+    (str (apply str (repeat n"["))
+         (-> element-type
+             maybe-class
+             Type/getType
+             .getDescriptor
+             (.replace \/ \.))))))
 
 (defn maybe-class-from-string [^String s]
   (or (when-let [maybe-class (and (neg? (.indexOf s "."))
