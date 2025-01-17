@@ -48,6 +48,8 @@
   (:import (clojure.lang IObj RT Compiler Var)
            java.net.URL))
 
+(set! *warn-on-reflection* true)
+
 (def ns-safe-macro
   "Clojure macros that are known to not alter namespaces"
   #{#'clojure.core/->

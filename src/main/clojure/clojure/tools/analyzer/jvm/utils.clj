@@ -16,6 +16,8 @@
   (:import (clojure.lang RT Symbol Var)
            org.objectweb.asm.Type))
 
+(set! *warn-on-reflection* true)
+
 (defn ^:private type-reflect
   [typeref & options]
   (apply reflect/type-reflect typeref
