@@ -128,7 +128,7 @@
                          (maybe-class-literal sym-ns))]          ;; Class/field
       (let [opname (name form)]
         (if (and (= (count opname) 1)
-                 (Character/isDigit (first opname)))
+                 (Character/isDigit (char (first opname))))
           form ;; Array/<n>
           (with-meta (list '. target (symbol (str "-" opname))) ;; transform to (. Class -field)
             (meta form))))
