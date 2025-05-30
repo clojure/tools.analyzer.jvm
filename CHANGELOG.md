@@ -2,6 +2,10 @@ Changelog
 ========================================
 Since tools.analyzer.jvm version are usually cut simultaneously with a tools.analyzer version, check also the tools.analyzer [CHANGELOG](https://github.com/clojure/tools.analyzer/blob/master/CHANGELOG.md) for changes on the corresponding version, since changes in that library will reflect on this one.
 - - -
+* Release 1.3.2 on 17 Jan 2025
+  * Removed reflection warnings on internal use of Character/isDigit
+* Release 1.3.1 on 2 Dec 2024
+  * Added support for Clojure 1.12 array class syntax
 * Release 1.3.0 on 19 Feb 2024
   * Bumped deps on parent pom, tools.analyzer, core.memoize, tools.reader
 * Release 1.2.3 on 26 Nov 2022
