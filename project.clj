@@ -5,10 +5,10 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :source-paths ["src/main/clojure"]
   :test-paths ["src/test/clojure"]
-  :dependencies [[org.clojure/clojure "1.9.0"]
-                 [org.clojure/core.memoize "1.1.266"]
-                 [org.clojure/tools.reader "1.5.0"]
-                 [org.clojure/tools.analyzer "1.2.0"]
-                 [org.ow2.asm/asm "9.2"]]
+  :dependencies [[org.clojure/clojure "1.11.4"]
+                 [org.clojure/core.memoize "1.2.273"]
+                 [org.clojure/tools.reader "1.6.0"]
+                 [org.clojure/tools.analyzer "1.2.1"]
+                 [org.ow2.asm/asm "9.9.1"]]
   :repositories [["sonatype" "https://oss.sonatype.org/content/repositories/releases"]
                  ["snapshots" "https://oss.sonatype.org/content/repositories/snapshots"]])
