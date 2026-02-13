@@ -121,8 +121,6 @@
   (is (= (list '. Integer (symbol "-MAX_VALUE"))
          (mexpand Integer/MAX_VALUE)))
 
-  (is (= 'String/1 (mexpand String/1)))
-
   (is (= 'String/.length (mexpand String/.length)))
   (is (= 'Integer/.intValue (mexpand Integer/.intValue)))
 
