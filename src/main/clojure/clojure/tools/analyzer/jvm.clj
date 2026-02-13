@@ -162,7 +162,7 @@
                              (not (resolve-ns (symbol opns) env))
                              (maybe-class-literal opns))]
 
-          (let [param-tags (:param-tags (meta op))
+          (let [param-tags (param-tags-of op)
                 form-meta (cond-> (meta form)
                             param-tags (assoc :param-tags param-tags))]
             (cond
