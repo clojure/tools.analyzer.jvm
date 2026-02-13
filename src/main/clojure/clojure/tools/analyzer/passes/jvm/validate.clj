@@ -37,14 +37,22 @@
   [{:keys [class field form env] :as ast}]
   (if-let [handle (-> (env/deref-env) :passes-opts :validate/unresolvable-symbol-handler)]
     (handle class field ast)
-    (if (resolve-ns class env)
-      (throw (ex-info (str "No such var: " class)
-                      (merge {:form form}
+    (if-let [resolved-class (maybe-class-literal class)]
+      (throw (ex-info (str "Cannot find method or field " field " for class "
+                           (.getName ^Class resolved-class))
+                      (merge {:class resolved-class
+                              :field field
+                              :form  form}
                              (source-info env))))
-      (throw (ex-info (str "No such namespace: " class)
-                      (merge {:ns   class
-                              :form form}
-                             (source-info env)))))))
+      (if (resolve-ns class env)
+        (throw (ex-info (str "No such var: " class)
+                        (merge {:form form}
+                               (source-info env))))
+        (throw (ex-info (str "No such namespace: " class)
+                        (merge {:ns   class
+                                :form form}
+                               (source-info env))))))))
+
 
 (defmethod -validate :set!
   [{:keys [target form env] :as ast}]
