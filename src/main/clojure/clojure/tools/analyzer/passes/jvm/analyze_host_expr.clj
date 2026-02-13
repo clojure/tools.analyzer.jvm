@@ -166,12 +166,8 @@
               (case op
 
                 :host-call
-                (let [result (analyze-host-call target-type (:method ast)
-                                                (:args ast) target class? env)
-                      param-tags (param-tags-of form)]
-                  (if param-tags
-                    (assoc result :param-tags param-tags)
-                    result))
+                (analyze-host-call target-type (:method ast)
+                                   (:args ast) target class? env)
 
                 :host-field
                 (analyze-host-field target-type (:field ast)

@@ -162,47 +162,33 @@
                              (not (resolve-ns (symbol opns) env))
                              (maybe-class-literal opns))]
 
-          (let [param-tags (param-tags-of op)
-                form-meta (cond-> (meta form)
-                            param-tags (assoc :param-tags param-tags))]
-            (cond
-              ;; (Class/new args) -> (new Class args)
-              (= "new" opname)
-              (with-meta (list* 'new target expr)
-                form-meta)
+          (cond
+           ;; (Class/new args), (Class/.method target args), (^[pt] Class/method args)
+           ;; -> leave as-is, will be analyzed as invoke of method-value
+           (or (= "new" opname)
+               (.startsWith ^String opname ".")
+               (param-tags-of op))
+           form
 
-              ;; (Class/.method target args) -> (. ^Class (do target) (method rest-args))
-              (.startsWith ^String opname ".")
-              (if (seq expr)
-                (let [method-sym (symbol (subs opname 1))
-                      [target-arg & args] expr]
-                  (with-meta (list '. (with-meta (list 'do target-arg)
-                                        {:tag target})
-                                   (if (seq args)
-                                     (list* method-sym args)
-                                     method-sym))
-                    form-meta))
-                form)
-
-              ;; (Class/method args) -> (. Class (method args))
-              :else
-              (let [op-sym (symbol opname)]
-                (with-meta (list '. target (if (seq expr)
-                                             (list* op-sym expr)
-                                             op-sym))
-                  form-meta))))
+           ;; (Class/method args) -> (. Class (method args))
+           :else
+           (let [op-sym (symbol opname)]
+             (with-meta (list '. target (if (seq expr)
+                                          (list* op-sym expr)
+                                          op-sym))
+               (meta form))))
 
           (cond
            (.startsWith opname ".")     ; (.foo bar ..)
            (let [[target & args] expr
                  target (if-let [target (maybe-class-literal target)]
                           (with-meta (list 'do target)
-                                     {:tag 'java.lang.Class})
+                            {:tag 'java.lang.Class})
                           target)
                  args (list* (symbol (subs opname 1)) args)]
              (with-meta (list '. target (if (= 1 (count args)) ;; we don't know if (.foo bar) is
                                           (first args) args))  ;; a method call or a field access
-                        (meta form)))
+               (meta form)))
 
            (.endsWith opname ".") ;; (class. ..)
            (with-meta (list* 'new (symbol (subs opname 0 (dec (count opname)))) expr)
