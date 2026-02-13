@@ -90,8 +90,7 @@
     #'clojure.core/when-not
     #'clojure.core/while
     #'clojure.core/with-open
-    #'clojure.core/with-out-str
-    })
+    #'clojure.core/with-out-str})
 
 (def specials
   "Set of the special forms for clojure in the JVM"
@@ -127,13 +126,31 @@
   (let [sym-ns (namespace form)]
     (if-let [target (and sym-ns
                          (not (resolve-ns (symbol sym-ns) env))
-                         (maybe-class-literal sym-ns))]          ;; Class/field
-      (let [opname (name form)]
-        (if (and (= (count opname) 1)
-                 (Character/isDigit (char (first opname))))
-          form ;; Array/<n>
-          (with-meta (list '. target (symbol (str "-" opname))) ;; transform to (. Class -field)
-            (meta form))))
+                         (maybe-class-literal sym-ns))]
+      (let [opname (name form)
+            opsym (symbol opname)]
+        (cond
+          ;; Array/<n>, leave as is
+          (and (= (count opname) 1)
+               (Character/isDigit (char (first opname))))
+          form
+
+          ;; Class/.method or Class/new, leave as is to be parsed as :maybe-host-form -> :method-value
+          (or (.startsWith ^String opname ".")
+              (= "new" opname))
+          form
+
+          ;; Class/name where name is a static field,  desugar to (. Class -name) as before
+          ;; But if :param-tags are present and methods with the same name exist, then leave as is to go through
+          ;; :method-value path
+          (static-field target opsym)
+          (if (and (:param-tags (meta form))
+                   (seq (filter :return-type (static-members target opsym))))
+            form
+            (with-meta (list '. target (symbol (str "-" opname)))
+              (meta form)))
+
+          :else form))
       form)))
 
 (defn desugar-host-expr [form env]
@@ -143,25 +160,49 @@
             opns   (namespace op)]
         (if-let [target (and opns
                              (not (resolve-ns (symbol opns) env))
-                             (maybe-class-literal opns))] ; (class/field ..)
+                             (maybe-class-literal opns))]
 
-          (let [op (symbol opname)]
-            (with-meta (list '. target (if (zero? (count expr))
-                                         op
-                                         (list* op expr)))
-              (meta form)))
+          (let [param-tags (:param-tags (meta op))
+                form-meta (cond-> (meta form)
+                            param-tags (assoc :param-tags param-tags))]
+            (cond
+              ;; (Class/new args) -> (new Class args)
+              (= "new" opname)
+              (with-meta (list* 'new target expr)
+                form-meta)
+
+              ;; (Class/.method target args) -> (. ^Class (do target) (method rest-args))
+              (.startsWith ^String opname ".")
+              (if (seq expr)
+                (let [method-sym (symbol (subs opname 1))
+                      [target-arg & args] expr]
+                  (with-meta (list '. (with-meta (list 'do target-arg)
+                                        {:tag target})
+                                   (if (seq args)
+                                     (list* method-sym args)
+                                     method-sym))
+                    form-meta))
+                form)
+
+              ;; (Class/method args) -> (. Class (method args))
+              :else
+              (let [op-sym (symbol opname)]
+                (with-meta (list '. target (if (seq expr)
+                                             (list* op-sym expr)
+                                             op-sym))
+                  form-meta))))
 
           (cond
            (.startsWith opname ".")     ; (.foo bar ..)
            (let [[target & args] expr
                  target (if-let [target (maybe-class-literal target)]
                           (with-meta (list 'do target)
-                            {:tag 'java.lang.Class})
+                                     {:tag 'java.lang.Class})
                           target)
                  args (list* (symbol (subs opname 1)) args)]
              (with-meta (list '. target (if (= 1 (count args)) ;; we don't know if (.foo bar) is
                                           (first args) args))  ;; a method call or a field access
-               (meta form)))
+                        (meta form)))
 
            (.endsWith opname ".") ;; (class. ..)
            (with-meta (list* 'new (symbol (subs opname 0 (dec (count opname)))) expr)
