@@ -3,4 +3,4 @@
         org.clojure/tools.reader {:mvn/version "1.6.0"}
         org.clojure/core.memoize {:mvn/version "1.2.273"}
         org.ow2.asm/asm {:mvn/version  "9.9.1"}}
- :paths ["src/main/clojure"]}
+ :paths ["src/main/clojure" "src/test/clojure"]}
