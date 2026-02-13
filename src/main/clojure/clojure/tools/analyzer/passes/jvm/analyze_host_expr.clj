@@ -8,8 +8,9 @@
 
 (ns clojure.tools.analyzer.passes.jvm.analyze-host-expr
   (:require [clojure.tools.analyzer :as ana]
-            [clojure.tools.analyzer.utils :refer [ctx source-info merge']]
-            [clojure.tools.analyzer.jvm.utils :refer :all]))
+            [clojure.tools.analyzer.utils :refer [ctx source-info merge' param-tags-of]]
+            [clojure.tools.analyzer.jvm.utils :refer :all])
+  (:import (clojure.lang AFunction)))
 
 (defn maybe-static-field [[_ class sym]]
   (when-let [{:keys [flags type name]} (static-field class sym)]
@@ -165,8 +166,12 @@
               (case op
 
                 :host-call
-                (analyze-host-call target-type (:method ast)
-                                   (:args ast) target class? env)
+                (let [result (analyze-host-call target-type (:method ast)
+                                                (:args ast) target class? env)
+                      param-tags (param-tags-of form)]
+                  (if param-tags
+                    (assoc result :param-tags param-tags)
+                    result))
 
                 :host-field
                 (analyze-host-field target-type (:field ast)
