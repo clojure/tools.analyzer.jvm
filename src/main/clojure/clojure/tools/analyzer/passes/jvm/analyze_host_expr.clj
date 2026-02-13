@@ -143,8 +143,9 @@
 (defn analyze-host-expr
   "Performing some reflection, transforms :host-interop/:host-call/:host-field
    nodes in either: :static-field, :static-call, :instance-call, :instance-field
-   or :host-interop nodes, and a :var/:maybe-class/:maybe-host-form node in a
-   :const :class node, if necessary (class literals shadow Vars).
+   or :host-interop nodes, a :var/:maybe-class/:maybe-host-form node in a
+   :const :class node if necessary (class literals shadow Vars), and a
+   :maybe-host-form node in a :method-value node for qualified methods.
 
    A :host-interop node represents either an instance-field or a no-arg instance-method. "
   {:pass-info {:walk :post :depends #{}}}
