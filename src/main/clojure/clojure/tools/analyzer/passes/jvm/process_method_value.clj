@@ -14,11 +14,10 @@
   "Transforms :invoke nodes whose :fn is a :method-value into the
    corresponding :instance-call, :static-call, or :new node. "
   {:pass-info {:walk :post :depends #{#'analyze-host-expr}}}
-  [{:keys [op] :as ast}]
+  [{:keys [op args env] :as ast}]
   (if (and (= :invoke op)
            (= :method-value (:op (:fn ast))))
-    (let [{:keys [args env]} ast
-          {:keys [class method kind param-tags]} (:fn ast)]
+    (let [{:keys [class method kind param-tags]} (:fn ast)]
       (when (and (= :instance kind) (empty? args))
         (throw (ex-info (str "Qualified instance method " (.getName ^Class class) "/." method
                              " must have a target")
