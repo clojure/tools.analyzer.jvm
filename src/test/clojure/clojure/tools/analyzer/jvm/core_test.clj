@@ -129,19 +129,10 @@
   (is (= 'String/valueOf (mexpand String/valueOf)))
   (is (= 'Integer/parseInt (mexpand Integer/parseInt)))
 
-  (let [expanded (mexpand (String/new "hello"))]
-    (is (= 'new (first expanded)))
-    (is (= java.lang.String (second expanded))))
-
-  (let [expanded (mexpand (String/.substring "hello" 1 3))]
-    (is (= '. (first expanded)))
-    (is (= '(do "hello") (second expanded)))
-    (is (= String (:tag (meta (second expanded)))))
-    (is (= 'substring (first (nth expanded 2)))))
-
-  (let [expanded (mexpand (String/.length "hello"))]
-    (is (= '. (first expanded)))
-    (is (= 'length (nth expanded 2))))
+  (is (= '(String/new "hello") (mexpand (String/new "hello"))))
+  (is (= '(String/.substring "hello" 1 3) (mexpand (String/.substring "hello" 1 3))))
+  (is (= '(String/.length "hello") (mexpand (String/.length "hello"))))
+  (is (= '(Integer/parseInt "2") (mexpand (^[int] Integer/parseInt "2"))))
 
   (let [expanded (mexpand (Integer/parseInt "2"))]
     (is (= '. (first expanded)))
