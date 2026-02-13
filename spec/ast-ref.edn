@@ -176,7 +176,9 @@
           ^:optional
           [:validated? "`true` if the method call could be resolved at compile time"]
           ^:optional
-          [:class "If :validated? the class or interface the method belongs to"]]}
+          [:class "If :validated? the class or interface the method belongs to"]
+          ^:optional
+          [:param-tags "A vector of type hints for overload disambiguation, from `^[Type ...]` metadata on the invocation form"]]}
   {:op   :instance-field
    :doc  "Node for an instance field access"
    :keys  [[:form "`(.-field instance)`"]
@@ -266,6 +268,19 @@
           [:fixed-arity "The number of args this method takes"]
           ^:children
           [:body "Synthetic :do node (with :body? `true`) representing the body of this method"]]}
+  {:op   :method-value
+   :doc  "Node for a qualified method reference in value position (Clojure 1.12+)"
+   :keys [[:form "The original qualified method symbol, e.g. `String/valueOf`, `File/.getName`, `File/new`"]
+          [:class "The resolved Class the method belongs to"]
+          [:method "Symbol naming the method"]
+          [:kind "One of :static, :instance, or :ctor"]
+          ^:optional
+          [:param-tags "A vector of type hints for overload disambiguation, from `^[Type ...]` metadata"]
+          [:methods "A vector of matching method/constructor reflective info maps"]
+          ^:optional
+          [:field-overload "When :kind is :static and a static field of the same name exists, the field info map"]
+          ^:optional
+          [:validated? "`true` if the method value could be resolved at compile time"]]}
   {:op   :monitor-enter
    :doc  "Node for a monitor-enter special-form statement"
    :keys [[:form "`(monitor-enter target)`"]
@@ -349,7 +364,9 @@
           ^:children
           [:args "A vector of AST nodes representing the args to the method call"]
           ^:optional
-          [:validated? "`true` if the static method could be resolved at compile time"]]}
+          [:validated? "`true` if the static method could be resolved at compile time"]
+          ^:optional
+          [:param-tags "A vector of type hints for overload disambiguation, from `^[Type ...]` metadata on the invocation form"]]}
   {:op   :static-field
    :doc  "Node for a static field access"
    :keys [[:form "`Class/field`"]
