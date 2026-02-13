@@ -412,9 +412,8 @@
 (defn resolve-hinted-method
   "Given a class, method name and param-tags, resolves to the unique matching method.
    Returns nil if no match or if ambiguous."
-  [class method-name param-tags]
+  [methods param-tags]
   (let [param-classes (tags-to-maybe-classes param-tags)
-        methods (members class method-name)
         matching (filter #(signature-matches? param-classes %) methods)]
     (when (= 1 (count matching))
       (first matching))))

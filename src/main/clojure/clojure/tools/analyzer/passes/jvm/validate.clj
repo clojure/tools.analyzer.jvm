@@ -53,6 +53,25 @@
                                 :form form}
                                (source-info env))))))))
 
+(defmethod -validate :method-value
+  [{:keys [class method kind param-tags methods env] :as ast}]
+  (let [class (u/maybe-class class)]
+    (if param-tags
+      (if-let [m (resolve-hinted-method methods param-tags)]
+        (assoc ast
+               :class      class
+               :methods    [m]
+               :validated? true)
+        (throw (ex-info (str "param-tags " (pr-str param-tags)
+                             " insufficient to resolve " (name kind) " method "
+                             method " in class " (.getName ^Class class))
+                        (merge {:class      class
+                                :method     method
+                                :param-tags param-tags}
+                               (source-info env)))))
+      (assoc ast
+             :class      class
+             :validated? true))))
 
 (defmethod -validate :set!
   [{:keys [target form env] :as ast}]
