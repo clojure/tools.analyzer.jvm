@@ -147,6 +147,17 @@
   (list (-emit-form* keyword opts)
         (-emit-form* target opts)))
 
+(defmethod -emit-form :method-value
+  [{:keys [class method kind param-tags]} opts]
+  (let [class-name (if (symbol? class) (name class) (.getName ^Class class))
+        sym (case kind
+              :static   (symbol class-name (str method))
+              :instance (symbol class-name (str "." method))
+              :ctor     (symbol class-name "new"))]
+    (if param-tags
+      (vary-meta sym assoc :param-tags param-tags)
+      sym)))
+
 (defmethod -emit-form :instance?
   [{:keys [class target]} opts]
   `(instance? ~class ~(-emit-form* target opts)))
