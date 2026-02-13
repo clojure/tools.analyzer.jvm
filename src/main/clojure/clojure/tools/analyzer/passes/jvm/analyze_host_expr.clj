@@ -198,9 +198,7 @@
       (if-let [array-class (maybe-array-class-sym (symbol (str class-sym) field-name))]
         (assoc (ana/analyze-const array-class env :class) :form form)
         (if-let [the-class (maybe-class-literal class-sym)]
-          (let [param-tags   (or (param-tags-of form)
-                                 (when (coll? form)
-                                   (param-tags-of (first form))))
+          (let [param-tags   (param-tags-of form)
                 kind         (cond (.startsWith field-name ".") :instance
                                    (= "new" field-name)         :ctor
                                    :else                        :static)
