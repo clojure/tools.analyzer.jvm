@@ -37,7 +37,7 @@
   [{:keys [class field form env] :as ast}]
   (if-let [handle (-> (env/deref-env) :passes-opts :validate/unresolvable-symbol-handler)]
     (handle class field ast)
-    (if-let [resolved-class (maybe-class-literal class)]
+    (if-let [resolved-class (u/maybe-class-literal class)]
       (throw (ex-info (str "Cannot find method or field " field " for class "
                            (.getName ^Class resolved-class))
                       (merge {:class resolved-class
