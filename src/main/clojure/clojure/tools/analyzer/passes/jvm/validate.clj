@@ -15,7 +15,7 @@
              [infer-tag :refer [infer-tag]]
              [analyze-host-expr :refer [analyze-host-expr]]]
             [clojure.tools.analyzer.utils :refer [arglist-for-arity source-info resolve-sym resolve-ns merge']]
-            [clojure.tools.analyzer.jvm.utils :as u :refer [tag-match? try-best-match]])
+            [clojure.tools.analyzer.jvm.utils :as u :refer [tag-match? try-best-match resolve-hinted-method]])
   (:import (clojure.lang IFn ExceptionInfo)))
 
 (defmulti -validate :op)
