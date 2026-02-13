@@ -144,7 +144,7 @@
           ;; But if :param-tags are present and methods with the same name exist, then leave as is to go through
           ;; :method-value path
           (static-field target opsym)
-          (if (and (:param-tags (meta form))
+          (if (and (param-tags-of form)
                    (seq (filter :return-type (static-members target opsym))))
             form
             (with-meta (list '. target (symbol (str "-" opname)))
