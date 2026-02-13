@@ -34,6 +34,7 @@
              [box :refer [box]]
              [constant-lifter :refer [constant-lift]]
              [classify-invoke :refer [classify-invoke]]
+             [process-method-value :refer [process-method-value]]
              [validate :refer [validate]]
              [infer-tag :refer [infer-tag]]
              [validate-loop-locals :refer [validate-loop-locals]]
@@ -483,6 +484,7 @@
     #'box
 
     #'analyze-host-expr
+    #'process-method-value
     #'validate-loop-locals
     #'validate
     #'infer-tag
