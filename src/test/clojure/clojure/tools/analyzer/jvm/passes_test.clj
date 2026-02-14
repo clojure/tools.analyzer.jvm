@@ -25,7 +25,8 @@
                          PersistentVector PersistentArrayMap PersistentHashSet ISeq)
            java.util.regex.Pattern
            (java.io File)
-           (java.util UUID Arrays)))
+           (java.util UUID Arrays)
+           clojure.tools.analyzer.jvm.test.FieldMethodOverload))
 
 (defn validate [ast]
   (env/with-env (ana.jvm/global-env)
@@ -199,12 +200,14 @@
   (let [a (ana (r/read-string "^[long] String/valueOf"))]
     (is (= :method-value (:op a)))
     (is (:validated? a))
-    (is (= 1 (count (:methods a)))))
+    (is (= 1 (count (:methods a))))
+    (is (= '[long] (-> a :methods first :parameter-types))))
 
   (let [a (ana (r/read-string "^[int int] String/.substring"))]
     (is (= :method-value (:op a)))
     (is (:validated? a))
-    (is (= 1 (count (:methods a))))))
+    (is (= 1 (count (:methods a))))
+    (is (= '[int int] (-> a :methods first :parameter-types)))))
 
 (deftest method-value-kinds-test
   (let [a (ast1 File/.isDirectory)]
@@ -305,21 +308,25 @@
   (let [a (ana (r/read-string "^[double] Math/abs"))]
     (is (= :method-value (:op a)))
     (is (= 1 (count (:methods a))))
+    (is (= '[double] (-> a :methods first :parameter-types)))
     (is (:validated? a)))
 
   (let [a (ana (r/read-string "^[float] Math/abs"))]
     (is (= :method-value (:op a)))
     (is (= 1 (count (:methods a))))
+    (is (= '[float] (-> a :methods first :parameter-types)))
     (is (:validated? a)))
 
   (let [a (ana (r/read-string "^[long] Math/abs"))]
     (is (= :method-value (:op a)))
     (is (= 1 (count (:methods a))))
+    (is (= '[long] (-> a :methods first :parameter-types)))
     (is (:validated? a)))
 
   (let [a (ana (r/read-string "^[int] Math/abs"))]
     (is (= :method-value (:op a)))
     (is (= 1 (count (:methods a))))
+    (is (= '[int] (-> a :methods first :parameter-types)))
     (is (:validated? a))))
 
 (deftest param-tags-constructor-invocation-test
@@ -354,11 +361,13 @@
   (let [a (ana (r/read-string "^[long/1 long] java.util.Arrays/binarySearch"))]
     (is (= :method-value (:op a)))
     (is (= 1 (count (:methods a))))
+    (is (= '[long<> long] (-> a :methods first :parameter-types)))
     (is (:validated? a)))
 
   (let [a (ana (r/read-string "^[Object/1 _] java.util.Arrays/binarySearch"))]
     (is (= :method-value (:op a)))
     (is (= 1 (count (:methods a))))
+    (is (= '[java.lang.Object<> java.lang.Object] (-> a :methods first :parameter-types)))
     (is (:validated? a))))
 
 (deftest bad-param-tags-test
@@ -366,3 +375,20 @@
   (is (thrown? ExceptionInfo (ana (r/read-string "(^[] String/foo \"a\")"))))
   (is (thrown? ExceptionInfo (ana (r/read-string "(^[] String/.foo \"a\")"))))
   (is (thrown? ExceptionInfo (ana (r/read-string "(^[String String String] java.util.UUID/new 1 2 3)")))))
+
+(deftest field-method-overload-test
+  (let [a (ast1 clojure.tools.analyzer.jvm.test.FieldMethodOverload/doppelganger)]
+    (is (= :static-field (:op a))))
+
+  (let [a (ana (r/read-string "^[] clojure.tools.analyzer.jvm.test.FieldMethodOverload/doppelganger"))]
+    (is (= :method-value (:op a)))
+    (is (= 1 (count (:methods a))))
+    (is (= '[] (-> a :methods first :parameter-types))))
+
+  (let [a (ast1 (clojure.tools.analyzer.jvm.test.FieldMethodOverload/doppelganger))]
+    (is (= :static-call (:op a)))
+    (is (:validated? a)))
+
+  (let [a (ast1 (clojure.tools.analyzer.jvm.test.FieldMethodOverload/doppelganger (int 1) (int 2)))]
+    (is (= :static-call (:op a)))
+    (is (:validated? a))))

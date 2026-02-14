@@ -46,6 +46,10 @@
     </dependency>
   </dependencies>
 
+  <build>
+    <testSourceDirectory>src/test/java</testSourceDirectory>
+  </build>
+
   <scm>
     <connection>scm:git:git://github.com/clojure/tools.analyzer.jvm.git</connection>
     <developerConnection>scm:git:git://github.com/clojure/tools.analyzer.jvm.git</developerConnection>
