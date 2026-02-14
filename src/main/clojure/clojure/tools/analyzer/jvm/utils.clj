@@ -409,12 +409,22 @@
                        (= pc (maybe-class mp))))
                  (map vector param-classes method-params)))))
 
+(defn- most-specific
+  [methods]
+  (map (fn [ms]
+         (reduce (fn [a b]
+                   (if (.isAssignableFrom (maybe-class (:declaring-class a))
+                                          (maybe-class (:declaring-class b)))
+                     b a))
+                 ms))
+       (vals (group-by #(mapv maybe-class (:parameter-types %)) methods))))
+
 (defn resolve-hinted-method
   "Given a class, method name and param-tags, resolves to the unique matching method.
    Returns nil if no match or if ambiguous."
   [methods param-tags]
   (let [param-classes (tags-to-maybe-classes param-tags)
-        matching (filter #(signature-matches? param-classes %) methods)]
+        matching (most-specific (filter #(signature-matches? param-classes %) methods))]
     (when (= 1 (count matching))
       (first matching))))
 
