@@ -122,8 +122,10 @@
     `(new ~(-emit-form* class opts) ~@(mapv #(-emit-form* % opts) args))))
 
 (defmethod -emit-form :static-field
-  [{:keys [class field]} opts]
-  `(~(symbol (class->str class) (name field))))
+  [{:keys [class field overloaded-field?]} opts]
+  (if overloaded-field?
+    `(. ~(class->sym class) ~(symbol (str "-" (name field))))
+    (list (symbol (class->str class) (name field)))))
 
 (defmethod -emit-form :static-call
   [{:keys [class method args param-tags]} opts]
