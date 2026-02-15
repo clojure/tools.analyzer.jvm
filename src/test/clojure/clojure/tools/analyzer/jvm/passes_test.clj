@@ -392,3 +392,41 @@
   (let [a (ast1 (clojure.tools.analyzer.jvm.test.FieldMethodOverload/doppelganger (int 1) (int 2)))]
     (is (= :static-call (:op a)))
     (is (:validated? a))))
+
+#_(deftest static-field-method-bonanza
+    (doseq [x '[clojure.tools.analyzer.jvm.test.Foo/bar
+                (clojure.tools.analyzer.jvm.test.Foo/bar)
+                ((clojure.tools.analyzer.jvm.test.Foo/bar))
+                (. clojure.tools.analyzer.jvm.test.Foo -bar)
+                ((. clojure.tools.analyzer.jvm.test.Foo -bar))
+                (clojure.tools.analyzer.jvm.test.Foo/bar 1)
+                ((clojure.tools.analyzer.jvm.test.Foo/bar) 1)
+                (. clojure.tools.analyzer.jvm.test.Foo -bar 1)
+                ((. clojure.tools.analyzer.jvm.test.Foo -bar) 1)
+                (((. clojure.tools.analyzer.jvm.test.Foo -bar)) 1)
+                clojure.tools.analyzer.jvm.test.Foo/baz
+                (clojure.tools.analyzer.jvm.test.Foo/baz)
+                ((clojure.tools.analyzer.jvm.test.Foo/baz))
+                (. clojure.tools.analyzer.jvm.test.Foo -baz)
+                ((. clojure.tools.analyzer.jvm.test.Foo -baz))
+                (clojure.tools.analyzer.jvm.test.Foo/baz 1)
+                ((clojure.tools.analyzer.jvm.test.Foo/baz) 1)
+                (. clojure.tools.analyzer.jvm.test.Foo -baz 1)
+                ((. clojure.tools.analyzer.jvm.test.Foo -baz) 1)
+                clojure.tools.analyzer.jvm.test.Foo/qux
+                (clojure.tools.analyzer.jvm.test.Foo/qux)
+                ((clojure.tools.analyzer.jvm.test.Foo/qux))
+                (. clojure.tools.analyzer.jvm.test.Foo -qux)
+                ((. clojure.tools.analyzer.jvm.test.Foo -qux))
+                (clojure.tools.analyzer.jvm.test.Foo/qux 1)
+                ((clojure.tools.analyzer.jvm.test.Foo/qux) 1)
+                (. clojure.tools.analyzer.jvm.test.Foo -qux 1)
+                ((. clojure.tools.analyzer.jvm.test.Foo -qux) 1)]]
+      (let [=? (fn [a b]
+                 (if (.startsWith (pr-str a) "#function")
+                   (= (a 1) (b 1))
+                   (= a b)))]
+        (is (=? (try (eval x) (catch Exception _ ::exception))
+                (try (eval (emit-form (ana x)))
+                     (catch Exception _ ::exception)))
+            (str "bad " x)))))
