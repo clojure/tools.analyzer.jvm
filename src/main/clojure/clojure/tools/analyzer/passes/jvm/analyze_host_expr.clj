@@ -9,7 +9,8 @@
 (ns clojure.tools.analyzer.passes.jvm.analyze-host-expr
   (:require [clojure.tools.analyzer :as ana]
             [clojure.tools.analyzer.utils :refer [ctx source-info merge']]
-            [clojure.tools.analyzer.jvm.utils :refer :all]))
+            [clojure.tools.analyzer.jvm.utils :refer :all])
+  (:import (clojure.lang AFunction)))
 
 (defn maybe-static-field [[_ class sym]]
   (when-let [{:keys [flags type name]} (static-field class sym)]
@@ -142,8 +143,9 @@
 (defn analyze-host-expr
   "Performing some reflection, transforms :host-interop/:host-call/:host-field
    nodes in either: :static-field, :static-call, :instance-call, :instance-field
-   or :host-interop nodes, and a :var/:maybe-class/:maybe-host-form node in a
-   :const :class node, if necessary (class literals shadow Vars).
+   or :host-interop nodes, a :var/:maybe-class/:maybe-host-form node in a
+   :const :class node if necessary (class literals shadow Vars), and a
+   :maybe-host-form node in a :method-value node for qualified methods.
 
    A :host-interop node represents either an instance-field or a no-arg instance-method. "
   {:pass-info {:walk :post :depends #{}}}
@@ -190,9 +192,47 @@
       ast)
 
     :maybe-host-form
-    (if-let [the-class (maybe-array-class-sym (symbol (str (:class ast))
-                                                      (str (:field ast))))]
-      (assoc (ana/analyze-const the-class env :class) :form form)
-      ast)
+    (let [class-sym  (:class ast)
+          field-sym  (:field ast)
+          field-name (name field-sym)]
+      (if-let [array-class (maybe-array-class-sym (symbol (str class-sym) field-name))]
+        (assoc (ana/analyze-const array-class env :class) :form form)
+        (if-let [the-class (maybe-class-literal class-sym)]
+          (let [param-tags   (param-tags-of form)
+                kind         (cond (.startsWith field-name ".") :instance
+                                   (= "new" field-name)         :ctor
+                                   :else                        :static)
+                method-name  (if (= :instance kind)
+                               (symbol (subs field-name 1))
+                               field-sym)
+                methods      (case kind
+                               :ctor
+                               (members the-class (symbol (.getName ^Class the-class)))
 
+                               :static
+                               (filter :return-type (static-members the-class method-name))
+
+                               :instance
+                               (filter :return-type (instance-members the-class method-name)))
+                field-info   (when (= :static kind)
+                               (static-field the-class method-name))]
+            ;; field info but no methods shouldn't be possible, as we'd have desugared
+            ;; to a field syntax directly
+            (assert (if field-info methods true))
+            (if (seq methods)
+              (merge
+               {:op         :method-value
+                :form       form
+                :env        env
+                :class      the-class
+                :method     method-name
+                :kind       kind
+                :param-tags param-tags
+                :methods    (vec methods)
+                :o-tag      AFunction
+                :tag        (or tag AFunction)}
+               (when field-info
+                 {:field-overload field-info}))
+              ast))
+          ast)))
     ast))

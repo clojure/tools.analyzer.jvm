@@ -8,7 +8,8 @@
             [clojure.set :as set]
             [clojure.tools.analyzer.passes.add-binding-atom :refer [add-binding-atom]]
             [clojure.tools.analyzer.passes.collect-closed-overs :refer [collect-closed-overs]]
-            [clojure.tools.analyzer.jvm.core-test :refer [ast ast1 e f f1]]
+            [clojure.tools.reader :as r]
+            [clojure.tools.analyzer.jvm.core-test :refer [ast ast1 ana e f f1]]
             [clojure.tools.analyzer.passes.jvm.emit-form
              :refer [emit-form emit-hygienic-form]]
             [clojure.tools.analyzer.passes.jvm.validate :as v]
@@ -20,9 +21,12 @@
             [clojure.tools.analyzer.passes.jvm.fix-case-test :refer [fix-case-test]]
             [clojure.tools.analyzer.passes.jvm.analyze-host-expr :refer [analyze-host-expr]]
             [clojure.tools.analyzer.passes.jvm.classify-invoke :refer [classify-invoke]])
-  (:import (clojure.lang Keyword Var Symbol AFunction
+  (:import (clojure.lang Keyword Var Symbol AFunction ExceptionInfo
                          PersistentVector PersistentArrayMap PersistentHashSet ISeq)
-           java.util.regex.Pattern))
+           java.util.regex.Pattern
+           (java.io File)
+           (java.util UUID Arrays)
+           clojure.tools.analyzer.jvm.test.FieldMethodOverload))
 
 (defn validate [ast]
   (env/with-env (ana.jvm/global-env)
@@ -161,3 +165,268 @@
                        {:passes-opts (merge ana.jvm/default-passes-opts
                                             {:validate/wrong-tag-handler (fn [t ast]
                                                                            {t nil})})})))
+
+(deftest method-value-emit-form-test
+  (is (= 'java.io.File/.getName (emit-form (ast1 File/.getName))))
+
+  (is (= 'java.lang.String/valueOf (emit-form (ast1 String/valueOf))))
+
+  (is (= 'java.io.File/new (emit-form (ast1 File/new))))
+
+  (let [emitted (emit-form (ana (r/read-string "^[long] String/valueOf")))]
+    (is (= 'java.lang.String/valueOf emitted))
+    (is (= '[long] (:param-tags (meta emitted)))))
+
+  (let [emitted (emit-form (ana (r/read-string "^[int int] String/.substring")))]
+    (is (= 'java.lang.String/.substring emitted))
+    (is (= '[int int] (:param-tags (meta emitted))))))
+
+(deftest method-value-validate-test
+  (let [a (ast1 File/.getName)]
+    (is (= :method-value (:op a)))
+    (is (:validated? a))
+    (is (= java.io.File (:class a))))
+
+  (let [a (ast1 String/valueOf)]
+    (is (= :method-value (:op a)))
+    (is (:validated? a))
+    (is (pos? (count (:methods a)))))
+
+  (let [a (ast1 File/new)]
+    (is (= :method-value (:op a)))
+    (is (:validated? a))
+    (is (= :ctor (:kind a))))
+
+  (let [a (ana (r/read-string "^[long] String/valueOf"))]
+    (is (= :method-value (:op a)))
+    (is (:validated? a))
+    (is (= 1 (count (:methods a))))
+    (is (= '[long] (-> a :methods first :parameter-types))))
+
+  (let [a (ana (r/read-string "^[int int] String/.substring"))]
+    (is (= :method-value (:op a)))
+    (is (:validated? a))
+    (is (= 1 (count (:methods a))))
+    (is (= '[int int] (-> a :methods first :parameter-types)))))
+
+(deftest method-value-kinds-test
+  (let [a (ast1 File/.isDirectory)]
+    (is (= :instance (:kind a)))
+    (is (= 'isDirectory (:method a))))
+
+  (let [a (ast1 Character/isDigit)]
+    (is (= :method-value (:op a)))
+    (is (= :static (:kind a)))
+    (is (= 'isDigit (:method a)))
+    (is (< 1 (count (:methods a)))))
+
+  (let [a (ast1 String/new)]
+    (is (= :ctor (:kind a)))
+    (is (= String (:class a))))
+
+  (let [a (ast1 File/.getName)]
+    (is (= AFunction (:o-tag a)))))
+
+(deftest method-value-field-overload-test
+  (let [a (ast1 Integer/MAX_VALUE)]
+    (is (= :static-field (:op a))))
+
+  (let [a (ast1 Boolean/TRUE)]
+    (is (= :static-field (:op a)))))
+
+(deftest qualified-method-invocation-test
+  (let [a (ast1 (File/new "."))]
+    (is (= :new (:op a))))
+
+  (let [a (ast1 (String/.length "hello"))]
+    (is (= :instance-call (:op a)))
+    (is (= 'length (:method a)))
+    (is (:validated? a)))
+
+  (let [a (ast1 (String/.substring "hello" 1 3))]
+    (is (= :instance-call (:op a)))
+    (is (= 'substring (:method a)))
+    (is (= 2 (count (:args a)))))
+
+  (let [a (ast1 (Integer/parseInt "7"))]
+    (is (= :static-call (:op a)))
+    (is (= 'parseInt (:method a)))
+    (is (:validated? a)))
+
+  (let [a (ast1 (File/.isDirectory (File. ".")))]
+    (is (= :instance-call (:op a)))
+    (is (= 'isDirectory (:method a)))))
+
+(deftest param-tags-invocation-test
+  (let [a (ana (r/read-string "(^[long] String/valueOf 42)"))]
+    (is (= :static-call (:op a)))
+    (is (:validated? a))
+    (is (= '[long] (:param-tags a))))
+
+  (let [a (ana (r/read-string "(^[int int] String/.substring \"hello\" 1 3)"))]
+    (is (= :instance-call (:op a)))
+    (is (:validated? a))
+    (is (= '[int int] (:param-tags a))))
+
+  (let [a (ana (r/read-string "(^[int _] String/.substring \"hello\" 1 3)"))]
+    (is (= :instance-call (:op a)))
+    (is (:validated? a))
+    (is (= '[int _] (:param-tags a))))
+
+  (let [a (ana (r/read-string "^[int/1] java.util.Arrays/sort"))]
+    (is (= :method-value (:op a)))
+    (is (= :static (:kind a)))
+    (is (= 1 (count (:methods a))))))
+
+(deftest existing-interop-unchanged-test
+  (let [a (ast1 (.length "hello"))]
+    (is (= :instance-call (:op a)))
+    (is (:validated? a)))
+
+  (let [a (ast1 (String. "foo"))]
+    (is (= :new (:op a)))
+    (is (:validated? a)))
+
+  (is (= Void/TYPE (:tag (ast1 (.println System/out "foo")))))
+
+  (let [a (ast1 (Integer/parseInt "7"))]
+    (is (= :static-call (:op a)))
+    (is (:validated? a)))
+
+  (let [a (ast1 Integer/MAX_VALUE)]
+    (is (= :static-field (:op a))))
+
+  (let [a (ast1 Boolean/TYPE)]
+    (is (= :static-field (:op a)))))
+
+(deftest bad-method-names-test
+  (is (thrown? ExceptionInfo (ast1 String/foo)))
+  (is (thrown? ExceptionInfo (ast1 String/.foo)))
+  (is (thrown? ExceptionInfo (ast1 Math/new))))
+
+(deftest param-tags-method-signature-selection-test
+  (let [a (ana (r/read-string "^[double] Math/abs"))]
+    (is (= :method-value (:op a)))
+    (is (= 1 (count (:methods a))))
+    (is (= '[double] (-> a :methods first :parameter-types)))
+    (is (:validated? a)))
+
+  (let [a (ana (r/read-string "^[float] Math/abs"))]
+    (is (= :method-value (:op a)))
+    (is (= 1 (count (:methods a))))
+    (is (= '[float] (-> a :methods first :parameter-types)))
+    (is (:validated? a)))
+
+  (let [a (ana (r/read-string "^[long] Math/abs"))]
+    (is (= :method-value (:op a)))
+    (is (= 1 (count (:methods a))))
+    (is (= '[long] (-> a :methods first :parameter-types)))
+    (is (:validated? a)))
+
+  (let [a (ana (r/read-string "^[int] Math/abs"))]
+    (is (= :method-value (:op a)))
+    (is (= 1 (count (:methods a))))
+    (is (= '[int] (-> a :methods first :parameter-types)))
+    (is (:validated? a))))
+
+(deftest param-tags-constructor-invocation-test
+  (let [a (ana (r/read-string "(^[long long] java.util.UUID/new 1 2)"))]
+    (is (= :new (:op a)))
+    (is (:validated? a))
+    (is (= '[long long] (:param-tags a))))
+
+  (let [a (ana (r/read-string "(^[String] String/new \"a\")"))]
+    (is (= :new (:op a)))
+    (is (:validated? a))
+    (is (= '[String] (:param-tags a)))))
+
+(deftest param-tags-no-arg-invocation-test
+  (let [a (ana (r/read-string "(^[] String/.toUpperCase \"hello\")"))]
+    (is (= :instance-call (:op a)))
+    (is (:validated? a))
+    (is (= '[] (:param-tags a))))
+
+  (let [a (ana (r/read-string "(^[] Long/.toString 42)"))]
+    (is (= :instance-call (:op a)))
+    (is (:validated? a))
+    (is (= '[] (:param-tags a)))))
+
+(deftest param-tags-wildcard-test
+  (let [a (ana (r/read-string "(^[_ _] String/.substring \"hello\" 1 3)"))]
+    (is (= :instance-call (:op a)))
+    (is (:validated? a))
+    (is (= '[_ _] (:param-tags a)))))
+
+(deftest param-tags-array-types-test
+  (let [a (ana (r/read-string "^[long/1 long] java.util.Arrays/binarySearch"))]
+    (is (= :method-value (:op a)))
+    (is (= 1 (count (:methods a))))
+    (is (= '[long<> long] (-> a :methods first :parameter-types)))
+    (is (:validated? a)))
+
+  (let [a (ana (r/read-string "^[Object/1 _] java.util.Arrays/binarySearch"))]
+    (is (= :method-value (:op a)))
+    (is (= 1 (count (:methods a))))
+    (is (= '[java.lang.Object<> java.lang.Object] (-> a :methods first :parameter-types)))
+    (is (:validated? a))))
+
+(deftest bad-param-tags-test
+  (is (thrown? ExceptionInfo (ana (r/read-string "^[String String] Math/abs"))))
+  (is (thrown? ExceptionInfo (ana (r/read-string "(^[] String/foo \"a\")"))))
+  (is (thrown? ExceptionInfo (ana (r/read-string "(^[] String/.foo \"a\")"))))
+  (is (thrown? ExceptionInfo (ana (r/read-string "(^[String String String] java.util.UUID/new 1 2 3)")))))
+
+(deftest field-method-overload-test
+  (let [a (ast1 clojure.tools.analyzer.jvm.test.FieldMethodOverload/doppelganger)]
+    (is (= :static-field (:op a))))
+
+  (let [a (ana (r/read-string "^[] clojure.tools.analyzer.jvm.test.FieldMethodOverload/doppelganger"))]
+    (is (= :method-value (:op a)))
+    (is (= 1 (count (:methods a))))
+    (is (= '[] (-> a :methods first :parameter-types))))
+
+  (let [a (ast1 (clojure.tools.analyzer.jvm.test.FieldMethodOverload/doppelganger))]
+    (is (= :static-call (:op a)))
+    (is (:validated? a)))
+
+  (let [a (ast1 (clojure.tools.analyzer.jvm.test.FieldMethodOverload/doppelganger (int 1) (int 2)))]
+    (is (= :static-call (:op a)))
+    (is (:validated? a))))
+
+(deftest static-field-method-bonanza
+  (doseq [x '[clojure.tools.analyzer.jvm.test.Foo/bar
+              (clojure.tools.analyzer.jvm.test.Foo/bar)
+              ((clojure.tools.analyzer.jvm.test.Foo/bar))
+              (. clojure.tools.analyzer.jvm.test.Foo -bar)
+              ((. clojure.tools.analyzer.jvm.test.Foo -bar))
+              (clojure.tools.analyzer.jvm.test.Foo/bar 1)
+              ((clojure.tools.analyzer.jvm.test.Foo/bar) 1)
+              (. clojure.tools.analyzer.jvm.test.Foo -bar 1)
+              ((. clojure.tools.analyzer.jvm.test.Foo -bar) 1)
+              (((. clojure.tools.analyzer.jvm.test.Foo -bar)) 1)
+              clojure.tools.analyzer.jvm.test.Foo/baz
+              (clojure.tools.analyzer.jvm.test.Foo/baz)
+              ((clojure.tools.analyzer.jvm.test.Foo/baz))
+              (. clojure.tools.analyzer.jvm.test.Foo -baz)
+              ((. clojure.tools.analyzer.jvm.test.Foo -baz))
+              (clojure.tools.analyzer.jvm.test.Foo/baz 1)
+              ((clojure.tools.analyzer.jvm.test.Foo/baz) 1)
+              (. clojure.tools.analyzer.jvm.test.Foo -baz 1)
+              ((. clojure.tools.analyzer.jvm.test.Foo -baz) 1)
+              clojure.tools.analyzer.jvm.test.Foo/qux
+              (clojure.tools.analyzer.jvm.test.Foo/qux)
+              ((clojure.tools.analyzer.jvm.test.Foo/qux))
+              (. clojure.tools.analyzer.jvm.test.Foo -qux)
+              ((. clojure.tools.analyzer.jvm.test.Foo -qux))
+              (clojure.tools.analyzer.jvm.test.Foo/qux 1)
+              ((clojure.tools.analyzer.jvm.test.Foo/qux) 1)
+              (. clojure.tools.analyzer.jvm.test.Foo -qux 1)
+              ((. clojure.tools.analyzer.jvm.test.Foo -qux) 1)]]
+    (let [=? (fn [a b]
+               (if (.contains (str (class a)) "invoke")
+                 (= (a 1) (b 1))
+                 (= a b)))]
+      (is (=? (try (eval x) (catch Exception _ ::exception))
+              (try (eval (emit-form (ana x)))
+                   (catch Exception _ ::exception)))
+          (str "bad " x)))))

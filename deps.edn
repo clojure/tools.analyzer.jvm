@@ -1,6 +1,8 @@
 {:deps {org.clojure/clojure {:mvn/version "1.12.4"}
-        org.clojure/tools.analyzer {:mvn/version "1.2.1"}
+        org.clojure/tools.analyzer {:mvn/version "1.2.2"}
         org.clojure/tools.reader {:mvn/version "1.6.0"}
         org.clojure/core.memoize {:mvn/version "1.2.273"}
         org.ow2.asm/asm {:mvn/version  "9.9.1"}}
- :paths ["src/main/clojure"]}
+ :paths ["src/main/clojure" "src/test/clojure" "target/test-classes"]
+ :aliases {:build {:deps {io.github.clojure/tools.build {:mvn/version "0.10.6"}}
+                   :ns-default build}}}

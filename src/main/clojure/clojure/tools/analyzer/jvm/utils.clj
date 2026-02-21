@@ -390,6 +390,44 @@
                    (conj p next)))) [] methods)
       methods)))
 
+(defn param-tags-of [sym]
+  (-> sym meta :param-tags))
+
+(defn- tags-to-maybe-classes
+  [tags]
+  (mapv (fn [tag]
+          (when-not (= '_ tag)
+            (maybe-class tag)))
+        tags))
+
+(defn- signature-matches?
+  [param-classes method]
+  (let [method-params (:parameter-types method)]
+    (and (= (count param-classes) (count method-params))
+         (every? (fn [[pc mp]]
+                   (or (nil? pc) ;; nil is a wildcard
+                       (= pc (maybe-class mp))))
+                 (map vector param-classes method-params)))))
+
+(defn- most-specific
+  [methods]
+  (map (fn [ms]
+         (reduce (fn [a b]
+                   (if (.isAssignableFrom (maybe-class (:declaring-class a))
+                                          (maybe-class (:declaring-class b)))
+                     b a))
+                 ms))
+       (vals (group-by #(mapv maybe-class (:parameter-types %)) methods))))
+
+(defn resolve-hinted-method
+  "Given a class, method name and param-tags, resolves to the unique matching method.
+   Returns nil if no match or if ambiguous."
+  [methods param-tags]
+  (let [param-classes (tags-to-maybe-classes param-tags)
+        matching (most-specific (filter #(signature-matches? param-classes %) methods))]
+    (when (= 1 (count matching))
+      (first matching))))
+
 (defn ns->relpath [s]
   (-> s str (s/replace \. \/) (s/replace \- \_) (str ".clj")))
 

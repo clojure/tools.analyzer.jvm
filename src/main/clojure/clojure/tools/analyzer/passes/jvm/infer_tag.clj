@@ -16,7 +16,8 @@
              [annotate-tag :refer [annotate-tag]]
              [annotate-host-info :refer [annotate-host-info]]
              [analyze-host-expr :refer [analyze-host-expr]]
-             [fix-case-test :refer [fix-case-test]]]))
+             [fix-case-test :refer [fix-case-test]]
+             [process-method-value :refer [process-method-value]]]))
 
 (defmulti -infer-tag :op)
 (defmethod -infer-tag :default [ast] ast)
@@ -269,7 +270,7 @@
   Passes opts:
   * :infer-tag/level  If :global, infer-tag will perform Var tag
                       inference"
-  {:pass-info {:walk :post :depends #{#'annotate-tag #'annotate-host-info #'fix-case-test #'analyze-host-expr} :after #{#'trim}}}
+  {:pass-info {:walk :post :depends #{#'annotate-tag #'annotate-host-info #'fix-case-test #'analyze-host-expr #'process-method-value} :after #{#'trim}}}
   [{:keys [tag form] :as ast}]
   (let [tag (or tag (:tag (meta form)))
         ast (-infer-tag ast)]

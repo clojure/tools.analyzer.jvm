@@ -113,23 +113,38 @@
                           tests thens))
           ~switch-type ~test-type ~skip-check?))
 
+(defmethod -emit-form :new
+  [{:keys [class args param-tags]} opts]
+  (if param-tags
+    (let [sym (symbol (class->str (:val class)) "new")
+          sym (vary-meta sym assoc :param-tags param-tags)]
+      `(~sym ~@(mapv #(-emit-form* % opts) args)))
+    `(new ~(-emit-form* class opts) ~@(mapv #(-emit-form* % opts) args))))
+
 (defmethod -emit-form :static-field
-  [{:keys [class field]} opts]
-  (symbol (class->str class) (name field)))
+  [{:keys [class field overloaded-field?]} opts]
+  (if overloaded-field?
+    `(. ~(class->sym class) ~(symbol (str "-" (name field))))
+    (list (symbol (class->str class) (name field)))))
 
 (defmethod -emit-form :static-call
-  [{:keys [class method args]} opts]
-  `(~(symbol (class->str class) (name method))
-    ~@(mapv #(-emit-form* % opts) args)))
+  [{:keys [class method args param-tags]} opts]
+  (let [sym (symbol (class->str class) (name method))
+        sym (if param-tags (vary-meta sym assoc :param-tags param-tags) sym)]
+    `(~sym ~@(mapv #(-emit-form* % opts) args))))
 
 (defmethod -emit-form :instance-field
   [{:keys [instance field]} opts]
   `(~(symbol (str ".-" (name field))) ~(-emit-form* instance opts)))
 
 (defmethod -emit-form :instance-call
-  [{:keys [instance method args]} opts]
-  `(~(symbol (str "." (name method))) ~(-emit-form* instance opts)
-    ~@(mapv #(-emit-form* % opts) args)))
+  [{:keys [instance method args class param-tags]} opts]
+  (if param-tags
+    (let [sym (symbol (class->str class) (str "." (name method)))
+          sym (vary-meta sym assoc :param-tags param-tags)]
+      `(~sym ~(-emit-form* instance opts) ~@(mapv #(-emit-form* % opts) args)))
+    `(~(symbol (str "." (name method))) ~(-emit-form* instance opts)
+      ~@(mapv #(-emit-form* % opts) args))))
 
 (defmethod -emit-form :prim-invoke
   [{:keys [fn args]} opts]
@@ -146,6 +161,17 @@
   [{:keys [target keyword]} opts]
   (list (-emit-form* keyword opts)
         (-emit-form* target opts)))
+
+(defmethod -emit-form :method-value
+  [{:keys [class method kind param-tags]} opts]
+  (let [class-name (if (symbol? class) (name class) (.getName ^Class class))
+        sym (case kind
+              :static   (symbol class-name (str method))
+              :instance (symbol class-name (str "." method))
+              :ctor     (symbol class-name "new"))]
+    (if param-tags
+      (vary-meta sym assoc :param-tags param-tags)
+      sym)))
 
 (defmethod -emit-form :instance?
   [{:keys [class target]} opts]

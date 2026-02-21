@@ -6,7 +6,8 @@
             [clojure.tools.analyzer.passes.elide-meta :refer [elides elide-meta]]
             [clojure.tools.analyzer.ast :refer [postwalk]]
             [clojure.tools.reader :as r]
-            [clojure.test :refer [deftest is]]))
+            [clojure.test :refer [deftest is]])
+  (:import (java.io File)))
 
 (defprotocol p (f [_]))
 (defn f1 [^long x])
@@ -96,9 +97,9 @@
     (is (.startsWith (name (:name chunk)) "chunk"))
     (is (= clojure.lang.IChunk (:tag chunk)))))
 
-(def ^:dynamic x)
+(def ^:dynamic *test-dynamic*)
 (deftest set!-dynamic-var
-  (is (ast1 (set! x 1))))
+  (is (ast1 (set! *test-dynamic* 1))))
 
 (deftest analyze-proxy
   (is (ast1 (proxy [Object] []))))
@@ -115,3 +116,66 @@
 
 (deftest array_class
   (is (ana (r/read-string "(fn [^{:tag int/2} x] (instance? int/2 x))"))))
+
+(deftest macroexpander-qualified-methods-test
+  (is (= (list '. Integer (symbol "-MAX_VALUE"))
+         (mexpand Integer/MAX_VALUE)))
+
+  (is (= 'String/.length (mexpand String/.length)))
+  (is (= 'Integer/.intValue (mexpand Integer/.intValue)))
+
+  (is (= 'String/new (mexpand String/new)))
+
+  (is (= 'String/valueOf (mexpand String/valueOf)))
+  (is (= 'Integer/parseInt (mexpand Integer/parseInt)))
+
+  (is (= '(String/new "hello") (mexpand (String/new "hello"))))
+  (is (= '(String/.substring "hello" 1 3) (mexpand (String/.substring "hello" 1 3))))
+  (is (= '(String/.length "hello") (mexpand (String/.length "hello"))))
+  (is (= '(Integer/parseInt "2") (mexpand (^{:param-tags [String]} Integer/parseInt "2"))))
+
+  (let [expanded (mexpand (Integer/parseInt "2"))]
+    (is (= '. (first expanded)))
+    (is (= java.lang.Integer (second expanded)))))
+
+(deftest analyzer-qualified-methods-test
+  (let [a (ast1 File/.getName)]
+    (is (= :method-value (:op a)))
+    (is (= :instance (:kind a)))
+    (is (= 'getName (:method a)))
+    (is (= java.io.File (:class a))))
+
+  (let [a (ast1 String/valueOf)]
+    (is (= :method-value (:op a)))
+    (is (= :static (:kind a)))
+    (is (= 'valueOf (:method a)))
+    (is (= String (:class a))))
+
+  (let [a (ast1 File/new)]
+    (is (= :method-value (:op a)))
+    (is (= :ctor (:kind a)))
+    (is (= java.io.File (:class a))))
+
+  (let [a (ast1 Integer/MAX_VALUE)]
+    (is (= :static-field (:op a)))
+    (is (= Integer (:class a))))
+
+  (let [a (ana (r/read-string "String/1"))]
+    (is (= :const (:op a)))
+    (is (= :class (:type a)))
+    (is (.isArray ^Class (:val a))))
+
+  (let [a (ast1 (File/new "."))]
+    (is (= :new (:op a))))
+
+  (let [a (ast1 (String/.length "hello"))]
+    (is (= :instance-call (:op a)))
+    (is (= 'length (:method a))))
+
+  (let [a (ast1 (String/.substring "hello" 1 3))]
+    (is (= :instance-call (:op a)))
+    (is (= 'substring (:method a))))
+
+  (let [a (ast1 (Integer/parseInt "7"))]
+    (is (= :static-call (:op a)))
+    (is (= 'parseInt (:method a)))))

@@ -15,7 +15,7 @@
              [infer-tag :refer [infer-tag]]
              [analyze-host-expr :refer [analyze-host-expr]]]
             [clojure.tools.analyzer.utils :refer [arglist-for-arity source-info resolve-sym resolve-ns merge']]
-            [clojure.tools.analyzer.jvm.utils :as u :refer [tag-match? try-best-match]])
+            [clojure.tools.analyzer.jvm.utils :as u :refer [tag-match? try-best-match resolve-hinted-method]])
   (:import (clojure.lang IFn ExceptionInfo)))
 
 (defmulti -validate :op)
@@ -37,14 +37,60 @@
   [{:keys [class field form env] :as ast}]
   (if-let [handle (-> (env/deref-env) :passes-opts :validate/unresolvable-symbol-handler)]
     (handle class field ast)
-    (if (resolve-ns class env)
-      (throw (ex-info (str "No such var: " class)
-                      (merge {:form form}
+    (if-let [resolved-class (u/maybe-class-literal class)]
+      (throw (ex-info (str "Cannot find method or field " field " for class "
+                           (.getName ^Class resolved-class))
+                      (merge {:class resolved-class
+                              :field field
+                              :form  form}
                              (source-info env))))
-      (throw (ex-info (str "No such namespace: " class)
-                      (merge {:ns   class
-                              :form form}
-                             (source-info env)))))))
+      (if (resolve-ns class env)
+        (throw (ex-info (str "No such var: " class)
+                        (merge {:form form}
+                               (source-info env))))
+        (throw (ex-info (str "No such namespace: " class)
+                        (merge {:ns   class
+                                :form form}
+                               (source-info env))))))))
+
+(defn- resolve-method-by-param-tags [methods param-tags ^Class class desc env]
+  (or (resolve-hinted-method methods param-tags)
+      (throw (ex-info (str "param-tags " (pr-str param-tags)
+                           " insufficient to resolve " desc
+                           " in class " (.getName class))
+                      (merge {:class class :param-tags param-tags}
+                             (source-info env))))))
+
+(defn- tag-args-from-method [ast m]
+  (let [arg-tags (mapv u/maybe-class (:parameter-types m))]
+    (assoc ast
+           :args       (mapv (fn [arg tag] (assoc arg :tag tag)) (:args ast) arg-tags)
+           :validated? true)))
+
+(defn- found-method [ast tag instance? m]
+  (let [ret-tag (:return-type m)
+        class   (u/maybe-class (:declaring-class m))]
+    (merge' (-> ast (tag-args-from-method m))
+            {:method (:name m)
+             :class  class
+             :o-tag  ret-tag
+             :tag    (or tag ret-tag)}
+            (when instance?
+              {:instance (assoc (:instance ast) :tag class)}))))
+
+(defmethod -validate :method-value
+  [{:keys [class method kind param-tags methods env] :as ast}]
+  (let [class (u/maybe-class class)]
+    (if param-tags
+      (let [m (resolve-method-by-param-tags methods param-tags class
+                                            (str (name kind) " method " method) env)]
+        (assoc ast
+               :class      class
+               :methods    [m]
+               :validated? true))
+      (assoc ast
+             :class      class
+             :validated? true))))
 
 (defmethod -validate :set!
   [{:keys [target form env] :as ast}]
@@ -56,7 +102,7 @@
   ast)
 
 (defmethod -validate :new
-  [{:keys [args] :as ast}]
+  [{:keys [args param-tags methods] :as ast}]
   (if (:validated? ast)
     ast
     (if-not (= :class (-> ast :class :type))
@@ -64,71 +110,63 @@
                       (merge {:class (:form (:class ast))
                               :ast   ast}
                              (source-info (:env ast)))))
-      (let [^Class class (-> ast :class :val)
-            c-name (symbol (.getName class))
-            argc (count args)
-            tags (mapv :tag args)]
-        (let [[ctor & rest] (->> (filter #(= (count (:parameter-types %)) argc)
-                                       (u/members class c-name))
-                               (try-best-match tags))]
-          (if ctor
-            (if (empty? rest)
-              (let [arg-tags (mapv u/maybe-class (:parameter-types ctor))
-                    args (mapv (fn [arg tag] (assoc arg :tag tag)) args arg-tags)]
-                (assoc ast
-                  :args       args
-                  :validated? true))
-              ast)
-            (throw (ex-info (str "no ctor found for ctor of class: " class " and given signature")
-                            (merge {:class class
-                                    :args  (mapv (fn [a] (prewalk a cleanup)) args)}
-                                   (source-info (:env ast)))))))))))
+      (let [^Class class (-> ast :class :val)]
+        (if param-tags
+          (-> ast (tag-args-from-method (resolve-method-by-param-tags methods param-tags class "constructor" (:env ast))))
+          (let [c-name (symbol (.getName class))
+                argc (count args)
+                tags (mapv :tag args)
+                [ctor & rest] (->> (filter #(= (count (:parameter-types %)) argc)
+                                           (u/members class c-name))
+                                   (try-best-match tags))]
+            (if ctor
+              (if (empty? rest)
+                (-> ast (tag-args-from-method ctor))
+                ast)
+              (throw (ex-info (str "no ctor found for ctor of class: " class " and given signature")
+                              (merge {:class class
+                                      :args  (mapv (fn [a] (prewalk a cleanup)) args)}
+                                     (source-info (:env ast))))))))))))
 
-(defn validate-call [{:keys [class instance method args tag env op] :as ast}]
+(defn validate-call [{:keys [class instance method args tag env op param-tags methods] :as ast}]
   (let [argc (count args)
         instance? (= :instance-call op)
-        f (if instance? u/instance-methods u/static-methods)
         tags (mapv :tag args)]
-    (if-let [matching-methods (seq (f class method argc))]
-      (let [[m & rest :as matching] (try-best-match tags matching-methods)]
-        (if m
-          (let [all-ret-equals? (apply = (mapv :return-type matching))]
-            (if (or (empty? rest)
-                    (and all-ret-equals? ;; if the method signature is the same just pick the first one
-                         (apply = (mapv #(mapv u/maybe-class (:parameter-types %)) matching))))
-             (let [ret-tag  (:return-type m)
-                   arg-tags (mapv u/maybe-class (:parameter-types m))
-                   args (mapv (fn [arg tag] (assoc arg :tag tag)) args arg-tags)
-                   class (u/maybe-class (:declaring-class m))]
-               (merge' ast
-                       {:method     (:name m)
-                        :validated? true
-                        :class      class
-                        :o-tag      ret-tag
-                        :tag        (or tag ret-tag)
-                        :args       args}
-                       (if instance?
-                         {:instance (assoc instance :tag class)})))
-             (if all-ret-equals?
-               (let [ret-tag (:return-type m)]
-                 (assoc ast
-                   :o-tag   Object
-                   :tag     (or tag ret-tag)))
-               ast)))
-          (if instance?
-            (assoc (dissoc ast :class) :tag Object :o-tag Object)
-            (throw (ex-info (str "No matching method: " method " for class: " class " and given signature")
-                            (merge {:method method
-                                    :class  class
-                                    :args   (mapv (fn [a] (prewalk a cleanup)) args)}
-                                   (source-info env)))))))
-      (if instance?
-        (assoc (dissoc ast :class) :tag Object :o-tag Object)
-        (throw (ex-info (str "No matching method: " method " for class: " class " and arity: " argc)
-                        (merge {:method method
-                                :class  class
-                                :argc   argc}
-                               (source-info env))))))))
+    (if param-tags
+      (-> ast
+          (found-method tag instance?
+                        (resolve-method-by-param-tags methods param-tags class
+                                                      (str (if instance? "instance" "static") " method " method)
+                                                      env)))
+      (if-let [matching-methods (seq ((if instance? u/instance-methods u/static-methods)
+                                      class method argc))]
+        (let [[m & rest :as matching] (try-best-match tags matching-methods)]
+          (if m
+            (let [all-ret-equals? (apply = (mapv :return-type matching))]
+              (if (or (empty? rest)
+                      (and all-ret-equals? ;; if the method signature is the same just pick the first one
+                           (apply = (mapv #(mapv u/maybe-class (:parameter-types %)) matching))))
+                (-> ast (found-method tag instance? m))
+                (if all-ret-equals?
+                  (let [ret-tag (:return-type m)]
+                    (assoc ast
+                           :o-tag   Object
+                           :tag     (or tag ret-tag)))
+                  ast)))
+            (if instance?
+              (assoc (dissoc ast :class) :tag Object :o-tag Object)
+              (throw (ex-info (str "No matching method: " method " for class: " class " and given signature")
+                              (merge {:method method
+                                      :class  class
+                                      :args   (mapv (fn [a] (prewalk a cleanup)) args)}
+                                     (source-info env)))))))
+        (if instance?
+          (assoc (dissoc ast :class) :tag Object :o-tag Object)
+          (throw (ex-info (str "No matching method: " method " for class: " class " and arity: " argc)
+                          (merge {:method method
+                                  :class  class
+                                  :argc   argc}
+                                 (source-info env)))))))))
 
 (defmethod -validate :static-call
   [ast]
@@ -137,10 +175,15 @@
     (validate-call (assoc ast :class (u/maybe-class (:class ast))))))
 
 (defmethod -validate :static-field
-  [ast]
-  (if (:validated? ast)
+  [{:keys [class validated? field] :as ast}]
+  (if validated?
     ast
-    (assoc ast :class (u/maybe-class (:class ast)))))
+    (let [class (u/maybe-class class)
+          overloaded-field? (boolean (some :return-type (u/static-members class field)))]
+      (assoc ast
+             :overloaded-field? overloaded-field?
+             :class class
+             :validated? true))))
 
 (defmethod -validate :instance-call
   [{:keys [class validated? instance] :as ast}]

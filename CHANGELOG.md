@@ -2,6 +2,10 @@ Changelog
 ========================================
 Since tools.analyzer.jvm version are usually cut simultaneously with a tools.analyzer version, check also the tools.analyzer [CHANGELOG](https://github.com/clojure/tools.analyzer/blob/master/CHANGELOG.md) for changes on the corresponding version, since changes in that library will reflect on this one.
 - - -
+* Release 1.4.0 on TODO
+  * Added support for Clojure 1.12 qualified methods (Class/.method, Class/method, Class/new)
+  * Added :method-value AST node for method values in value position
+  * Added :param-tags support for overload disambiguation in method values and host calls
 * Release 1.3.3 on 5 Jan 2026
   * Bumped parent pom and dep versions
 * Release 1.3.2 on 17 Jan 2025
